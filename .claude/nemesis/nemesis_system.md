@@ -1,0 +1,162 @@
+# Nemesis System - Customizations & Addon
+
+## Overview
+The Nemesis System (`modules/mod-nemesis-system/`) promotes creatures to "nemesis" status when they kill players. Nemeses gain ranks, affixes, scaled stats, and unique generated Russian titles. A companion WoW addon provides world map integration, portrait icons, and tooltips. All UI is in Russian.
+
+## Server-Side Changes (NemesisSystem.cpp)
+
+### Damage Multiplier (decoupled from health)
+Health and damage scale independently. Health scales aggressively, damage more gently:
+
+| Rank | Health | Damage |
+|------|--------|--------|
+| 1    | 1.50x  | 1.25x  |
+| 2    | 2.00x  | 1.50x  |
+| 3    | 3.00x  | 1.75x  |
+| 4    | 4.50x  | 2.00x  |
+| 5+   | 6.00x  | 2.50x  |
+
+### Gold Reward - Level Multiplier
+Gold scales by creature level: `level / 80` (capped 0.05-1.0).
+Balanced around **1g per rank at level 60** for revenge kills.
+- `GetLevelMultiplier(creatureLevel)` in GrantReward
+
+### Mail Fallback for Full Inventory
+`AddItemOrMail()` helper: tries `player->AddItem()` first, sends via in-game mail if bags full.
+- Requires `#include "Mail.h"`
+- Mail subject: "[Немезида] Reward"
+
+### Runtime GUID in Addon Messages
+`NemesisAddonView::runtimeGuid` sends the creature's exact runtime GUID (`0x` + 16 hex) to the client.
+- Set from `liveCreature->GetGUID().GetRawValue()` in `BuildAddonView`
+- Empty string if creature is dead/unloaded
+- Client compares against `UnitGUID("target")` for exact matching
+
+### Russian Nemesis Title Generator
+`GenerateNemesisTitle(spawnId, creatureEntry)` creates unique Russian names deterministically:
+- 40 prefixes x 40 suffixes x 25 titles = **40,000 combinations**
+- Hash: `spawnId XOR (creatureEntry * 2654435761)` for distribution
+- Prefixes: Кровo, Тене, Мрако, Смерто, Гнило, Косто, Пламе, Ледо, Ядо, Громо, etc.
+- Suffixes: зуб, коготь, шкур, клык, рог, глаз, пасть, жор, пук, шлёп, etc.
+- Titles: Ненасытный, Безжалостный, Свирепый, Вонючий, Пухлый, Буйный, etc.
+- Examples: "Кровозуб Ненасытный", "Гнилопасть Свирепый", "Смрадопук Вонючий"
+- `NemesisAddonView::nemesisTitle` — sent as last field in addon payload
+- No DB column needed — generated on-the-fly from deterministic hash
+
+### Creature Rename (SetName)
+- `ApplyNemesisState()` calls `creature->SetName(title)` with the generated Russian title
+- `ResetCreatureToBaseState()` restores original name from `creature_template`
+- The renamed creature shows the Russian title on client nameplates
+- Note: WoW 3.3.5 caches creature names by entry ID — name shows correctly for players who encounter the nemesis after it's promoted. Players who cached the entry before promotion may need to relog.
+
+### Server Announcements — Russian
+All `[Nemesis]` prefixes changed to `[Немезида]` in:
+- Zone-wide creation/rank-up announcements
+- Kill announcements (revenge/bounty)
+- Mail subject for full-inventory rewards
+
+### Addon Payload Format (25 fields after V2: prefix)
+```
+V2:OPCODE:spawnId:creatureEntry:name:mapId:zoneId:zoneName:x:y:z:mapX:mapY:
+level:rank:rankTier:affixMask:affixText:targetGuid:targetName:relation:
+rewardClass:threatClass:lastSeenAt:runtimeGuid:nemesisTitle
+```
+
+Client parsing in `UpsertNemesisFromFields(fields, startIndex, source)`:
+- startIndex+0 = spawnId ... startIndex+21 = lastSeenAt
+- startIndex+22 = runtimeGuid
+- startIndex+23 = nemesisTitle
+
+## Client Addon (ClientAddon/NemesisTracker/)
+
+### Files
+- `NemesisTracker.toc` — addon manifest
+- `Core.lua` — data management, server communication, event handling
+- `UI.lua` — standalone tracker window
+- `MapData.lua` — zone ID to map file mappings
+- `WorldMap.lua` — world map integration, minimap button, portrait icons, tooltips
+
+### WorldMap.lua Features
+
+#### World Map Integration
+- Skull pins on the world map for nemeses in the viewed zone
+- Fixed 16x16 size, selected pin gets 2x (32x32) + yellow glow
+- `WorldMapTooltip` used for fullscreen map compatibility
+- Pin hit area expanded +8px for easier hovering, `FULLSCREEN` strata level 20
+
+#### Side Panel (Nemesis List)
+- Scrollable list of all nemeses grouped by zone
+- Player's current zone listed first (cached via `updatePlayerZoneCache()`)
+- "This Zone" / "All Zones" toggle (defaults to "This Zone")
+- Coordinates shown as `(X.X, Y.Y)` percentage format
+- Click navigates map to that nemesis's zone via `SetMapZoom()`
+- Selected row highlighted with blue background
+- Shows nemesisTitle instead of creature name (falls back to name if no title)
+
+#### Icon Buttons (top-right of world map)
+- Skull icon: toggle map pins on/off
+- Scroll icon: toggle list panel on/off
+- Both use desaturated/alpha states when off
+
+#### Minimap Button
+- Skull icon on minimap edge, draggable
+- Left-click: toggle world map (no tracker window)
+- Right-click: force sync
+- Position saved in `NT.db.minimapButtonAngle`
+
+#### Portrait Icon
+- Skull on target frame portrait (top center, -6 offset) when targeting a nemesis
+- Colored by rank (blue->yellow->orange->red), glow colored to match
+- No rank text — color alone indicates rank
+- Also on focus frame
+
+#### Creature Matching (findNemesisByUnit)
+Two-pass matching:
+1. **Primary:** exact `runtimeGuid` match (from server addon messages)
+2. **Secondary:** match `UnitName("target")` against `nemesis.nemesisTitle` (works because creatures are renamed server-side to unique Russian titles)
+
+Zero false positives — each nemesis has a unique name.
+
+#### Unit Tooltip
+- `[Немезида]` title + rank info appended to creature tooltip on hover
+- Same two-pass matching as portrait icon
+
+### Locale Handling (Russian Client)
+- Zone matching uses `GetMapInfo()` (returns locale-independent file names like "Silverpine")
+- `MapData.lua` maps nemesis zoneId -> file name
+- Creature matching by nemesisTitle (Russian name set on creature server-side)
+- All UI text in Russian: `[Немезида]`, `Немезиды` panel title
+
+### Key Client Functions
+- `isNemesisInCurrentZone(nemesis)` — compares map file names via `getCurrentMapFile()`
+- `isNemesisInPlayerZone(nemesis, playerFile)` — uses cached player zone
+- `findNemesisByUnit(unit)` — runtimeGuid match, then nemesisTitle match
+- `navigateToNemesisZone(nemesis)` — SetMapZoom to nemesis zone
+- `getCreatureEntryFromGuid(guid)` — extracts entry from 3.3.5 GUID format
+- `updatePlayerZoneCache()` — caches player zone file; called on map open, zone change, entering world. Avoids infinite loop with SetMapToCurrentZone.
+
+### Client Data Flow
+1. Server pushes UPSERT_VALIDATED/BOOTSTRAP_ENTRY/REMOVE via addon messages
+2. Core.lua parses and stores in `NT.data.nemeses[spawnId]`
+3. Core.lua calls `WorldMap:RefreshWorldMap()` on upsert/remove for live updates
+4. `ShouldHideNemesis` always returns false (never hide active nemeses)
+5. Staleness alpha: fresh=1.0, fading=0.7, stale=0.5 (visual only, never hidden)
+
+## Config (mod_nemesis_system.conf)
+
+### Key Non-Default Values
+- `MaxRank = 6`
+- `PromotionLevelDiffMax = 9`
+- `AddonBootstrapMaxEntries = 1000`
+- `RevengeRewardGold = 13333` (balanced for 1g/rank at lvl 60)
+- `RevengeRewardGoldPerRankBonus = 13333`
+- `BountyRewardGold = 3333`
+- `BountyRewardGoldPerRankBonus = 3333`
+- `BonusDrop.Item = 41605` (Dalaran Cooking Award)
+- `BonusDrop.ChancePerRank = 25.0`
+- `VisualAuraSpell = 0` (disabled)
+- `RevengeRewardItem = 1` (broken — item ID 1 doesn't exist, should be 0)
+- `BountyRewardItem = 1` (same issue)
+
+### Config synced to PTR
+`env/dist/etc-ptr/modules/mod_nemesis_system.conf` is a copy of the main config.
