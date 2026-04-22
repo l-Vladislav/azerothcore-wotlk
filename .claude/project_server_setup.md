@@ -10,17 +10,33 @@ type: project
 - GPU: NVIDIA RTX 4070 Super (12GB VRAM), nvidia runtime available in Docker
 - All containers on network `ac-network-v2`
 
-### Containers
-- `ac-worldserver-v2` — main game server (port 8085)
-- `ac-authserver-v2` — auth server (port 3724)
-- `ac-database-v2` — MySQL 8.4 with custom cnf at `conf/mysql-custom.cnf`
-- `ollama` — Ollama LLM server with GPU passthrough (port 11434)
-- `ac-db-import-v2` — has recurring SQL migration issues (duplicate columns from old DB)
-- `ac-client-data-init-v2` — one-shot client data init
+### Containers (container_name → service name)
+The `-v2` suffix is in `container_name:` via the override file. **Service names** (what `docker compose` commands use) do NOT have the `-v2` suffix.
+
+| Container name    | Service name          | Purpose                                |
+|-------------------|-----------------------|----------------------------------------|
+| ac-worldserver-v2 | `ac-worldserver`      | main game server (port 8085)           |
+| ac-worldserver-ptr| `ac-worldserver-ptr`  | PTR, uses `--profile ptr`              |
+| ac-authserver-v2  | `ac-authserver`       | auth server (port 3724)                |
+| ac-database-v2    | `ac-database`         | MySQL 8.4, cnf at `conf/mysql-custom.cnf` |
+| ollama            | `ollama`              | LLM server with GPU passthrough (11434)|
+| ac-db-import-v2   | `ac-db-import`        | recurring SQL migration issues         |
+| ac-client-data-init-v2 | `ac-client-data-init` | one-shot client data init         |
 
 ### Docker Compose Files
 - `docker-compose.yml` — base
 - `docker-compose.override.yml` — v2 overrides (different container names, volumes, network name `ac-network-v2`, ollama service with GPU)
+
+### Rebuild Commands (use service name, NOT container name)
+```bash
+# Rebuild worldserver from scratch (wipe cache), then restart
+docker compose build --no-cache ac-worldserver
+docker compose up -d ac-worldserver --no-deps
+
+# Incremental rebuild (cached, faster) after C++ changes
+docker compose build ac-worldserver && docker compose up -d ac-worldserver --no-deps
+```
+`--no-deps` skips restarting `ac-db-import` and other dependent services (which have known migration issues).
 
 ### Volumes
 - `ac-database-v2` — MySQL data

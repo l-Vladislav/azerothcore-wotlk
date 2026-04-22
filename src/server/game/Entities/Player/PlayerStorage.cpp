@@ -4477,6 +4477,9 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                                     }
                                 }
                             }
+                            // StatBooster slot: skip if aura already active from another item
+                            if (slot == PROP_ENCHANTMENT_SLOT_4 && HasAura(enchant_spell_id))
+                                break;
                             // Cast custom spell vs all equal basepoints got from enchant_amount
                             if (basepoints)
                                 CastCustomSpell(this, enchant_spell_id, &basepoints, &basepoints, &basepoints, true, item);
@@ -4484,7 +4487,34 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                                 CastSpell(this, enchant_spell_id, true, item);
                         }
                         else
+                        {
                             RemoveAurasDueToItemSpell(enchant_spell_id, item->GetGUID());
+                            // Re-apply from another equipped item with the same spell
+                            if (slot == PROP_ENCHANTMENT_SLOT_4 && !HasAura(enchant_spell_id))
+                            {
+                                for (uint8 eqSlot = EQUIPMENT_SLOT_START; eqSlot < EQUIPMENT_SLOT_END; ++eqSlot)
+                                {
+                                    Item* other = GetItemByPos(INVENTORY_SLOT_BAG_0, eqSlot);
+                                    if (!other || other == item || !other->IsEquipped())
+                                        continue;
+                                    uint32 otherEnchantId = other->GetEnchantmentId(PROP_ENCHANTMENT_SLOT_4);
+                                    if (!otherEnchantId)
+                                        continue;
+                                    SpellItemEnchantmentEntry const* otherEnchant = sSpellItemEnchantmentStore.LookupEntry(otherEnchantId);
+                                    if (!otherEnchant)
+                                        continue;
+                                    for (int e = 0; e < MAX_SPELL_ITEM_ENCHANTMENT_EFFECTS; ++e)
+                                    {
+                                        if (otherEnchant->type[e] == ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL && otherEnchant->spellid[e] == enchant_spell_id)
+                                        {
+                                            CastSpell(this, enchant_spell_id, true, other);
+                                            goto reapplyDone;
+                                        }
+                                    }
+                                }
+                                reapplyDone:;
+                            }
+                        }
                     }
                     break;
                 case ITEM_ENCHANTMENT_TYPE_RESISTANCE:

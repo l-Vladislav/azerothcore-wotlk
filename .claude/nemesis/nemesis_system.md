@@ -16,10 +16,23 @@ Health and damage scale independently. Health scales aggressively, damage more g
 | 4    | 4.50x  | 2.00x  |
 | 5+   | 6.00x  | 2.50x  |
 
+### Token Reward - Gray Level Gating
+Token (item 100017) is awarded on every nemesis kill where the creature is **not gray** to the player.
+Uses WoW's standard gray-level formula (`Acore::XP::GetGrayLevel` from `Formulas.h`):
+- **Green or higher** → guaranteed token(s): `baseCount + perRankBonus * (rank - 1)`, bonus drop rolls normally
+- **Gray (trivial)** → no tokens AND no bonus drops, even at max rank
+
+This replaces the old overlevel-scaling system that used `GetRewardMultiplier` to scale item count
+by level difference (which made tokens probabilistic and often zero even for green mobs).
+
+The `rewardMultiplier > 0.0f` guard was removed from `OnPlayerCreatureKill` so that `GrantReward`
+is always called — the gray check is now inside `GrantReward` itself.
+
 ### Gold Reward - Level Multiplier
-Gold scales by creature level: `level / 80` (capped 0.05-1.0).
+Gold still scales by creature level: `level / 80` (capped 0.05-1.0) AND by the overlevel multiplier.
 Balanced around **1g per rank at level 60** for revenge kills.
 - `GetLevelMultiplier(creatureLevel)` in GrantReward
+- `GetRewardMultiplier` still applies to gold (reduces gold for overleveled kills)
 
 ### Mail Fallback for Full Inventory
 `AddItemOrMail()` helper: tries `player->AddItem()` first, sends via in-game mail if bags full.
@@ -152,11 +165,13 @@ Zero false positives — each nemesis has a unique name.
 - `RevengeRewardGoldPerRankBonus = 13333`
 - `BountyRewardGold = 3333`
 - `BountyRewardGoldPerRankBonus = 3333`
+- `RevengeRewardItem = 100017` (Nemesis Bounty Token)
+- `RevengeRewardItemPerRankBonus = 1`
+- `BountyRewardItem = 100017` (Nemesis Bounty Token)
+- `BountyRewardItemPerRankBonus = 1`
 - `BonusDrop.Item = 41605` (Dalaran Cooking Award)
-- `BonusDrop.ChancePerRank = 25.0`
+- `BonusDrop.ChancePerRank = 20.0`
 - `VisualAuraSpell = 0` (disabled)
-- `RevengeRewardItem = 1` (broken — item ID 1 doesn't exist, should be 0)
-- `BountyRewardItem = 1` (same issue)
 
 ### Config synced to PTR
 `env/dist/etc-ptr/modules/mod_nemesis_system.conf` is a copy of the main config.

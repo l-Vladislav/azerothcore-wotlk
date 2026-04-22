@@ -1,0 +1,362 @@
+1	+1 Strength	1	20	0	0
+1	+2 Strength	10	30	0	0
+1	+3 Strength	20	40	0	0
+1	+1 Agility	1	20	0	0
+1	+2 Agility	10	30	0	0
+1	+3 Agility	20	40	0	0
+1	+4 Agility	30	50	0	0
+1	+5 Agility	40	60	0	0
+1	+6 Agility	50	70	0	0
+1	+7 Agility	60	80	0	0
+1	+4 Strength	30	50	0	0
+1	+5 Strength	40	60	0	0
+1	+6 Strength	50	70	0	0
+1	+7 Strength	60	80	0	0
+1	+14 CritRating	60	95	351535086	0
+1	+28 CritRating	44	145	351535086	0
+1	+28 CritRating	80	185	351535086	0
+1	+42 CritRating	106	215	351535086	0
+1	+42 CritRating	140	200	351535086	0
+1	+56 CritRating	159	275	351535086	0
+1	+56 CritRating	200	300	351535086	0
+1	+8 Agility	44	145	351535086	0
+1	+9 Agility	53	155	351535086	0
+1	+8 Strength	44	145	351535086	0
+1	+9 Strength	53	155	351535086	0
+1	+10 Agility	61	165	351535086	0
+1	+10 Strength	61	165	351535086	0
+1	+11 Agility	71	175	351535086	0
+1	+11 Strength	71	175	351535086	0
+1	+12 Agility	80	185	351535086	0
+1	+12 Strength	80	185	351535086	0
+1	+13 Agility	88	195	351535086	0
+1	+14 Agility	97	205	351535086	0
+1	+13 Strength	88	195	351535086	0
+1	+14 Strength	97	205	351535086	0
+1	+15 Strength	106	215	351535086	0
+1	+15 Agility	106	215	351535086	0
+1	+10 HasteRating	60	155	351535086	0
+1	+16 Agility	115	225	351535086	0
+1	+16 Strength	115	225	351535086	0
+1	+18 Strength	128	240	351535086	0
+1	+20 Strength	141	255	351535086	0
+1	+25 Strength	155	270	351535086	0
+1	+30 Strength	165	285	351535086	0
+1	+35 Strength	187	300	351535086	0
+1	+40 Strength	194	315	351535086	0
+1	+18 Agility	128	240	351535086	0
+1	+20 Agility	141	255	351535086	0
+1	+25 Agility	155	270	351535086	0
+1	+30 Agility	165	285	351535086	0
+1	+35 Agility	187	300	351535086	0
+1	+40 Agility	194	315	351535086	0
+1	+45 Strength	207	330	351535086	0
+1	+46 Strength	221	345	351535086	0
+1	+45 Agility	207	330	351535086	0
+1	+46 Agility	221	345	351535086	0
+1	+2 AttackPower	1	66	351535086	0
+1	+2 AttackPower	1	66	351535086	0
+1	+4 AttackPower	1	85	351535086	0
+1	+4 AttackPower	1	120	351535086	0
+1	+6 AttackPower	10	125	351535086	0
+1	+6 AttackPower	10	125	351535086	0
+1	+8 AttackPower	10	125	351535086	0
+1	+8 AttackPower	10	125	351535086	0
+1	+10 AttackPower	25	115	351535086	0
+1	+10 AttackPower	20	135	351535086	0
+1	+12 AttackPower	34	125	351535086	0
+1	+12 AttackPower	34	155	351535086	0
+1	+14 AttackPower	44	135	351535086	0
+1	+14 AttackPower	44	155	351535086	0
+1	+16 AttackPower	50	145	351535086	0
+1	+16 AttackPower	50	175	351535086	0
+1	+18 AttackPower	53	155	351535086	0
+1	+18 AttackPower	80	175	351535086	0
+1	+20 AttackPower	61	165	351535086	0
+1	+20 AttackPower	90	165	351535086	0
+1	+22 AttackPower	71	175	351535086	0
+1	+22 AttackPower	100	175	351535086	0
+1	+24 AttackPower	80	185	351535086	0
+1	+24 AttackPower	110	213	351535086	0
+1	+26 AttackPower	88	195	351535086	0
+1	+26 AttackPower	120	213	351535086	0
+1	+28 AttackPower	97	205	351535086	0
+1	+28 AttackPower	130	240	351535086	0
+1	+30 AttackPower	106	215	351535086	0
+1	+30 AttackPower	140	215	351535086	0
+1	+32 AttackPower	115	225	351535086	0
+1	+32 AttackPower	120	245	351535086	0
+1	+36 AttackPower	128	240	351535086	0
+1	+36 AttackPower	135	255	351535086	0
+1	+42 AttackPower	141	255	351535086	0
+1	+42 AttackPower	141	255	351535086	0
+1	+50 AttackPower	155	270	351535086	0
+1	+50 AttackPower	165	277	351535086	0
+1	+60 AttackPower	165	285	351535086	0
+1	+60 AttackPower	210	300	351535086	0
+1	+70 AttackPower	187	300	351535086	0
+1	+70 AttackPower	225	300	351535086	0
+1	+80 AttackPower	194	315	351535086	0
+1	+80 AttackPower	225	300	351535086	0
+1	+90 AttackPower	204	325	351535086	0
+1	+90 AttackPower	225	300	351535086	0
+1	+7 CritRating	31	125	351535086	0
+1	+3 CritRating	1	30	351535086	0
+1	+4 ExpertiseRating	100	120	351535086	0
+1	+8 HasteRating	40	135	351535086	0
+1	+16 HasteRating	120	213	351535086	0
+1	+4 HasteRating	10	105	351535086	0
+1	+6 HasteRating	20	125	351535086	0
+1	+6 ExpertiseRating	120	213	351535086	0
+1	+12 ArmorPenetrationRating	140	170	351535086	0
+1	+12 ExpertiseRating	160	180	351535086	0
+1	+12 HasteRating	80	175	351535086	0
+1	+16 ArmorPenetrationRating	200	300	351535086	0
+1	+16 ExpertiseRating	200	220	351535086	0
+1	+20 ExpertiseRating	220	300	351535086	0
+1	+20 ArmorPenetrationRating	225	300	351535086	0
+1	+20 HasteRating	140	180	351535086	0
+1	+14 ExpertiseRating	180	200	351535086	0
+1	+14 ArmorPenetrationRating	170	200	351535086	0
+1	+14 HasteRating	100	120	351535086	0
+1	+34 HasteRating	220	300	351535086	0
+1	+34 ArmorPenetrationRating	225	300	351535086	0
+1	+34 ExpertiseRating	225	300	351535086	0
+1	+130 AttackPower	225	300	351535086	0
+1	+4 ArmorPenetrationRating	60	177	351535086	0
+1	+8 ExpertiseRating	140	160	351535086	0
+1	+110 AttackPower	204	325	351535086	0
+1	+110 AttackPower	225	300	351535086	0
+1	+23 HasteRating	180	220	351535086	0
+1	+6 ArmorPenetrationRating	80	185	351535086	0
+1	+8 ArmorPenetrationRating	120	213	351535086	0
+2	+5 DefenseRating	1	95	351535086	0
+2	+1 Stamina	1	20	0	0
+2	+2 Stamina	10	30	0	0
+2	+3 Stamina	20	40	0	0
+2	+4 Stamina	30	50	0	0
+2	+5 Stamina	40	60	0	0
+2	+6 Stamina	50	70	0	0
+2	+7 Stamina	60	80	0	0
+2	+2 DefenseRating	1	76	351535086	0
+2	+ 2 DefenseRating	1	55	351535086	0
+2	+3 DefenseRating	17	115	351535086	0
+2	+ 3 DefenseRating	40	135	351535086	0
+2	+4 DefenseRating	44	145	351535086	0
+2	+ 4 DefenseRating	44	175	351535086	0
+2	+7 DefenseRating	17	115	351535086	0
+2	+15 Health	1	30	351535086	0
+2	+32 Armor	1	76	351535086	0
+2	+40 Armor	53	155	351535086	0
+2	+36 Armor	17	115	351535086	0
+2	+44 Armor	71	175	351535086	0
+2	+48 Armor	88	195	351535086	0
+2	+8 Stamina	44	145	351535086	0
+2	+9 Stamina	53	155	351535086	0
+2	+10 Stamina	61	165	351535086	0
+2	+11 Stamina	71	175	351535086	0
+2	+12 Stamina	80	185	351535086	0
+2	+60 Armor	40	115	351535086	0
+2	+60 Armor	40	115	351535086	0
+2	+13 Stamina	88	195	351535086	0
+2	+14 Stamina	97	205	351535086	0
+2	+5 BlockValue	53	155	351535086	0
+2	+10 BlockValue	124	235	351535086	0
+2	+50 Health	30	125	351535086	0
+2	+15 Stamina	106	215	351535086	0
+2	+16 Stamina	115	225	351535086	0
+2	+18 Stamina	128	240	351535086	0
+2	+20 Stamina	141	255	351535086	0
+2	+25 Stamina	155	270	351535086	0
+2	+30 Stamina	165	285	351535086	0
+2	+35 Stamina	177	295	351535086	0
+2	+40 Stamina	187	305	351535086	0
+2	+45 Stamina	194	315	351535086	0
+2	+100 Health	60	177	351535086	0
+2	+70 Armor	60	115	351535086	0
+2	+70 Armor	60	115	351535086	0
+2	+10 DefenseRating	61	165	351535086	0
+2	+ 10 DefenseRating	61	155	351535086	0
+2	+15 DefenseRating	80	185	351535086	0
+2	+ 15 DefenseRating	110	213	351535086	0
+2	+20 DefenseRating	97	205	351535086	0
+2	+ 20 DefenseRating	125	225	351535086	0
+2	+25 DefenseRating	115	225	351535086	0
+2	+ 25 DefenseRating	150	277	351535086	0
+2	+30 DefenseRating	137	250	351535086	0
+2	+ 30 DefenseRating	175	277	351535086	0
+2	+35 DefenseRating	159	275	351535086	0
+2	+ 35 DefenseRating	200	300	351535086	0
+2	+38 DefenseRating	187	300	351535086	0
+2	+ 38 DefenseRating	213	300	351535086	0
+2	+15 BlockValue	159	275	351535086	0
+2	+20 BlockValue	194	315	351535086	0
+2	+150 Health	70	213	351535086	0
+2	+120 Armor	121	213	351535086	0
+2	+120 Armor	121	213	351535086	0
+2	+4 BlockValue	17	115	351535086	0
+2	+3 BlockValue	1	76	351535086	0
+2	+170 Armor	159	225	351535086	0
+2	+170 Armor	100	187	351535086	0
+2	+240 Armor	187	325	351535086	0
+2	+240 Armor	187	300	351535086	0
+2	+225 Armor	200	250	351535086	0
+2	+275 Health	80	185	351535086	0
+2	+6 BlockValue	88	195	351535086	0
+2	+885 Armor	225	300	351535086	0
+3	+6 Fire Spell Damage	1	92	0	0
+3	+6 Frost Spell Damage	1	92	0	0
+3	+6 Nature Spell Damage	1	92	0	0
+3	+6 Shadow Spell Damage	1	92	0	0
+3	+6 Arcane Spell Damage	1	92	0	0
+3	+6 Holy Spell Damage	1	92	0	0
+3	+3 Spirit	20	40	0	0
+3	+1 Intellect	1	20	0	0
+3	+2 Intellect	10	30	0	0
+3	+3 Intellect	20	40	0	0
+3	+1 Spirit	1	20	0	0
+3	+2 Spirit	10	30	0	0
+3	+4 Intellect	30	50	0	0
+3	+5 Intellect	40	60	0	0
+3	+6 Intellect	50	70	0	0
+3	+7 Intellect	60	80	0	0
+3	+4 Spirit	9	105	351535086	0
+3	+4 Spirit	30	50	0	0
+3	+5 Spirit	40	60	0	0
+3	+6 Spirit	50	70	0	0
+3	+7 Spirit	60	80	0	0
+3	+1 Spell Power	1	20	0	0
+3	+2 Spell Power	10	30	0	0
+3	+4 Spell Power	30	50	0	0
+3	+5 Spell Power	40	60	0	0
+3	+6 Spell Power	50	70	0	0
+3	+7 Spell Power	60	80	0	0
+3	+8 SpellPower	44	145	351535086	0
+3	+20 Mana	1	30	351535086	0
+3	+8 Intellect	44	145	351535086	0
+3	+8 Spirit	44	145	351535086	0
+3	+9 Intellect	53	155	351535086	0
+3	+9 Spirit	53	155	351535086	0
+3	+10 Intellect	61	165	351535086	0
+3	+10 Spirit	61	165	351535086	0
+3	+11 Intellect	71	175	351535086	0
+3	+11 Spirit	71	175	351535086	0
+3	+12 Intellect	80	185	351535086	0
+3	+12 Spirit	80	185	351535086	0
+3	+13 Intellect	88	195	351535086	0
+3	+14 Intellect	97	205	351535086	0
+3	+13 Spirit	88	195	351535086	0
+3	+14 Spirit	97	205	351535086	0
+3	+30 Mana	30	125	351535086	0
+3	+50 Mana	50	155	351535086	0
+3	+65 Mana	60	177	351535086	0
+3	+15 Intellect	106	215	351535086	0
+3	+16 Intellect	115	225	351535086	0
+3	+18 Intellect	128	240	351535086	0
+3	+20 Intellect	141	255	351535086	0
+3	+25 Intellect	155	270	351535086	0
+3	+30 Intellect	165	285	351535086	0
+3	+35 Intellect	187	300	351535086	0
+3	+40 Intellect	194	315	351535086	0
+3	+15 Spirit	106	215	351535086	0
+3	+16 Spirit	115	225	351535086	0
+3	+18 Spirit	128	240	351535086	0
+3	+20 Spirit	141	255	351535086	0
+3	+25 Spirit	155	270	351535086	0
+3	+30 Spirit	165	285	351535086	0
+3	+40 Spirit	194	315	351535086	0
+3	+35 Spirit	187	300	351535086	0
+3	+45 Intellect	207	330	351535086	0
+3	+46 Intellect	221	345	351535086	0
+3	+45 Spirit	207	330	351535086	0
+3	+46 Spirit	221	345	351535086	0
+3	+150 Mana	80	185	351535086	0
+3	+100 Mana	70	213	351535086	0
+3	+9 SpellPower	61	165	351535086	0
+3	+11 SpellPower	80	185	351535086	0
+3	+15 SpellPower	97	205	351535086	0
+3	+18 SpellPower	115	225	351535086	0
+3	+20 SpellPower	132	245	351535086	0
+3	+25 SpellPower	150	265	351535086	0
+3	+30 SpellPower	165	285	351535086	0
+3	+35 SpellPower	187	305	351535086	0
+3	+40 SpellPower	204	325	351535086	0
+3	+44 SpellPower	212	335	351535086	0
+3	+3 Spell Power	20	40	0	0
+3	+54 SpellPower	221	345	351535086	0
+3	+76 SpellPower	225	352	351535086	0
+3	+63 SpellPower	225	352	351535086	0
+3	+81 SpellPower	225	352	351535086	0
+3	+69 SpellPower	225	352	351535086	0
+4	+5% Movement Speed	1	45	7553004	0
+4	+8% Movement Speed	46	92	7553004	0
+4	Water Walk	1	92	260	0
+4	+15% Swim Speed	1	92	1280	0
+4	+3% Mounted Speed	1	92	201668	0
+4	Stealth Detect +5	1	92	514	0
+4	+6 All Magic Resist	1	25	0	0
+4	+10 All Magic Resist	26	65	1138670	0
+4	+6 HP5 in Combat	1	25	0	0
+4	+10 HP5 in Combat	26	65	1138670	0
+4	+2% Threat	1	92	7553002	0
+4	+20 Block Value	1	45	16384	6
+4	+27 Block Value	46	92	16384	6
+4	+22 Attack Power	1	25	7569384	0
+4	+30 Attack Power	26	45	7569384	0
+4	+40 Attack Power	46	65	7569384	0
+4	-4% Threat	1	92	7475178	0
+4	+11 Spell Power	1	25	0	0
+4	+21 Spell Power	26	45	0	0
+4	+35 Spell Power	46	65	0	0
+4	+4 Mana per 5	1	25	0	0
+4	+6 Mana per 5	26	65	0	0
+4	+15 All Magic Resist	26	92	0	0
+4	+14 HP5 in Combat	26	92	0	0
+4	+10% Health Regen Rate	1	92	0	0
+4	-10% Fear Duration	46	92	1122282	0
+4	-10% Stun Duration	46	92	1122282	0
+4	+10% Reputation Gain	1	92	4265984	0
+4	Thorns (3 damage)	1	25	6497928	0
+4	Thorns (18 damage)	26	45	1132522	4
+4	Thorns (25 damage)	46	92	1132520	4
+4	Feather Fall	1	92	65536	0
+4	1% Spell Reflect	66	92	16384	6
+4	+16 Damage on Hit	1	45	0	2
+4	Fire Damage Proc	26	65	0	2
+4	+26 Damage on Hit	46	92	0	2
+4	Fiery Weapon	1	45	0	2
+4	Lifestealing	1	45	0	2
+4	Icy Chill	26	65	0	2
+4	Unholy Weapon	26	65	0	2
+4	Crusader	66	92	0	2
+4	+43 Spell Power	66	92	0	0
+4	+13 Mana per 5	66	92	0	0
+4	+60 Attack Power	66	92	7569384	0
+4	+20 All Magic Resist	66	92	1138670	0
+4	+16 HP5 in Combat	66	92	1138670	0
+4	+3 HP Periodic Heal	1	92	0	0
+4	+5 Damage Shield	1	25	1132522	4
+4	+5 Melee Damage	1	45	6431752	0
+4	+7 Melee Damage	1	45	6447104	0
+4	+3 HP5 in Combat	1	25	1138670	0
+4	+2 All Magic Resist	1	25	1138670	0
+4	Lifeward	46	92	0	2
+4	Deathfrost	46	92	0	2
+4	Executioner	66	92	0	2
+4	Giant Slayer	46	65	0	2
+4	Arcane Burst	46	92	0	2
+4	Arcane Burst	1	25	0	2
+4	Arcane Burst	26	45	0	2
+4	Water Breathing	1	92	4098	0
+4	Frost Ring	26	45	0	2
+4	Frost Ring	46	65	0	2
+4	Frost Ring	66	92	0	2
+4	Frost Armor	26	92	16384	6
+4	Immolate	1	25	65536	0
+4	Immolate	26	45	65536	0
+4	Immolate	46	65	65536	0
+4	Immolate	66	92	65536	0
+4	Blood Pact	1	25	6144	0
+4	Blood Pact	26	45	6144	0
+4	Blood Pact	46	65	6144	0
+4	Blood Pact	66	92	6144	0

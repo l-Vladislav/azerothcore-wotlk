@@ -1,79 +1,81 @@
-# Nemesis System - Pending Changes Summary
+# Nemesis System — Deployment Status
 
-## Server-Side (NemesisSystem.cpp) — Needs Rebuild
+Last updated: 2026-04-18. Branch `feat/wow-ac-nemesis-bounty-board`.
 
-### Already Applied (current running build)
-- Damage multiplier decoupled from health (1.25x-2.50x)
+## Currently deployed on live + PTR
+
+### Base system (pre-bounty-board)
+- Damage multiplier decoupled from health (1.25x–2.50x vs. health 1.5x–6.0x)
 - Gold level multiplier (`level / 80`)
-- Mail fallback for full inventory (AddItemOrMail with proper transaction)
+- Mail fallback for full inventory (`AddItemOrMail`)
 - Runtime GUID in addon messages
-- Russian title generator (40x40x25 = 40,000 combos)
-- `creature->SetName(title)` in ApplyNemesisState
-- Name restore in ResetCreatureToBaseState
-- Russian `[Немезида]` prefix on announcements
-- RevengeRewardItem/BountyRewardItem set to 0 (disabled)
-- HandleAddonBootstrap sends ALL nemeses (includeAll = true)
+- Russian title generator (40 × 40 × 25 = 40,000 combos)
+- `creature->SetName(title)` applies Russian title to nameplate; restored on clear
+- Russian `[Немезида]` prefix on all announcements
+- HandleAddonBootstrap sends ALL nemeses (`includeAll = true`)
+- Chunk ID uses static counter, chunk size 450 bytes
+- Gray-level gating for token + bonus-drop rewards
+- `FindBaseNonInstanceMap` cross-map runtime-GUID resolution
 
-### Pending Rebuild
-- `FindBaseNonInstanceMap` — searches creature's actual map for runtimeGuid (not just player's map)
-- `#include "MapMgr.h"` added
-- Chunk ID uses static counter instead of GameTime (fixes duplicate chunk IDs causing lost data)
-- Chunk size increased from 220 to 450 bytes
-- BroadcastNemesisMessage always server-wide (no zone filtering)
-- Nemesis creation push only sends to killed player (not all players on map)
-- Performance: removed DoForAllPlayers loop on nemesis creation
+### Bounty Vendor
+- `NemesisBountyVendorScript` — AllCreatureScript hook on innkeepers
+- Token item 100017 "Жетон немезиды" (Quest, BoP, stack 200)
+- Shared vendor entry 190000
+- ExtendedCost 100001–100005 (10/15/20/25/50 tokens — 100005 reserved)
+- Prices: T1 10, T2 15, T3 20 + Reroll, T4 25
 
-## Client Addon (WorldMap.lua, Core.lua) — Copy + Restart WoW
+### Bounty Board (NEM-001 Phases 1–3)
+- Zone-filtered pool, regenerated live on each open (no persistent cache)
+- 3 slots per zone per 2h window (seeded shuffle for determinism within window)
+- Rank-primary sort, max-level tier preference within rank
+- Rare-mob dedup + pool-rotation position tracking (entry-based matching)
+- Blizzlike gossip UI: details as header text via `SMSG_NPC_TEXT_UPDATE`, only action buttons in the gossip menu
+- 5 RP variants for "cleared zone" empty state, plus flat "no contracts" for truly empty zones
+- Accept → RP-flavored confirmation chat line
+- Kill completion → history row + RP mail (20 flavor combos) with tokens + gold from "Innkeeper" (creature 190002)
+- Admin-clear refund: any `DeleteNemesisState` (single, map, clearall, merge-rares) refunds active bounty holders with 1 consolation token + apology mail
+- `.nemesis clearall` now explicitly refunds + broadcasts remove per-nemesis + invalidates all pools
+- `.nemesis merge-rares` admin command for backfill
 
-### WorldMap.lua Changes
-- `findNemesisByUnit(unit)` — strict matching: runtimeGuid then nemesisTitle
-- `findNemesisByUnitLoose(unit)` — adds entry+zone fallback for tooltips
-- Portrait icon: skull at top center of target frame, rank-colored, no text
-- Portrait name override: `TargetFrameTextureFrameName:SetText(nemesisTitle)` when targeting nemesis
-- Portrait restore: calls `TargetFrame_Update(TargetFrame)` for non-nemesis targets
-- Tooltip hook: uses `findNemesisByUnitLoose`, replaces first line with nemesisTitle, shows rank/affixes/threat/hunts/reward
-- NOTE: Tooltip hooks require full WoW restart to update (HookScript persists across /reload)
-- All UI text in Russian: Немезиды panel title, Немезида minimap tooltip
-- `[Немезида]` prefix removed from tooltips (was showing raw hex on first attempt)
-- World map pins: fixed size 16px, selected 32px with yellow glow
-- Uses `WorldMapTooltip` for fullscreen map
-- Zone matching: locale-independent via `GetMapInfo()` file names
-- Player zone cached via `updatePlayerZoneCache()` to avoid infinite loop
-- List defaults to "This Zone", sorts player zone first
-- Click navigates to nemesis zone via `SetMapZoom`
-- `buildMapFileToZoom()` builds reverse lookup from map files to continent+zone index
-- Minimap removed (blips)
-- Icon buttons (skull/scroll) for toggling pins/list independently
+### Reputation (`character_nemesis_reputation`)
+- 5 tiers with Russian titles: Послушник → Охотник → Следопыт → Ветеран Охоты → Легенда Охоты
+- Thresholds (tuned 2×): 1000 / 5000 / 16000 / 40000
+- Bounty completion: `0 + 15 × bountyRank` points (tuned down from 200 + 50×r)
+- Regular kill (gray-gated): `0 + 1 × creatureRank` (tuned down from 50 + 10×r)
+- Titles granted cumulatively, announced in chat on rank-up
 
-### Core.lua Changes
-- `ShouldHideNemesis` always returns false
-- `GetVisibilityAlpha` always returns 1.0
-- Parses `runtimeGuid` at startIndex+22, `nemesisTitle` at startIndex+23
-- Peer sync messages include runtimeGuid and nemesisTitle
-- Auto-sync every 300 seconds (5 min)
-- Zone change triggers bootstrap after 3s delay
-- Chat message trigger: syncs when `[Nemesis]` or `Немезида` seen in CHAT_MSG_SYSTEM
-- `ZONE_CHANGED_NEW_AREA` event registered
-- WorldMap refresh on upsert/remove
-- Uses `.nemesis addon bootstrap` (SEC_PLAYER, not SEC_GAMEMASTER sync)
+### Addon (ClientAddon/NemesisTracker)
+- Chat-event bounty tracking: parses private `[Немезида] Контракт принят/выполнен/отменён` lines
+- SavedVariables persistence (`NT.db.activeBountyTitle`) survives /reload + login
+- World map pin for active bounty: gold glow ring (ADD blend — no black halo) + 16×16 `!` badge centered on skull's top-right
+- Portrait icon: gold glow + `!` badge flush with right side of skull
+- Side panel: gold `!` prefix + gold-tinted name + muted-gold background row
+- Tooltip "Награда: охота за головой" renders **only** for active bounty target
+- All chat, map, and UI text in Russian
 
-## Config (mod_nemesis_system.conf)
-- MaxRank = 6
-- PromotionLevelDiffMax = 9
-- RevengeRewardItem = 0 (disabled, was 1 = crash)
-- BountyRewardItem = 0 (disabled, was 1 = crash)
-- RevengeRewardGold = 13333 (1g/rank at lvl 60)
-- RevengeRewardGoldPerRankBonus = 13333
-- BountyRewardGold = 3333
-- BountyRewardGoldPerRankBonus = 3333
-- BonusDrop.ChancePerRank = 25.0
-- VisualAuraSpell = 0
-- AddonBootstrapMaxEntries = 1000
-- Synced to etc-ptr
+## Schema migrations (applied)
 
-## Known Issues
-1. **Tooltip hook requires WoW restart** — `/reload` doesn't update `HookScript` on `GameTooltip`
-2. **runtimeGuid empty for many nemeses** — only populated when creature is on a loaded map during bootstrap. Pending rebuild with `FindBaseNonInstanceMap` should fix most cases.
-3. **SetName doesn't update client nameplate** — 3.3.5 client caches creature names by entry ID. `UnitName("target")` returns cached localized name, not the SetName'd title. Only works for creatures not yet cached by the client.
-4. **Portrait matching** — works via runtimeGuid (when populated) or nemesisTitle match (when client shows SetName'd name). Not 100% reliable due to issues #2 and #3.
-5. **Tooltip matching** — uses loose entry+zone fallback, may show nemesis info on wrong creature of same type in same zone.
+- `2026_03_22_00_nemesis_last_seen.sql` — existing nemesis table additions
+- `2026_04_17_00_nemesis_bounty_board.sql` — bounty + history tables
+- `2026_04_18_00_nemesis_reputation.sql` — reputation table
+- `2026_04_18_01_bounty_zone_cap.sql` — `zone_id` on bounty + history for per-zone cap
+
+## Config (live + PTR)
+
+See `nemesis_system.md` or `ticket_bounty_board.md` for full list. Notable tuned values:
+- `RankUpCooldownSeconds = 900` (3× default)
+- `SameVictimCooldownSeconds = 2700` (3× default)
+- `NemesisSystem.BountyBoard.PoolRefreshHours = 2`
+- `NemesisSystem.BountyBoard.LevelRangeDown/Up = 0` (unlimited)
+- `NemesisRep.BountyCompletionPerRank = 15`
+- `NemesisRep.Threshold.Rank2/3/4/5 = 1000/5000/16000/40000`
+
+## Pending
+
+- **Phase 4 (server-wide red announces)**: when a player accepts / completes a bounty, broadcast `|cffff0000[Немезида]: {player} принял(а)/выполнил(а) контракт на {title}!|r` server-wide. Config flags `AnnounceAccept` / `AnnounceCompletion` already reserved but don't fire yet.
+
+## Known limitations
+
+1. **Mail sender name must be ASCII** on Russian 3.3.5a client (cp1251/UTF-8 mismatch in MailFrame's creature-query rendering path). Mail sender stays "Innkeeper" in English; body/subject are Russian and render correctly.
+2. **Gossip live refresh** — WoW 3.3.5a has no push mechanism for open gossip menus. Close and reopen the innkeeper to see new nemeses. Addon map pins and portrait icons DO auto-update.
+3. **Russian zone names in bounty details** require a Russian client-side `AreaTable.dbc` locale file (`data/dbc/ruRU/AreaTable.dbc`). Without it, zone names fall back to English. Code is locale-aware via `GetSessionDbcLocale()`.

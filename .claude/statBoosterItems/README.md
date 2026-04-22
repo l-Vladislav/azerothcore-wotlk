@@ -230,6 +230,22 @@ Russian text goes in the **zhTW** column (index 142 for Name, 176 for Descriptio
 | Enchanting | 241 | 3182 | 7418 (Enchant Bracer - Minor Health) |
 | Inscription | 2557 | 10130 | 58472 (Scroll of Agility) |
 
+## School-Specific Spell Damage Spells (Aura 13 MOD_DAMAGE_DONE, Attr=192 ITEM)
+
+All verified in Spell.dbc. Can be used as stat enchants in Pool 3 (Arcana) or EQUIP_SPELL in Pool 4.
+Misc values: 2=holy, 4=fire, 8=nature, 16=frost, 32=shadow, 64=arcane, 126=all magic.
+
+| School | +3 | +5 | +6 | +8 | +9 | +10 | +12 | +13 |
+|--------|------|------|------|------|------|------|------|------|
+| Fire | 7685 | 7686 | 7687 | 7688 | 7689 | 9399 | 9400 | 9401 |
+| Frost | 7699 | 7700 | 7701 | 7702 | 7703 | 9402 | 9403 | 9404 |
+| Nature | 7692 | 7693 | 7694 | 7695 | 7696 | 9409 | — | 9411 |
+| Shadow | 7706 | 7707 | 7708 | 7710 | 7709 | 9412 | 9413 | 9414 |
+| Arcane | 13592 | 13593 | 13594 | 13595 | 13596 | 13597 | 13598 | 13599 |
+| Holy | 21501 | 21502 | 21503 | 21504 | 21505 | 21506 | 21507 | 21508 |
+
+**Design note:** School-specific gives higher value but narrower use. Example: +6 frost vs +3 all-magic — trade versatility for power.
+
 ## Lessons Learned
 
 1. **DBC column offsets matter** — always verify against the actual exported CSV header, not assumed positions
