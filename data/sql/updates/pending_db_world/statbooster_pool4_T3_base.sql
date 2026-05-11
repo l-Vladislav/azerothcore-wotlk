@@ -51,7 +51,7 @@ REPLACE INTO `spell_dbc` (`ID`, `Attributes`, `AttributesEx`, `AttributesEx2`, `
 (100024, 2147549184, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 0, 199, 22, 1, 1, 0, 0, 16, 181, 0, 'Frost Armor'),
 (100027, 2147549184, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 1, 24, 15, 0, 0, 0, 0, 8, 0, 0, 'Thorns (25 damage)'),
 (100030, 65536, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 0, 19, 15, 0, 1, 0, 0, 4, 31, 46, 'Immolate'),
-(100034, 2147549184, 0, 0, 0, 0, 0, 0, 0, 1, -1, 65, 0, 269, 230, 2, 1, 0, 23, 32, 541, 0, 'Blood Pact');
+(100034, 2147549184, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 0, 269, 34, 0, 1, 0, 0, 32, 541, 0, 'Blood Pact');
 
 -- ── Weapon proc data for T3 COMBAT_SPELL enchants ──
 REPLACE INTO `spell_enchant_proc_data` (`entry`, `customChance`, `PPMChance`, `procEx`, `attributeMask`) VALUES

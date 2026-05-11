@@ -325,10 +325,10 @@ All spell IDs verified present in client Spell.dbc (Spell.csv):
   - `statbooster_enchant_template`: 96 entries from `fortune_enchants.sql` (90010-90105, PoolGroup=4)
     + 8 entries from `statbooster_use_spells.sql` (90001-90008, PoolGroup=4)
 - **Other DBC patches** (unchanged by v2c):
-  - `Spell_custom16.csv`: 17 spells (100000 use-spell + 100001-100016 craft spells)
-  - `SkillLineAbility_custom16.csv`: 16 profession links
-  - `Item_custom16.csv`: 16 scroll items (100001-100016)
-  - `ItemDisplayInfo_custom16.csv`: display info for 16 items
+  - `Spell_custom.csv`: 17 spells (100000 use-spell + 100001-100016 craft spells)
+  - `SkillLineAbility_custom.csv`: 16 profession links
+  - `Item_custom.csv`: 16 scroll items (100001-100016)
+  - `ItemDisplayInfo_custom.csv`: display info for 16 items
 
 ### Step 1: Update client MPQ — `SpellItemEnchantment_custom.csv`
 Replace 96 v1 proc entries with 42 v2c passive aura entries.
@@ -407,8 +407,8 @@ REPLACE INTO `statbooster_enchant_template` (...) VALUES
 
 ### Step 4: Rebuild client MPQ patch
 - Replace `SpellItemEnchantment_custom.csv` in the MPQ with the new 42-entry version
-- No changes to: `Spell_custom16.csv`, `Item_custom16.csv`,
-  `SkillLineAbility_custom16.csv`, `ItemDisplayInfo_custom16.csv`
+- No changes to: `Spell_custom.csv`, `Item_custom.csv`,
+  `SkillLineAbility_custom.csv`, `ItemDisplayInfo_custom.csv`
 - Distribute updated MPQ to all clients
 
 ### Step 5: Apply to server
@@ -436,7 +436,7 @@ REPLACE INTO `statbooster_enchant_template` (...) VALUES
 
 | File | Action | Notes |
 |------|--------|-------|
-| `.claude/statBoosterItems/dbc/SpellItemEnchantment_custom.csv` | **Replace** | 96 → 42 entries |
+| `.claude/dbc/SpellItemEnchantment_custom.csv` | **Replace** | 96 → 42 entries |
 | `data/sql/updates/pending_db_world/statbooster_use_spells.sql` | **Replace** | Full v2c SQL |
 | `.claude/statBoosterItems/fortune_enchants.sql` | **Archive/Delete** | Replaced by use_spells |
 | No changes to C++ code | — | Same EQUIP_SPELL mechanism |

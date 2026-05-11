@@ -167,20 +167,20 @@ All DBC files go into `Data/ruRU/patch-ruRU-B.MPQ` (or whichever is the last-loa
 ### Required DBC modifications:
 
 1. **Spell.dbc** — 16 new craft spell entries (Effect_1=24 CREATE_ITEM)
-   - Reference CSV: `.claude/statBoosterItems/dbc/Spell_custom16.csv`
+   - Reference CSV: `.claude/dbc/Spell_custom.csv`
 
 2. **SkillLineAbility.dbc** — 16 entries linking spells to professions
-   - Reference CSV: `.claude/statBoosterItems/dbc/SkillLineAbility_custom16.csv`
+   - Reference CSV: `.claude/dbc/SkillLineAbility_custom.csv`
    - **AcquireMethod = 0** (learn from trainer, NOT 1)
    - **MinSkillLineRank** = required skill level
    - **CharacterPoints_1/2** = skill-up color thresholds
 
 3. **Item.dbc** — 16 entries mapping item IDs to displayids
-   - Reference CSV: `.claude/statBoosterItems/dbc/Item_custom16.csv`
+   - Reference CSV: `.claude/dbc/Item_custom.csv`
    - Required for icons and item names in recipe tooltips
 
 4. **SpellItemEnchantment.dbc** — 8 entries for Fortune pool proc enchants (IDs 90001-90008)
-   - Reference CSV: `.claude/statBoosterItems/dbc/SpellItemEnchantment_custom8.csv` (TODO: create)
+   - Reference CSV: `.claude/dbc/SpellItemEnchantment_custom8.csv` (TODO: create)
    - Required for enchant tooltip text, buff icon on equip, and proc activation
    - Without this: enchant applies server-side but client shows nothing
 

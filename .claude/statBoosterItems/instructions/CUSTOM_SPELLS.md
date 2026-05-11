@@ -86,7 +86,7 @@ Key fields for a passive aura (EQUIP_SPELL):
 ```python
 # Find what aura type a known spell uses
 import csv
-with open('.claude/statBoosterItems/dbc/Spell.csv', 'r', encoding='utf-8') as f:
+with open('.claude/dbc/Spell.csv', 'r', encoding='utf-8') as f:
     reader = csv.reader(f)
     header = next(reader)
     col = {h: i for i, h in enumerate(header)}
@@ -169,7 +169,7 @@ INSERT INTO spellitemenchantment_dbc (...) VALUES
 
 ### USE_SPELL tooltip (##SB## tag)
 
-For USE_SPELL, the client shows the spell's **Description** field in the item tooltip (not the enchant name or spell name). To get the StatBoostTooltip addon to recolor it yellow, add `##SB##` to the **Description** fields in `Spell_custom16.csv`:
+For USE_SPELL, the client shows the spell's **Description** field in the item tooltip (not the enchant name or spell name). To get the StatBoostTooltip addon to recolor it yellow, add `##SB##` to the **Description** fields in `Spell_custom.csv`:
 
 ```
 Description_Lang_zhTW = ##SB##Удача: При ударе наносит 30 ед. урона от огня атакующему.
@@ -195,12 +195,12 @@ The `AuraDescription` (buff tooltip when hovering the buff icon) should NOT have
 **NEVER guess visual IDs.** Always look them up from the exported `Spell.csv`:
 
 1. Export the full `Spell.dbc` to CSV using your DBC editor
-2. Save as `.claude/statBoosterItems/dbc/Spell.csv`
+2. Save as `.claude/dbc/Spell.csv`
 3. Find the spell you want to copy the visual from:
 
 ```python
 import csv
-with open('.claude/statBoosterItems/dbc/Spell.csv', 'r', encoding='utf-8') as f:
+with open('.claude/dbc/Spell.csv', 'r', encoding='utf-8') as f:
     reader = csv.reader(f)
     header = next(reader)
     col = {h: i for i, h in enumerate(header)}
@@ -253,15 +253,15 @@ REPLACE INTO spell_dbc (
 );
 ```
 
-## Step 3: Add to Client DBC (Spell_custom16.csv)
+## Step 3: Add to Client DBC (Spell_custom.csv)
 
-Add a row to `.claude/statBoosterItems/dbc/Spell_custom16.csv` with all 234 columns.
+Add a row to `.claude/dbc/Spell_custom.csv` with all 234 columns.
 
 **IMPORTANT:** The CSV column order differs from the `spell_dbc` DB table!
 The `_1`/`_2`/`_3` effect fields are offset by 1 vs what you might expect.
 Always use the **header names**, not hardcoded column numbers.
 
-Key column positions in `Spell_custom16.csv` (0-indexed, from header):
+Key column positions in `Spell_custom.csv` (0-indexed, from header):
 
 | Col | Header | Example value |
 |-----|--------|--------------|
@@ -304,7 +304,7 @@ After adding/modifying rows, run this verification:
 ```python
 import csv
 
-path = r'.claude/statBoosterItems/dbc/Spell_custom16.csv'
+path = r'.claude/dbc/Spell_custom.csv'
 with open(path, 'r', encoding='utf-8') as f:
     reader = csv.reader(f)
     header = next(reader)
@@ -421,6 +421,6 @@ INSERT INTO spell_enchant_proc_data (entry, customChance, PPMChance, procEx, att
 
 | File | Purpose |
 |------|---------|
-| `.claude/statBoosterItems/dbc/Spell_custom16.csv` | Client Spell.dbc entries |
-| `.claude/statBoosterItems/dbc/SpellItemEnchantment_custom.csv` | Client enchant tooltips |
+| `.claude/dbc/Spell_custom.csv` | Client Spell.dbc entries |
+| `.claude/dbc/SpellItemEnchantment_custom.csv` | Client enchant tooltips |
 | `data/sql/updates/pending_db_world/statbooster_use_spells.sql` | Server DB (enchants + spells + templates) |

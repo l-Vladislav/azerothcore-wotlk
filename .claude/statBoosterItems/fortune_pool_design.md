@@ -144,7 +144,7 @@ More than enough for 10+ per tier. Each spell needs individual testing to confir
 ## IMPORTANT: All spell IDs must exist in client Spell.dbc
 
 Before using any spell ID, verify it exists:
-1. Search in `.claude/statBoosterItems/dbc/Spell.csv` by ID
+1. Search in `.claude/dbc/Spell.csv` by ID
 2. The spell must have an icon and name in the client
 3. The server can override effects but NOT add new client visuals
 

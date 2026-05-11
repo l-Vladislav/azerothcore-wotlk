@@ -3,7 +3,7 @@
 Two DBC layers. Must match.
 
 - **Server DB** (`spell_dbc`, `spellitemenchantment_dbc`) — runtime behavior (auras, procs, cooldowns).
-- **Client MPQ** (`Spell_custom16.csv`, `SpellItemEnchantment_custom.csv`) — UI rendering (icons, tooltips, timers).
+- **Client MPQ** (`Spell_custom.csv`, `SpellItemEnchantment_custom.csv`) — UI rendering (icons, tooltips, timers).
 
 ## Symptoms of mismatch
 
@@ -27,7 +27,7 @@ Russian names in client CSV use `##SB##` prefix (`##SB##Удача: …`, `##SB#
 ## Sync procedure
 
 After UPDATE on server `spell_dbc`:
-1. Update matching row in `Spell_custom16.csv`.
+1. Update matching row in `Spell_custom.csv`.
 2. Rebuild MPQ, deploy.
 3. Restart worldserver (DBC cached at startup).
 

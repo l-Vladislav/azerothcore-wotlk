@@ -23,10 +23,10 @@ Database `acore_world`:
 
 ## Client MPQ (UI rendering)
 
-`.claude/statBoosterItems/dbc/Spell_custom16.csv`
-`.claude/statBoosterItems/dbc/SpellItemEnchantment_custom.csv`
-`.claude/statBoosterItems/dbc/Item_custom16.csv`
-`.claude/statBoosterItems/dbc/SkillLineAbility_custom16.csv`
+`.claude/dbc/Spell_custom.csv`
+`.claude/dbc/SpellItemEnchantment_custom.csv`
+`.claude/dbc/Item_custom.csv`
+`.claude/dbc/SkillLineAbility_custom.csv`
 
 Must be rebuilt into MPQ patch and deployed to clients.
 

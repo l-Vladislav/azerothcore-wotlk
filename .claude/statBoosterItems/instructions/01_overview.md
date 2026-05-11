@@ -18,7 +18,7 @@ Tiers: T1 iLvl 1-25, T2 26-45, T3 46-65, T4 66-92.
 | Design (source of truth) | `.claude/statBoosterItems/pools/{fortune_pool,arcane_vellum_pool}/*.md` |
 | SQL (13 files) | `data/sql/updates/pending_db_world/statbooster_*.sql` |
 | Server DB tables | `statbooster_enchant_template`, `spellitemenchantment_dbc`, `spell_dbc`, `spell_enchant_proc_data` |
-| Client MPQ CSVs | `.claude/statBoosterItems/dbc/{Spell_custom16,SpellItemEnchantment_custom,Item_custom16}.csv` |
+| Client MPQ CSVs | `.claude/dbc/{Spell_custom,SpellItemEnchantment_custom,Item_custom}.csv` |
 | Addon | `modules/StatBooster/ClientAddon/StatBoosterUI/EnchantDB.lua` |
 | Module config | `env/dist/etc/modules/statbooster.conf` (scroll→pool mapping) |
 
