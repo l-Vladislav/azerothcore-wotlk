@@ -28,6 +28,20 @@ $script:PTR_LOGS_DIR         = Join-Path $script:PTR_REPO_ROOT 'env\dist\logs'
 $script:PTR_SERVER_LOG       = Join-Path $script:PTR_LOGS_DIR 'Server.log'
 $script:PTR_ERRORS_LOG       = Join-Path $script:PTR_LOGS_DIR 'Errors.log'
 
+# Knowledge dirs scanned by ptr-sql-apply.ps1 for relevant warnings before
+# applying SQL. Claude Code stores project memory under
+# %USERPROFILE%\.claude\projects\<projectKey>\memory where <projectKey> is
+# the absolute repo path with the drive letter lowercased, `:` -> `-`,
+# `\` -> `-`. E.g. D:\Projects\... -> d--Projects-...
+$_drive  = $script:PTR_REPO_ROOT.Substring(0,1).ToLower()
+$_tail   = $script:PTR_REPO_ROOT.Substring(1) -replace ':','-' -replace '\\','-'
+$_projKey = "${_drive}${_tail}"
+$script:PTR_MEMORY_DIR       = Join-Path $env:USERPROFILE ".claude\projects\$_projKey\memory"
+$script:PTR_KNOWLEDGE_DIRS   = @(
+    $script:PTR_MEMORY_DIR,
+    (Join-Path $script:PTR_REPO_ROOT '.claude')
+)
+
 function Assert-PtrDb {
     param([Parameter(Mandatory)][string]$Database)
     if ($script:PTR_ALLOWED_DBS -notcontains $Database) {

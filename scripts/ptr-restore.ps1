@@ -41,8 +41,10 @@ if (-not $Force) {
     if ($reply -ne 'yes') { Write-Host "Aborted."; return }
 }
 
-# Stop PTR worldserver to avoid in-flight writes during restore.
-$ptrRunning = (docker ps --filter "name=$PTR_WORLD_CONTAINER" --format '{{.Names}}') -eq $PTR_WORLD_CONTAINER
+# Stop PTR worldserver to avoid in-flight writes during restore. Use --quiet
+# + anchored name regex — the previous `-eq` against `--format` output was
+# brittle and could leave the server running while we DROP'd its DB.
+$ptrRunning = [bool](docker ps --quiet --filter "name=^${PTR_WORLD_CONTAINER}$")
 if ($ptrRunning) {
     Write-Host "Stopping $PTR_WORLD_CONTAINER ..."
     docker stop $PTR_WORLD_CONTAINER | Out-Null
