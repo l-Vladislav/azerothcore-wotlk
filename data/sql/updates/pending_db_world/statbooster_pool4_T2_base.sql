@@ -42,14 +42,20 @@ REPLACE INTO `spellitemenchantment_dbc` (`ID`, `Charges`, `Effect_1`, `Effect_2`
 (90087, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 100033, 0, 0, 'Blood Pact', 0, 0, 0, 0, 0, 0, 0, 0);
 
 -- ── Custom server spells used by T2 enchants ──
-REPLACE INTO `spell_dbc` (`ID`, `Attributes`, `AttributesEx`, `AttributesEx2`, `AttributesEx3`, `AttributesEx4`, `AttributesEx5`, `AttributesEx6`, `AttributesEx7`, `CastingTimeIndex`, `EquippedItemClass`, `Effect_1`, `EffectDieSides_1`, `EffectBasePoints_1`, `EffectAura_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `ImplicitTargetB_1`, `EffectRadiusIndex_1`, `SchoolMask`, `SpellIconID`, `SpellVisualID_1`, `Name_Lang_enUS`) VALUES
-(100019, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 2, 25, 44, 0, 0, 17, 15, 13, 64, 12, 6950, 'Arcane Burst'),
-(100020, 2147549184, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 0, 0, 82, 0, 1, 0, 0, 1, 545, 0, 'Water Breathing'),
-(100021, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 2, 15, 29, 0, 0, 17, 15, 13, 16, 193, 17, 'Frost Ring'),
-(100024, 2147549184, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 0, 199, 22, 1, 1, 0, 0, 16, 181, 0, 'Frost Armor'),
-(100026, 2147549184, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 1, 17, 15, 0, 0, 0, 0, 8, 0, 0, 'Thorns (18 damage)'),
-(100029, 65536, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 0, 11, 15, 0, 1, 0, 0, 4, 31, 46, 'Immolate'),
-(100033, 2147549184, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 0, 69, 34, 0, 1, 0, 0, 32, 541, 0, 'Blood Pact');
+-- DurationIndex / ProcChance are CRITICAL: omitting them defaults both to 0,
+-- which makes APPLY_AURA effects vanish instantly (DI=0) and the aura get
+-- discarded on creation (PC=0). See memory/feedback_spell_dbc_aura_fields.md.
+-- Values mirror prod: DI=21,PC=101 for passive auras (Attrs=2147549184),
+-- DI=9,PC=101 for Immolate-style refreshable (Attrs=65536),
+-- DI=0,PC=0 for direct-damage spells (Effect_1=2 SCHOOL_DAMAGE).
+REPLACE INTO `spell_dbc` (`ID`, `Attributes`, `AttributesEx`, `AttributesEx2`, `AttributesEx3`, `AttributesEx4`, `AttributesEx5`, `AttributesEx6`, `AttributesEx7`, `CastingTimeIndex`, `EquippedItemClass`, `Effect_1`, `EffectDieSides_1`, `EffectBasePoints_1`, `EffectAura_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `ImplicitTargetB_1`, `EffectRadiusIndex_1`, `SchoolMask`, `SpellIconID`, `SpellVisualID_1`, `DurationIndex`, `ProcChance`, `Name_Lang_enUS`) VALUES
+(100019, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 2, 25, 44, 0, 0, 17, 15, 13, 64, 12, 6950, 0, 0, 'Arcane Burst'),
+(100020, 2147549184, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 0, 0, 82, 0, 1, 0, 0, 1, 545, 0, 21, 101, 'Water Breathing'),
+(100021, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 2, 15, 29, 0, 0, 17, 15, 13, 16, 193, 17, 0, 0, 'Frost Ring'),
+(100024, 2147549184, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 0, 199, 22, 1, 1, 0, 0, 16, 181, 0, 21, 101, 'Frost Armor'),
+(100026, 2147549184, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 1, 17, 15, 0, 0, 0, 0, 8, 0, 0, 21, 101, 'Thorns (18 damage)'),
+(100029, 65536, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 0, 11, 15, 0, 1, 0, 0, 4, 31, 46, 9, 101, 'Immolate'),
+(100033, 2147549184, 0, 0, 0, 0, 0, 0, 0, 1, -1, 6, 0, 69, 34, 0, 1, 0, 0, 32, 541, 0, 21, 101, 'Blood Pact');
 
 -- ── Weapon proc data for T2 COMBAT_SPELL enchants ──
 REPLACE INTO `spell_enchant_proc_data` (`entry`, `customChance`, `PPMChance`, `procEx`, `attributeMask`) VALUES
