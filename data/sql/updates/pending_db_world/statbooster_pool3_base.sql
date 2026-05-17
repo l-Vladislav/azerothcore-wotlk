@@ -18,37 +18,39 @@ DELETE FROM `statbooster_enchant_template` WHERE `PoolGroup` = 3;
 -- EffectMiscValue_1 = school mask: Holy=2, Fire=4, Nature=8, Frost=16, Shadow=32, Arcane=64
 -- Attributes 192 = PASSIVE + HIDDEN_CLIENTSIDE (item passive)
 -- EffectBasePoints_1 = value - 1 (engine adds 1)
+-- DurationIndex=21 (permanent) + ProcChance=101 are CRITICAL for APPLY_AURA:
+-- without them the aura silently vanishes. See memory/feedback_spell_dbc_aura_fields.md.
 -- ============================================================================
 
-INSERT INTO `spell_dbc` (`ID`, `Attributes`, `EquippedItemClass`, `CastingTimeIndex`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `SchoolMask`, `Name_Lang_enUS`) VALUES
+INSERT INTO `spell_dbc` (`ID`, `Attributes`, `EquippedItemClass`, `CastingTimeIndex`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `SchoolMask`, `DurationIndex`, `ProcChance`, `Name_Lang_enUS`) VALUES
 -- T1 (+3 per school)
-(100040, 192, -1, 1, 6, 13, 2, 1, 4,  4,  '+3 Fire Spell Damage'),
-(100041, 192, -1, 1, 6, 13, 2, 1, 16, 16, '+3 Frost Spell Damage'),
-(100042, 192, -1, 1, 6, 13, 2, 1, 8,  8,  '+3 Nature Spell Damage'),
-(100043, 192, -1, 1, 6, 13, 2, 1, 32, 32, '+3 Shadow Spell Damage'),
-(100044, 192, -1, 1, 6, 13, 2, 1, 64, 64, '+3 Arcane Spell Damage'),
-(100045, 192, -1, 1, 6, 13, 2, 1, 2,  2,  '+3 Holy Spell Damage'),
+(100040, 192, -1, 1, 6, 13, 2, 1, 4,  4,  21, 101, '+3 Fire Spell Damage'),
+(100041, 192, -1, 1, 6, 13, 2, 1, 16, 16, 21, 101, '+3 Frost Spell Damage'),
+(100042, 192, -1, 1, 6, 13, 2, 1, 8,  8,  21, 101, '+3 Nature Spell Damage'),
+(100043, 192, -1, 1, 6, 13, 2, 1, 32, 32, 21, 101, '+3 Shadow Spell Damage'),
+(100044, 192, -1, 1, 6, 13, 2, 1, 64, 64, 21, 101, '+3 Arcane Spell Damage'),
+(100045, 192, -1, 1, 6, 13, 2, 1, 2,  2,  21, 101, '+3 Holy Spell Damage'),
 -- T2 (+5 per school)
-(100046, 192, -1, 1, 6, 13, 4, 1, 4,  4,  '+5 Fire Spell Damage'),
-(100047, 192, -1, 1, 6, 13, 4, 1, 16, 16, '+5 Frost Spell Damage'),
-(100048, 192, -1, 1, 6, 13, 4, 1, 8,  8,  '+5 Nature Spell Damage'),
-(100049, 192, -1, 1, 6, 13, 4, 1, 32, 32, '+5 Shadow Spell Damage'),
-(100050, 192, -1, 1, 6, 13, 4, 1, 64, 64, '+5 Arcane Spell Damage'),
-(100051, 192, -1, 1, 6, 13, 4, 1, 2,  2,  '+5 Holy Spell Damage'),
+(100046, 192, -1, 1, 6, 13, 4, 1, 4,  4,  21, 101, '+5 Fire Spell Damage'),
+(100047, 192, -1, 1, 6, 13, 4, 1, 16, 16, 21, 101, '+5 Frost Spell Damage'),
+(100048, 192, -1, 1, 6, 13, 4, 1, 8,  8,  21, 101, '+5 Nature Spell Damage'),
+(100049, 192, -1, 1, 6, 13, 4, 1, 32, 32, 21, 101, '+5 Shadow Spell Damage'),
+(100050, 192, -1, 1, 6, 13, 4, 1, 64, 64, 21, 101, '+5 Arcane Spell Damage'),
+(100051, 192, -1, 1, 6, 13, 4, 1, 2,  2,  21, 101, '+5 Holy Spell Damage'),
 -- T3 (+7 per school)
-(100052, 192, -1, 1, 6, 13, 6, 1, 4,  4,  '+7 Fire Spell Damage'),
-(100053, 192, -1, 1, 6, 13, 6, 1, 16, 16, '+7 Frost Spell Damage'),
-(100054, 192, -1, 1, 6, 13, 6, 1, 8,  8,  '+7 Nature Spell Damage'),
-(100055, 192, -1, 1, 6, 13, 6, 1, 32, 32, '+7 Shadow Spell Damage'),
-(100056, 192, -1, 1, 6, 13, 6, 1, 64, 64, '+7 Arcane Spell Damage'),
-(100057, 192, -1, 1, 6, 13, 6, 1, 2,  2,  '+7 Holy Spell Damage'),
+(100052, 192, -1, 1, 6, 13, 6, 1, 4,  4,  21, 101, '+7 Fire Spell Damage'),
+(100053, 192, -1, 1, 6, 13, 6, 1, 16, 16, 21, 101, '+7 Frost Spell Damage'),
+(100054, 192, -1, 1, 6, 13, 6, 1, 8,  8,  21, 101, '+7 Nature Spell Damage'),
+(100055, 192, -1, 1, 6, 13, 6, 1, 32, 32, 21, 101, '+7 Shadow Spell Damage'),
+(100056, 192, -1, 1, 6, 13, 6, 1, 64, 64, 21, 101, '+7 Arcane Spell Damage'),
+(100057, 192, -1, 1, 6, 13, 6, 1, 2,  2,  21, 101, '+7 Holy Spell Damage'),
 -- T4 (+10 per school)
-(100058, 192, -1, 1, 6, 13, 9, 1, 4,  4,  '+10 Fire Spell Damage'),
-(100059, 192, -1, 1, 6, 13, 9, 1, 16, 16, '+10 Frost Spell Damage'),
-(100060, 192, -1, 1, 6, 13, 9, 1, 8,  8,  '+10 Nature Spell Damage'),
-(100061, 192, -1, 1, 6, 13, 9, 1, 32, 32, '+10 Shadow Spell Damage'),
-(100062, 192, -1, 1, 6, 13, 9, 1, 64, 64, '+10 Arcane Spell Damage'),
-(100063, 192, -1, 1, 6, 13, 9, 1, 2,  2,  '+10 Holy Spell Damage');
+(100058, 192, -1, 1, 6, 13, 9, 1, 4,  4,  21, 101, '+10 Fire Spell Damage'),
+(100059, 192, -1, 1, 6, 13, 9, 1, 16, 16, 21, 101, '+10 Frost Spell Damage'),
+(100060, 192, -1, 1, 6, 13, 9, 1, 8,  8,  21, 101, '+10 Nature Spell Damage'),
+(100061, 192, -1, 1, 6, 13, 9, 1, 32, 32, 21, 101, '+10 Shadow Spell Damage'),
+(100062, 192, -1, 1, 6, 13, 9, 1, 64, 64, 21, 101, '+10 Arcane Spell Damage'),
+(100063, 192, -1, 1, 6, 13, 9, 1, 2,  2,  21, 101, '+10 Holy Spell Damage');
 
 -- ============================================================================
 -- STEP 3: SpellItemEnchantment entries
