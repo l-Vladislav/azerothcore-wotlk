@@ -124,3 +124,17 @@ Type(Scope/Subscope): Short description (max 50 chars)
 - AI tool usage must be disclosed in PRs
 - In-game testing expected
 - Changes to generic code require regression testing of related systems
+
+## Subagents
+
+Specialized subagents live in `.claude/agents/`. Prefer delegating to the matching agent over doing the work in the main thread — they encode the conventions for their area.
+
+- **sql-migration-writer** — any SQL change. Enforces `pending_db_*` placement and idempotency.
+- **familiars-dev** — Familiars gacha system (10 elemental stones). Reads `.claude/familiars/` + `.claude/nemesis/familiar_gacha_*`.
+- **nemesis-dev** — Nemesis system, ticket bounty board, branch_private changes. Reads `.claude/nemesis/`.
+- **statbooster-dev** — Fortune Pool / Scrolls / custom enchants. Reads `.claude/statBoosterItems/`.
+- **playerbots-dev** — Playerbots AI tuning (strategies, actions, triggers, class/dungeon/raid logic).
+- **ollama-chat-dev** — In-game LLM integration (`mod-ollama-chat` + the Ollama docker service).
+- **dbc-investigator** — Read-only DBC lookups against `.claude/dbc/*.csv` (spells/items/enchants/titles).
+
+For cross-cutting changes, the feature agent leads and delegates the SQL parts to `sql-migration-writer` and DBC verification to `dbc-investigator`.

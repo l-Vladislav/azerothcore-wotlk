@@ -1,0 +1,11 @@
+# Deployments log — append-only
+
+# Format:
+#   YYYY-MM-DD HH:MM | sql_filename | target_db | status | package: <relative path> | notes
+
+# Status values:
+#   success     — apply.ps1 completed, smoke test passed
+#   ROLLED BACK — apply.ps1 ran but rollback.ps1 was subsequently invoked
+#   failed      — apply.ps1 errored out partway (manual cleanup may be needed)
+
+# --- Entries below ---
