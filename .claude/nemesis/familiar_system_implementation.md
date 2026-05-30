@@ -46,7 +46,9 @@ entries each):
 | 101101 | Familiar Aura: Falcon Chick | `APPLY_AURA` → +1% melee crit (`MOD_CRIT_PCT`), 30 min |
 | 101102 | Familiar Aura: Raven Fledgling | `APPLY_AURA` → +1% spell crit (`MOD_SPELL_CRIT_CHANCE`), 30 min |
 
-Aura shape: `Attributes=0` (NOT passive — `PASSIVE=64` caused triggered `CastSpell` to silently no-op), `DurationIndex=21` (30 min — matches companion duration, re-applied automatically on re-summon, removed explicitly by the C++ hook on dismiss).
+Aura shape (fixed 2026-05-17): `Attributes=0` (NOT passive — `PASSIVE=64` caused triggered `CastSpell` to silently no-op), `DurationIndex=21` (30 min — matches companion duration), `ProcChance=101` (without ProcChance the APPLY_AURA effect is silently discarded on creation — see `feedback_spell_dbc_aura_fields.md`). Re-applied automatically on re-summon, removed explicitly by the C++ hook on dismiss.
+
+**Historical note:** the original migration (commit 7ce2c7cb6) shipped with `Attributes=64, DurationIndex=0, ProcChance=0` — exactly the failure mode that bug #13 below documented as "fixed". The fix had been described in this doc but never actually landed in `nemesis_familiars_t1.sql`. Fixed in-place 2026-05-17 after rediscovery during audit. Verify any "✓ fixed" claim against the SQL itself.
 
 Standard shape for all three (verified against stock Worg Pup 15999 in client Spell.csv):
 
@@ -69,9 +71,11 @@ SpellIconID       = 1582    (Mech Yeti icon — unified across all 3 T1 familiar
 ### Creatures (`creature_template` + `creature_template_model` + `creature_template_locale`)
 | Entry | Name (EN) | Name (RU) | Display ID | Source |
 |---|---|---|---|---|
-| 190010 | Guardian Wolf Cub | Волчонок-Страж | 903 | stock worg pup model |
-| 190011 | Falcon Chick | Соколёнок | 6573 | stock hawk model |
-| 190012 | Raven Fledgling | Вороненок | 15533 | stock raven model |
+| 190010 | Guardian Wolf Cub | Волчонок-Страж | 9563 | Worg Pup (creature 10259 — AV "Worg Carrier" companion) |
+| 190011 | Falcon Chick | Соколёнок | 6299 | Hawk Owl (creature 7555 — stock non-combat pet) |
+| 190012 | Raven Fledgling | Вороненок | 6435 | Raven (creature 7605) |
+
+**Display ID correction (2026-05-17):** initial values were 903 / 6573 / 15533 — wildly off-target (Mangy Wolf adult / Ravenholdt Guard *human* / Vekniss Hive Crawler *insect*). Replaced with the stock minipet-grade models above after verifying via the local creature_template DB. When picking a model, always cross-check with `SELECT entry, name FROM creature_template ct JOIN creature_template_model ctm ON ct.entry = ctm.CreatureID WHERE ctm.CreatureDisplayID = <id>` before committing.
 
 Spell icon (shared across all three): `SpellIconID = 1582` (Mech Yeti icon, valid 3.3.5a SpellIcon.dbc row).
 

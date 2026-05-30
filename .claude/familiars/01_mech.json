@@ -1,0 +1,192 @@
+{
+  "family": 1,
+  "key": "mech",
+  "name": "Механический",
+  "role": "Танк",
+  "modelTheme": "Механические конструкты, роботы, гномьи гизмо, шестерёнки",
+  "chestItem": 110100,
+  "_schema": {
+    "ids": "creature/summon/buffAura/scroll = formula from fp; debuffAura set only when effects.negative is non-empty",
+    "status": "draft = baseline carried over; confirmed = reviewed/edited by owner",
+    "icon": "spellIconId = real SpellIcon.dbc row (resolved from name or sourceSpell); name = wowhead icon name; 1582 = server-safe placeholder",
+    "effect.code": "aura index, optionally aura/misc (e.g. 101/1 armor, 137/2 Sta, 22/126 all-resist); value = percent (sign carries buff/debuff)"
+  },
+  "pets": [
+    {
+      "fp": "1.1",
+      "rarity": "C",
+      "name": "Механокурица",
+      "nameAcc": "Механокурицу",
+      "status": "confirmed",
+      "displayId": 7920,
+      "scale": 1.2,
+      "icon": { "spellIconId": 318, "name": "spell_magic_polymorphchicken", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191000, "summon": 102000, "buffAura": 103000, "debuffAura": null, "scroll": 110000 },
+      "sources": { "modelNpc": 8376 },
+      "effects": {
+        "positive": [ { "code": "101/1", "value": 1, "text": "+1% броня" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "1.2",
+      "rarity": "C",
+      "name": "Ржавая Механокурица",
+      "nameAcc": "Ржавую Механокурицу",
+      "status": "confirmed",
+      "displayId": 7920,
+      "scale": 0.8,
+      "icon": { "spellIconId": 318, "name": "spell_magic_polymorphchicken", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191001, "summon": 102001, "buffAura": 103001, "debuffAura": 104001, "scroll": 110001 },
+      "sources": { "modelNpc": 8376 },
+      "effects": {
+        "positive": [ { "code": "101/1", "value": 1, "text": "+1% броня" } ],
+        "negative": [ { "code": "31", "value": -1, "text": "-1% скорость движения" } ]
+      }
+    },
+    {
+      "fp": "1.3",
+      "rarity": "C",
+      "name": "Механобелка",
+      "nameAcc": "Механобелку",
+      "status": "confirmed",
+      "displayId": 7937,
+      "scale": 1.0,
+      "icon": { "spellIconId": 353, "name": "inv_misc_gear_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191002, "summon": 102002, "buffAura": 103002, "debuffAura": null, "scroll": 110002 },
+      "sources": { "modelNpc": 2671 },
+      "effects": {
+        "positive": [ { "code": "137/2", "value": 2, "text": "+2% выносливость" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "1.4",
+      "rarity": "C",
+      "name": "Треснувшая Механобелка",
+      "nameAcc": "Треснувшую Механобелку",
+      "status": "confirmed",
+      "displayId": 7937,
+      "scale": 1.0,
+      "icon": { "spellIconId": 353, "name": "inv_misc_gear_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191003, "summon": 102003, "buffAura": 103003, "debuffAura": 104003, "scroll": 110003 },
+      "sources": { "modelNpc": 2671 },
+      "effects": {
+        "positive": [ { "code": "137/2", "value": 2, "text": "+2% выносливость" } ],
+        "negative": [ { "code": "137/4", "value": -1, "text": "-1% дух" } ]
+      }
+    },
+    {
+      "fp": "1.5",
+      "rarity": "C",
+      "name": "Бронзовый Щитоносец",
+      "nameAcc": "Бронзового Щитоносца",
+      "status": "confirmed",
+      "displayId": 32031,
+      "scale": 0.7,
+      "icon": { "spellIconId": 3811, "name": "achievement_boss_xt002deconstructor_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191004, "summon": 102004, "buffAura": 103004, "debuffAura": null, "scroll": 110004 },
+      "sources": { "modelNpc": 40703 },
+      "effects": {
+        "positive": [ { "code": "51", "value": 2, "text": "+2% блок" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "1.6",
+      "rarity": "C",
+      "name": "Ржавый Щитоносец",
+      "nameAcc": "Ржавого Щитоносца",
+      "status": "confirmed",
+      "displayId": 32031,
+      "scale": 0.8,
+      "icon": { "spellIconId": 3811, "name": "achievement_boss_xt002deconstructor_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191005, "summon": 102005, "buffAura": 103005, "debuffAura": 104005, "scroll": 110005 },
+      "sources": { "modelNpc": 40703 },
+      "effects": {
+        "positive": [ { "code": "51", "value": 2, "text": "+2% блок" } ],
+        "negative": [ { "code": "192", "value": -1, "text": "-1% скорость атаки" } ]
+      }
+    },
+    {
+      "fp": "1.7",
+      "rarity": "R",
+      "name": "Ржавый Механодракон",
+      "nameAcc": "Ржавого Механодракона",
+      "status": "confirmed",
+      "displayId": 12489,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1701, "name": "inv_misc_head_dragon_bronze", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191006, "summon": 102006, "buffAura": 103006, "debuffAura": null, "scroll": 110006 },
+      "sources": { "modelNpc": 12473 },
+      "effects": {
+        "positive": [
+          { "code": "101/1", "value": 3, "text": "+3% броня" },
+          { "code": "137/2", "value": 3, "text": "+3% выносливость" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "1.8",
+      "rarity": "R",
+      "name": "Железнолоб",
+      "nameAcc": "Железнолоба",
+      "status": "confirmed",
+      "displayId": 22776,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2552, "name": "inv_gizmo_06", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191007, "summon": 102007, "buffAura": 103007, "debuffAura": null, "scroll": 110007 },
+      "sources": { "modelNpc": 24968 },
+      "effects": {
+        "positive": [
+          { "code": "137/2", "value": 3, "text": "+3% выносливость" },
+          { "code": "51", "value": 3, "text": "+3% блок" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "1.9",
+      "rarity": "R",
+      "name": "Хрустальный Страж",
+      "nameAcc": "Хрустального Стража",
+      "status": "confirmed",
+      "displayId": 29060,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3811, "name": "achievement_boss_xt002deconstructor_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191008, "summon": 102008, "buffAura": 103008, "debuffAura": null, "scroll": 110008 },
+      "sources": { "modelNpc": 34031 },
+      "effects": {
+        "positive": [
+          { "code": "101/1", "value": 3, "text": "+3% броня" },
+          { "code": "22/126", "value": 3, "text": "+3 все резисты" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "1.10",
+      "rarity": "E",
+      "name": "Механостраж",
+      "nameAcc": "Механостража",
+      "status": "confirmed",
+      "displayId": 32670,
+      "scale": 1.0,
+      "icon": { "spellIconId": 4375, "name": "t_roboticon", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191009, "summon": 102009, "buffAura": 103009, "debuffAura": 104009, "scroll": 110009 },
+      "sources": { "modelNpc": 42078 },
+      "effects": {
+        "positive": [
+          { "code": "101/1", "value": 5, "text": "+5% броня" },
+          { "code": "137/2", "value": 5, "text": "+5% выносливость" },
+          { "code": "49", "value": 5, "text": "+5% уворот" }
+        ],
+        "negative": [
+          { "code": "166", "value": -10, "text": "-10% сила атаки" },
+          { "code": "290", "value": -5, "text": "-5% крит" }
+        ]
+      }
+    }
+  ]
+}

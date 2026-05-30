@@ -52,16 +52,32 @@ INSERT INTO `spell_dbc` (`ID`, `Attributes`, `EquippedItemClass`, `CastingTimeIn
 (100052, 192, -1, 1, 6, 13, 6, 1, 4,  4,  '+7 Fire Spell Damage');
 
 -- ============================================================================
--- STEP 3: Owner-aura spells (101100/101101/101102) — unchanged
--- Attributes=64 (PASSIVE); DurationIndex=0. Applied/removed by C++ hook in
--- NemesisSystemAllCreatureScript.
+-- STEP 3: Owner-aura spells (101100/101101/101102)
+-- Attributes=2147483648 (0x80000000 = SPELL_ATTR0_NO_AURA_CANCEL) — player
+-- cannot right-click the buff off; only the C++ hook removes it on familiar
+-- despawn. NOT SPELL_ATTR0_PASSIVE (64) — passive routes triggered CastSpell
+-- through a "learned-only" path and silently no-ops (see memory
+-- feedback_familiar_aura_uncancellable.md).
+-- DurationIndex=21 — PERMANENT (SpellDuration.dbc row 21 = -1/-1/-1 on
+-- 3.3.5a). Earlier "30 min, matches companion lifetime" comment was wrong;
+-- duration is unlimited, the C++ hook is what removes the aura at despawn.
+-- ProcChance=101 required: without it APPLY_AURA effects get discarded on
+-- creation (see memory/feedback_spell_dbc_aura_fields.md and implementation
+-- log bug #13). Applied/removed by C++ hook in NemesisSystemAllCreatureScript.
 -- ============================================================================
 
+-- EffectDieSides_1=1 is REQUIRED: aura amount = EffectBasePoints + DieRoll(1..DieSides),
+-- so BasePoints=0 + DieSides=0 yields amount=0 → aura applies but does nothing.
+-- BasePoints=0 + DieSides=1 yields amount=1 → +1% (matches design).
 DELETE FROM `spell_dbc` WHERE `ID` IN (101100, 101101, 101102);
-REPLACE INTO `spell_dbc` (`ID`, `Attributes`, `DurationIndex`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Description_Lang_enUS`) VALUES
-(101100, 64, 0, 1, -1, 6, 101, 0, 1, 1, 1, 1582, 'Familiar Aura: Guardian Wolf Cub', 'Increases your armor by 1%.'),
-(101101, 64, 0, 1, -1, 6, 71,  0, 0, 1, 1, 1582, 'Familiar Aura: Falcon Chick',      'Increases your melee critical strike chance by 1%.'),
-(101102, 64, 0, 1, -1, 6, 57,  0, 0, 1, 1, 1582, 'Familiar Aura: Raven Fledgling',   'Increases your spell critical strike chance by 1%.');
+REPLACE INTO `spell_dbc` (`ID`, `Attributes`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Description_Lang_enUS`) VALUES
+(101100, 2147483648, 21, 101, 1, -1, 6, 101, 0, 1, 1, 1, 1, 1582, 'Familiar Aura: Guardian Wolf Cub', 'Increases your armor by 1%.'),
+-- EffectAura 290 = SPELL_AURA_MOD_CRIT_PCT (unified crit: melee+ranged+spell).
+-- Raven moved to MOD_DAMAGE_PERCENT_DONE (79) with MiscValue=126 (all magic
+-- schools mask: holy+fire+nature+frost+shadow+arcane). Falcon is the crit pet,
+-- Raven is the spell-damage pet — roles no longer overlap.
+(101101, 2147483648, 21, 101, 1, -1, 6, 290, 0, 1, 0,   1, 1, 1582, 'Familiar Aura: Falcon Chick',      'Increases your critical strike chance by 1%.'),
+(101102, 2147483648, 21, 101, 1, -1, 6, 79,  0, 1, 126, 1, 1, 1582, 'Familiar Aura: Raven Fledgling',   'Increases your magical damage done by 1%.');
 
 -- ============================================================================
 -- STEP 4: Familiar creatures (unchanged)
@@ -76,10 +92,17 @@ REPLACE INTO `creature_template` (`entry`, `name`, `subname`, `minlevel`, `maxle
 (190011, 'Falcon Chick',      '', 1, 1, 35, 1, 7, 0, 0, ''),
 (190012, 'Raven Fledgling',   '', 1, 1, 35, 1, 7, 0, 0, '');
 
+-- Display IDs picked to match the familiar names:
+--   9563 = Worg Pup (classic AV "Worg Carrier" companion-pet model — small,
+--          dog-sized, follows nicely)
+--   6299 = Hawk Owl (stock non-combat pet model — small hawk-like owl)
+--   6435 = Raven (creature 7605 — actual raven model)
+-- Earlier values 903 / 6573 / 15533 were wrong models entirely
+-- (903=Mangy Wolf adult, 6573=Ravenholdt Guard human, 15533=Vekniss insect).
 INSERT INTO `creature_template_model` (`CreatureID`, `Idx`, `CreatureDisplayID`, `DisplayScale`, `Probability`, `VerifiedBuild`) VALUES
-(190010, 0, 903,   1, 1, 0),
-(190011, 0, 6573,  1, 1, 0),
-(190012, 0, 15533, 1, 1, 0);
+(190010, 0, 9563, 1, 1, 0),
+(190011, 0, 6299, 1, 1, 0),
+(190012, 0, 6435, 1, 1, 0);
 
 INSERT INTO `creature_template_locale` (`entry`, `locale`, `Name`, `Title`) VALUES
 (190010, 'ruRU', 'Волчонок-Страж', ''),
