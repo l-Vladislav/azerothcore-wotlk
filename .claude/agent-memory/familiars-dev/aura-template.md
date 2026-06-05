@@ -2,6 +2,17 @@
 
 **Critical.** Skipping any required field makes the aura silently no-op or apply with amount=0. Empirically validated end-to-end on PTR 2026-05-29 (5 test pets, both buff bar + debuff bar render correctly).
 
+## School-damage % auras (79) work but are INVISIBLE in the char sheet — accepted
+
+Verified 2026-06-05 with a +100% diagnostic boost: aura 79 (`MOD_DAMAGE_PERCENT_DONE`,
+misc = school mask, `EquippedItemClass=-1`) **does multiply real damage** (Fireball hit
+20 → 40), but the paperdoll «Доп. урон» line shows only flat `MOD_DAMAGE_DONE_POS` —
+the 3.3.5 client ignores the `_PCT` field there even at ×2. Owner decided to LEAVE IT
+(declined an addon hook of `PaperDollFrame_SetSpellBonusDamage`). Don't re-investigate
+"X% school damage doesn't work" reports — first check real hit numbers, not the sheet.
+Stat % auras (137) and crit/armor DO show computed values in the sheet, which is why
+those "look working" and 79 doesn't.
+
 ## Required Attributes per row type
 
 | Row type | `Attributes` value | Hex | Composed of |

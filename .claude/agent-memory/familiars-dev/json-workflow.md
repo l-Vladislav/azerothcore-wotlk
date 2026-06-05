@@ -5,7 +5,7 @@ table. The `.md` per-family files are deprecated baseline; migrate-on-touch.
 
 ## Source of truth
 
-- `.claude/familiars/0X_<key>.json` — one per family. Migrated so far: **01_mech** (Механический; 2026-05-30, family 1 was renamed from «Камень»/stone).
+- `.claude/familiars/0X_<key>.json` — one per family. Migrated so far: **01_mech** (Механический; 2026-05-30, family 1 was renamed from «Камень»/stone), **02_fire** (Огненный; 2026-05-30, pets 2.3/2.4 Уголёк still draft — owner re-sends model+icon).
 - The old `.md` tables are removed as each family migrates. README + `familiar_gacha_catalog.md`
   point at the `.json` for migrated families.
 
@@ -29,6 +29,9 @@ table. The `.md` per-family files are deprecated baseline; migrate-on-touch.
 - `code` = aura index or `aura/misc` (e.g. `137/2` Sta, `137/4` Spi, `137/3` Int, `101/1` armor,
   `51` block, `192` haste, `31` move, `49` dodge, `166` AP, `290` crit, `22/126` all-magic-resist).
 - `value` = percent; sign decides buff(103xxx) vs debuff(104xxx).
+- optional `"muteAmbient": true` — pet's display has a loud looping ambient; generator swaps in
+  a custom silent displayId (65000+offset) + emits CDI/CSD clone rows. See model-sounds.md
+  (deploy order: server DBC first, then SQL!).
 
 ## Owner input format (what the owner sends per pet)
 

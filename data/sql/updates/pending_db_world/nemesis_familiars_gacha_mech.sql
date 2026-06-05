@@ -81,7 +81,7 @@ INSERT INTO creature_template_model (CreatureID, Idx, CreatureDisplayID, Display
 (191005, 0, 32031, 0.8, 1, 0),
 (191006, 0, 12489, 1.0, 1, 0),
 (191007, 0, 22776, 1.0, 1, 0),
-(191008, 0, 29060, 1.0, 1, 0),
+(191008, 0, 65008, 1.0, 1, 0),
 (191009, 0, 32670, 1.0, 1, 0);
 
 INSERT INTO creature_template_locale (entry, locale, Name, Title) VALUES
@@ -95,6 +95,11 @@ INSERT INTO creature_template_locale (entry, locale, Name, Title) VALUES
 (191007, 'ruRU', 'Железнолоб', ''),
 (191008, 'ruRU', 'Хрустальный Страж', ''),
 (191009, 'ruRU', 'Механостраж', '');
+
+-- muted-ambient custom displays (need rows in patched CreatureDisplayInfo.dbc, server+client)
+DELETE FROM creature_model_info WHERE DisplayID IN (65008);
+INSERT INTO creature_model_info (DisplayID, BoundingRadius, CombatReach, Gender, DisplayID_Other_Gender)
+SELECT 65008, BoundingRadius, CombatReach, Gender, 0 FROM creature_model_info WHERE DisplayID = 29060;
 
 -- STEP 5: item_template (scrolls) + _locale
 DELETE FROM item_template_locale WHERE ID IN (110000, 110001, 110002, 110003, 110004, 110005, 110006, 110007, 110008, 110009) AND locale = 'ruRU';

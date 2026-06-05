@@ -114,12 +114,23 @@ $sbSummon = New-Object System.Text.StringBuilder
 $sbBuff   = New-Object System.Text.StringBuilder
 $sbDebuff = New-Object System.Text.StringBuilder
 $ctRows = @(); $cmRows = @(); $clRows = @(); $itRows = @(); $ilRows = @()
+$mutedSpecs = @()   # pets with muteAmbient: custom CDI/CSD clone with LoopSoundID=0
 
 foreach ($p in $fam.pets) {
     $cre = $p.ids.creature; $sum = $p.ids.summon; $buff = $p.ids.buffAura
     $deb = $p.ids.debuffAura; $scr = $p.ids.scroll; $icon = $p.icon.spellIconId
     $nm = $p.name; $scale = $p.scale
     $accName = if ($p.nameAcc) { $p.nameAcc } else { $nm }
+
+    # muteAmbient: use a custom displayId (65000 + linear offset) whose cloned
+    # sound kit has LoopSoundID=0. Rows for client+server DBC go to *_custom.csv.
+    $effDisplay = $p.displayId
+    if ($p.muteAmbient) {
+        $fpp = $p.fp -split '\.'
+        $mid = 65000 + ([int]$fpp[0] - 1) * 10 + ([int]$fpp[1] - 1)
+        $mutedSpecs += @{ MutedId = $mid; SourceDisplay = $p.displayId; Fp = $p.fp }
+        $effDisplay = $mid
+    }
 
     $pos = @($p.effects.positive); $neg = @($p.effects.negative)
     $full = EffFull $pos $neg                       # combined buffs+debuffs — summon + scroll only
@@ -162,12 +173,24 @@ foreach ($p in $fam.pets) {
     }
 
     $ctRows += "($cre, '$(Esc $nm)', '', 1, 1, 35, 1, 7, 0, 0, ''),"
-    $cmRows += "($cre, 0, $($p.displayId), $scale, 1, 0),"
+    $cmRows += "($cre, 0, $effDisplay, $scale, 1, 0),"
     $clRows += "($cre, 'ruRU', '$(Esc $nm)', ''),"
 
     $q = $qualityMap[$p.rarity]
     $itRows += "($scr, 15, 2, 'Клетка с: $(Esc $nm)', $scrollDisplay, $q, 64, 0, $sellPrice, 0, -1, 1, 1, 0, 1, 55884, 0, -1, $sum, 6, 0, 1, '$(Esc $scrollDesc)', 4),"
     $ilRows += "($scr, 'ruRU', 'Клетка с: $(Esc $nm)', '$(Esc $scrollDesc)'),"
+}
+
+# creature_model_info for muted custom displays — copy bounding from source display.
+$cmiSql = ''
+if ($mutedSpecs.Count -gt 0) {
+    $mutedIds = ($mutedSpecs | ForEach-Object { $_.MutedId }) -join ', '
+    $cmiSql = "`n-- muted-ambient custom displays (need rows in patched CreatureDisplayInfo.dbc, server+client)`n"
+    $cmiSql += "DELETE FROM creature_model_info WHERE DisplayID IN ($mutedIds);`n"
+    foreach ($ms in $mutedSpecs) {
+        $cmiSql += "INSERT INTO creature_model_info (DisplayID, BoundingRadius, CombatReach, Gender, DisplayID_Other_Gender)`n"
+        $cmiSql += "SELECT $($ms.MutedId), BoundingRadius, CombatReach, Gender, 0 FROM creature_model_info WHERE DisplayID = $($ms.SourceDisplay);`n"
+    }
 }
 
 $sql = @"
@@ -206,7 +229,7 @@ $(TrimComma ($cmRows -join "`n"));
 
 INSERT INTO creature_template_locale (entry, locale, Name, Title) VALUES
 $(TrimComma ($clRows -join "`n"));
-
+$cmiSql
 -- STEP 5: item_template (scrolls) + _locale
 DELETE FROM item_template_locale WHERE ID IN ($(JoinList $scrollIds)) AND locale = 'ruRU';
 DELETE FROM item_template        WHERE entry IN ($(JoinList $scrollIds));
@@ -306,3 +329,61 @@ for ($i = 1; $i -lt $lines.Count; $i++) {
 foreach ($r in $newRows) { $output.Add($r) | Out-Null }
 [System.IO.File]::WriteAllLines($csvPath, $output, $enc)
 Write-Host ("CSV: appended {0} rows to {1}" -f $newRows.Count, $csvPath)
+
+# ---------------------------------------------------------------------------
+# muteAmbient — clone CDI row (+ its effective sound kit with LoopSoundID=0)
+# into CreatureDisplayInfo_custom.csv / CreatureSoundData_custom.csv.
+# Owner merges these via WDBX into BOTH the client MPQ DBCs AND the server's
+# dbc/CreatureDisplayInfo.dbc (server validates displayIds against it).
+# ---------------------------------------------------------------------------
+if ($mutedSpecs.Count -gt 0) {
+    $cdiL = [System.IO.File]::ReadAllLines((Join-Path $repo '.claude/dbc/CreatureDisplayInfo.csv'), [System.Text.UTF8Encoding]::new($true))
+    $csdL = [System.IO.File]::ReadAllLines((Join-Path $repo '.claude/dbc/CreatureSoundData.csv'), [System.Text.UTF8Encoding]::new($true))
+    $cmdL = [System.IO.File]::ReadAllLines((Join-Path $repo '.claude/dbc/CreatureModelData.csv'), [System.Text.UTF8Encoding]::new($true))
+    $cdiCols = $cdiL[0] -split '","' | ForEach-Object { $_.Trim('"') }; $cdiIdx = @{}; for ($i = 0; $i -lt $cdiCols.Count; $i++) { $cdiIdx[$cdiCols[$i]] = $i }
+    $csdCols = $csdL[0] -split '","' | ForEach-Object { $_.Trim('"') }; $csdIdx = @{}; for ($i = 0; $i -lt $csdCols.Count; $i++) { $csdIdx[$csdCols[$i]] = $i }
+    $cmdCols = $cmdL[0] -split '","' | ForEach-Object { $_.Trim('"') }; $cmdIdx = @{}; for ($i = 0; $i -lt $cmdCols.Count; $i++) { $cmdIdx[$cmdCols[$i]] = $i }
+
+    function FindRowById($lines, [string]$id) {
+        for ($i = 1; $i -lt $lines.Count; $i++) {
+            if ((($lines[$i] -split '","')[0].TrimStart('"')) -eq $id) { return Split-CsvRow $lines[$i] }
+        }
+        return $null
+    }
+    function UpsertCustomCsv([string]$path, [string]$header, $rows, $ids) {
+        $o = New-Object System.Collections.ArrayList
+        if (Test-Path $path) {
+            $ex = [System.IO.File]::ReadAllLines($path, [System.Text.UTF8Encoding]::new($true))
+            [void]$o.Add($ex[0])
+            for ($i = 1; $i -lt $ex.Count; $i++) {
+                $rid = ($ex[$i] -split '","')[0].TrimStart('"')
+                if ($ids -notcontains $rid) { [void]$o.Add($ex[$i]) }
+            }
+        } else { [void]$o.Add($header) }
+        foreach ($r in $rows) { [void]$o.Add($r) }
+        [System.IO.File]::WriteAllLines($path, $o, $enc)
+    }
+
+    $newCdi = @(); $newCsd = @()
+    foreach ($ms in $mutedSpecs) {
+        $src = FindRowById $cdiL "$($ms.SourceDisplay)"
+        if (-not $src) { throw "muteAmbient: CDI row $($ms.SourceDisplay) not found in CreatureDisplayInfo.csv" }
+        $kitId = $src[$cdiIdx['SoundID']]
+        if ($kitId -eq '0') {
+            $mrow = FindRowById $cmdL $src[$cdiIdx['ModelID']]
+            if (-not $mrow) { throw "muteAmbient: CMD row $($src[$cdiIdx['ModelID']]) not found" }
+            $kitId = $mrow[$cmdIdx['SoundID']]
+        }
+        $kit = FindRowById $csdL $kitId
+        if (-not $kit) { throw "muteAmbient: CSD kit $kitId not found" }
+        $kit2 = [string[]]@($kit); $kit2[$csdIdx['ID']] = "$($ms.MutedId)"; $kit2[$csdIdx['LoopSoundID']] = '0'
+        $cdi2 = [string[]]@($src); $cdi2[$cdiIdx['ID']] = "$($ms.MutedId)"; $cdi2[$cdiIdx['SoundID']] = "$($ms.MutedId)"
+        $newCsd += Join-CsvRow $kit2
+        $newCdi += Join-CsvRow $cdi2
+        Write-Host ("  muted display: {0} (src {1}, kit {2} -> {3} Loop=0)" -f $ms.MutedId, $ms.SourceDisplay, $kitId, $ms.MutedId)
+    }
+    $mids = $mutedSpecs | ForEach-Object { "$($_.MutedId)" }
+    UpsertCustomCsv (Join-Path $repo '.claude/dbc/CreatureDisplayInfo_custom.csv') $cdiL[0] $newCdi $mids
+    UpsertCustomCsv (Join-Path $repo '.claude/dbc/CreatureSoundData_custom.csv') $csdL[0] $newCsd $mids
+    Write-Host ("CSV: wrote {0} muted rows to CreatureDisplayInfo_custom.csv / CreatureSoundData_custom.csv" -f $newCdi.Count)
+}

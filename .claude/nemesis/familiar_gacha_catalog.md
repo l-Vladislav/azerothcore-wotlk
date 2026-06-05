@@ -13,7 +13,7 @@
 | Семейство | Файл | Доминирующая роль |
 |---|---|---|
 | 1. Механический | [01_mech.json](../familiars/01_mech.json) | Танк (броня / Sta / блок) |
-| 2. Огонь | [02_fire.md](../familiars/02_fire.md) | Magic DPS (Fire) |
+| 2. Огненный | [02_fire.json](../familiars/02_fire.json) | Magic DPS (Fire) |
 | 3. Лёд | [03_ice.md](../familiars/03_ice.md) | Magic DPS (Frost) |
 | 4. Природа | [04_nature.md](../familiars/04_nature.md) | Хилер / Друид |
 | 5. Свет | [05_light.md](../familiars/05_light.md) | Healer + Resist Tank |

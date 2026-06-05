@@ -17,7 +17,17 @@ The agent **never** touches live data directly. All in-progress work lives on th
 ## Restart scope
 
 Allowed: `docker restart ac-worldserver-ptr`, `docker restart ac-database-v2`.
-Denied: `ac-worldserver` and `ac-authserver*` (live containers).
+Denied: `ac-worldserver-v2` and `ac-authserver*` (live containers).
+
+## Shared client-data volume (owner-approved exception)
+
+The docker volume `azerothcore-wotlk_ac-client-data-v2` (dbc/maps/vmaps/mmaps) is
+mounted by **BOTH** `ac-worldserver-ptr` and the LIVE `ac-worldserver-v2`. Writing
+patched DBCs into it (see model-sounds.md) therefore touches live data too.
+Owner confirmed 2026-06-05 this is fine **as long as changes are ADDITIVE only**
+(append new rows like custom displayIds 65xxx; never modify/remove stock rows).
+Live picks the file up only on its next restart; live DB/clients don't reference
+the new ids until promotion, so appended rows are inert there.
 
 ## Idempotency
 

@@ -153,6 +153,7 @@
       "nameAcc": "Хрустального Стража",
       "status": "confirmed",
       "displayId": 29060,
+      "muteAmbient": true,
       "scale": 1.0,
       "icon": { "spellIconId": 3811, "name": "achievement_boss_xt002deconstructor_01", "fileDataId": null, "sourceSpell": null },
       "ids": { "creature": 191008, "summon": 102008, "buffAura": 103008, "debuffAura": null, "scroll": 110008 },

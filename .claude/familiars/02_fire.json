@@ -1,0 +1,198 @@
+{
+  "family": 2,
+  "key": "fire",
+  "name": "Огненный",
+  "role": "Magic DPS (Fire)",
+  "modelTheme": "Бесы, элементали огня, фениксы, огненные звери",
+  "chestItem": 110101,
+  "_schema": {
+    "ids": "creature/summon/buffAura/scroll = formula from fp; debuffAura set only when effects.negative is non-empty",
+    "status": "draft = placeholder pending owner data; confirmed = reviewed/edited by owner",
+    "icon": "spellIconId = real SpellIcon.dbc row (resolved from name); 1582 = server-safe placeholder",
+    "effect.code": "aura index, optionally aura/misc (79/4 fire dmg, 57 spell crit, 65 spell haste, 22/4 fire res, 22/16 frost res, 137/2 Sta, 137/3 Int, 137/4 Spi); value = percent (sign carries buff/debuff), flat for 22"
+  },
+  "pets": [
+    {
+      "fp": "2.1",
+      "rarity": "C",
+      "name": "Бес-Поджигатель",
+      "nameAcc": "Беса-Поджигателя",
+      "status": "confirmed",
+      "displayId": 10817,
+      "muteAmbient": true,
+      "scale": 0.8,
+      "icon": { "spellIconId": 876, "name": "spell_fire_lavaspawn", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191010, "summon": 102010, "buffAura": 103010, "debuffAura": null, "scroll": 110010 },
+      "sources": { "modelNpc": 11669 },
+      "effects": {
+        "positive": [ { "code": "79/4", "value": 1, "text": "+1% урона огнём" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "2.2",
+      "rarity": "C",
+      "name": "Хромой Бесёныш",
+      "nameAcc": "Хромого Бесёныша",
+      "status": "confirmed",
+      "displayId": 10817,
+      "muteAmbient": true,
+      "scale": 0.8,
+      "icon": { "spellIconId": 876, "name": "spell_fire_lavaspawn", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191011, "summon": 102011, "buffAura": 103011, "debuffAura": 104011, "scroll": 110011 },
+      "sources": { "modelNpc": 11669 },
+      "effects": {
+        "positive": [ { "code": "79/4", "value": 1, "text": "+1% урона огнём" } ],
+        "negative": [ { "code": "22/16", "value": -1, "text": "-1 сопр. морозу" } ]
+      }
+    },
+    {
+      "fp": "2.3",
+      "rarity": "C",
+      "name": "Уголёк",
+      "nameAcc": "Уголька",
+      "status": "confirmed",
+      "displayId": 14380,
+      "muteAmbient": true,
+      "scale": 0.8,
+      "icon": { "spellIconId": 2019, "name": "spell_fire_totemofwrath", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191012, "summon": 102012, "buffAura": 103012, "debuffAura": null, "scroll": 110012 },
+      "sources": { "modelNpc": 14349 },
+      "effects": {
+        "positive": [ { "code": "57", "value": 1, "text": "+1% спелл-крита" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "2.4",
+      "rarity": "C",
+      "name": "Тлеющий Уголёк",
+      "nameAcc": "Тлеющего Уголька",
+      "status": "confirmed",
+      "displayId": 14380,
+      "muteAmbient": true,
+      "scale": 0.8,
+      "icon": { "spellIconId": 2019, "name": "spell_fire_totemofwrath", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191013, "summon": 102013, "buffAura": 103013, "debuffAura": 104013, "scroll": 110013 },
+      "sources": { "modelNpc": 14349 },
+      "effects": {
+        "positive": [ { "code": "57", "value": 1, "text": "+1% спелл-крита" } ],
+        "negative": [ { "code": "137/2", "value": -1, "text": "-1% выносливости" } ]
+      }
+    },
+    {
+      "fp": "2.5",
+      "rarity": "C",
+      "name": "Огнекрыл-Малыш",
+      "nameAcc": "Огнекрыла-Малыша",
+      "status": "confirmed",
+      "displayId": 6290,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1548, "name": "inv_misc_head_dragon_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191014, "summon": 102014, "buffAura": 103014, "debuffAura": null, "scroll": 110014 },
+      "sources": { "modelNpc": 7544 },
+      "effects": {
+        "positive": [ { "code": "137/3", "value": 1, "text": "+1% интеллекта" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "2.6",
+      "rarity": "C",
+      "name": "Опалённый Огнекрыл",
+      "nameAcc": "Опалённого Огнекрыла",
+      "status": "confirmed",
+      "displayId": 6290,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1548, "name": "inv_misc_head_dragon_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191015, "summon": 102015, "buffAura": 103015, "debuffAura": 104015, "scroll": 110015 },
+      "sources": { "modelNpc": 7544 },
+      "effects": {
+        "positive": [ { "code": "137/3", "value": 1, "text": "+1% интеллекта" } ],
+        "negative": [ { "code": "137/4", "value": -1, "text": "-1% духа" } ]
+      }
+    },
+    {
+      "fp": "2.7",
+      "rarity": "R",
+      "name": "Пламенный Жнец",
+      "nameAcc": "Пламенного Жнеца",
+      "status": "confirmed",
+      "displayId": 8409,
+      "muteAmbient": true,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3874, "name": "inv_pet_scorchedstone", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191016, "summon": 102016, "buffAura": 103016, "debuffAura": null, "scroll": 110016 },
+      "sources": { "modelNpc": 25706 },
+      "effects": {
+        "positive": [
+          { "code": "79/4", "value": 3, "text": "+3% урона огнём" },
+          { "code": "57", "value": 3, "text": "+3% спелл-крита" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "2.8",
+      "rarity": "R",
+      "name": "Фоукс",
+      "nameAcc": "Фоукса",
+      "status": "confirmed",
+      "displayId": 23574,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2787, "name": "inv_misc_pheonixpet_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191017, "summon": 102017, "buffAura": 103017, "debuffAura": null, "scroll": 110017 },
+      "sources": { "modelNpc": 26119 },
+      "effects": {
+        "positive": [
+          { "code": "79/4", "value": 3, "text": "+3% урона огнём" },
+          { "code": "22/4", "value": 5, "text": "+5 сопр. огню" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "2.9",
+      "rarity": "R",
+      "name": "Демон-Поджигатель",
+      "nameAcc": "Демона-Поджигателя",
+      "status": "confirmed",
+      "displayId": 30462,
+      "scale": 1.0,
+      "icon": { "spellIconId": 4062, "name": "ability_hunter_pet_corehound", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191018, "summon": 102018, "buffAura": 103018, "debuffAura": null, "scroll": 110018 },
+      "sources": { "modelNpc": 36871 },
+      "effects": {
+        "positive": [
+          { "code": "79/4", "value": 3, "text": "+3% урона огнём" },
+          { "code": "65", "value": 3, "text": "+3% спелл-хейста" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "2.10",
+      "rarity": "E",
+      "name": "Аватар Огня",
+      "nameAcc": "Аватара Огня",
+      "status": "confirmed",
+      "displayId": 18139,
+      "muteAmbient": true,
+      "scale": 0.2,
+      "icon": { "spellIconId": 3819, "name": "achievement_boss_ragnaros", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191019, "summon": 102019, "buffAura": 103019, "debuffAura": 104019, "scroll": 110019 },
+      "sources": { "modelNpc": 19973 },
+      "effects": {
+        "positive": [
+          { "code": "79/4", "value": 5, "text": "+5% урона огнём" },
+          { "code": "57", "value": 5, "text": "+5% спелл-крита" },
+          { "code": "137/3", "value": 5, "text": "+5% интеллекта" }
+        ],
+        "negative": [
+          { "code": "137/2", "value": -10, "text": "-10% выносливости" },
+          { "code": "22/16", "value": -5, "text": "-5 сопр. морозу" }
+        ]
+      }
+    }
+  ]
+}
