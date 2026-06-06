@@ -16,8 +16,8 @@
 | 4 | [04_nature.json](04_nature.json) | Природный | Хилер / Друид |
 | 5 | [05_light.json](05_light.json) | Светлый | Healer + Resist Tank |
 | 6 | [06_shadow.json](06_shadow.json) | Теневой | Shadow DoT / Debuff-res |
-| 7 | [07_arcane.md](07_arcane.md) | Тайна | Arcane DPS |
-| 8 | [08_storm.md](08_storm.md) | Гроза | Speed / Crit / Burst |
+| 7 | [07_arcane.json](07_arcane.json) | Тайный | Arcane DPS |
+| 8 | [08_demon.json](08_demon.json) | Демонический | TBD (бывш. Гроза) |
 | 9 | [09_beast.md](09_beast.md) | Зверь | Phys DPS |
 | 10 | [10_spirit.md](10_spirit.md) | Дух | Utility (XP / honor / rep) |
 

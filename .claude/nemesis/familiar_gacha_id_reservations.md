@@ -53,7 +53,7 @@ The 3 existing T1 pets are re-integrated as Common starters in the new 10×10 po
 | Old entry | Old name | New entry | New family.slot |
 |---|---|---|---|
 | 190010 | Волчонок-Страж | 191000 | 1.1 Механический |
-| 190011 | Соколёнок | 191070 | 8.1 Гроза |
+| 190011 | Соколёнок | 191070 | 8.1 Демонический (бывш. Гроза) |
 | 190012 | Воронёнок | 191050 | 6.1 Тень |
 
 `character_spell` rows where `spell IN (100120, 100121, 100122)` are remapped to `102000`, `102070`, `102050` respectively in the migration script.

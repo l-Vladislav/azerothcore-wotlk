@@ -66,7 +66,7 @@ The 3 existing T1 pets are integrated into the new 10×10 pool as Common starter
 | Old | New | Family.Slot |
 |---|---|---|
 | Волчонок-Страж (entry 190010) | entry 191000 | 1.1 Механический |
-| Соколёнок (entry 190011) | entry 191070 | 8.1 Гроза |
+| Соколёнок (entry 190011) | entry 191070 | 8.1 Демонический (бывш. Гроза) |
 | Воронёнок (entry 190012) | entry 191050 | 6.1 Тень |
 
 ## Gacha mechanics

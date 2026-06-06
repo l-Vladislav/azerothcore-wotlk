@@ -18,8 +18,8 @@
 | 4. Природный | [04_nature.json](../familiars/04_nature.json) | Хилер / Друид |
 | 5. Светлый | [05_light.json](../familiars/05_light.json) | Healer + Resist Tank |
 | 6. Теневой | [06_shadow.json](../familiars/06_shadow.json) | Shadow DoT / Debuff-res |
-| 7. Тайна | [07_arcane.md](../familiars/07_arcane.md) | Arcane DPS |
-| 8. Гроза | [08_storm.md](../familiars/08_storm.md) | Speed / Crit / Burst |
+| 7. Тайный | [07_arcane.json](../familiars/07_arcane.json) | Arcane DPS |
+| 8. Демонический | [08_demon.json](../familiars/08_demon.json) | TBD (бывш. Гроза) |
 | 9. Зверь | [09_beast.md](../familiars/09_beast.md) | Phys DPS |
 | 10. Дух | [10_spirit.md](../familiars/10_spirit.md) | Utility (XP / honor / rep) |
 
@@ -129,5 +129,5 @@ ImplicitTargetA_N = 1           (на хозяина — caster)
 | Старый entry | Новый entry | Семейство.Слот |
 |---|---|---|
 | 190010 Волчонок-Страж | 191000 | 1.1 Механический |
-| 190011 Соколёнок | 191070 | 8.1 Гроза |
+| 190011 Соколёнок | 191070 | 8.1 Демонический (слот переименован, бывш. Гроза) |
 | 190012 Воронёнок | 191050 | 6.1 Тень |

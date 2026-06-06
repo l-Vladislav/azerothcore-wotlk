@@ -1,0 +1,194 @@
+{
+  "family": 8,
+  "key": "demon",
+  "name": "Демонический",
+  "role": "Phys Speed / Crit",
+  "modelTheme": "Бесы, грелли, глаза Скверны, суккубы, зерглинг, Мини-Диабло",
+  "chestItem": 110107,
+  "_schema": {
+    "ids": "creature/summon/buffAura/scroll = formula from fp; debuffAura set only when effects.negative is non-empty",
+    "status": "draft = pending owner data; confirmed = reviewed/edited by owner",
+    "icon": "spellIconId = real SpellIcon.dbc row (resolved from name); 1582 = server-safe placeholder",
+    "effect.code": "290 crit, 192 attack speed, 31 move speed, 65 spell haste, 137/2 Sta, 137/4 Spi, 22/16 frost res; value = percent (sign carries buff/debuff), flat for 22"
+  },
+  "pets": [
+    {
+      "fp": "8.1",
+      "rarity": "C",
+      "name": "Ловец Скверны",
+      "nameAcc": "Ловца Скверны",
+      "status": "confirmed",
+      "displayId": 850,
+      "scale": 1.0,
+      "icon": { "spellIconId": 214, "name": "spell_shadow_summonfelhunter", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191070, "summon": 102070, "buffAura": 103070, "debuffAura": null, "scroll": 110070 },
+      "sources": { "modelNpc": 3102 },
+      "effects": {
+        "positive": [ { "code": "290", "value": 2, "text": "+2% шанса критического удара" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "8.2",
+      "rarity": "C",
+      "name": "Испуганный Ловец Скверны",
+      "nameAcc": "Испуганного Ловца Скверны",
+      "status": "confirmed",
+      "displayId": 850,
+      "scale": 1.0,
+      "icon": { "spellIconId": 214, "name": "spell_shadow_summonfelhunter", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191071, "summon": 102071, "buffAura": 103071, "debuffAura": 104071, "scroll": 110071 },
+      "sources": { "modelNpc": 3102 },
+      "effects": {
+        "positive": [ { "code": "290", "value": 2, "text": "+2% шанса критического удара" } ],
+        "negative": [ { "code": "137/2", "value": -1, "text": "-1% выносливости" } ]
+      }
+    },
+    {
+      "fp": "8.3",
+      "rarity": "C",
+      "name": "Грелль",
+      "nameAcc": "Грелля",
+      "status": "confirmed",
+      "displayId": 10816,
+      "scale": 0.6,
+      "icon": { "spellIconId": 3171, "name": "ability_warlock_empoweredimp", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191072, "summon": 102072, "buffAura": 103072, "debuffAura": null, "scroll": 110072 },
+      "sources": { "modelNpc": 9777 },
+      "effects": {
+        "positive": [ { "code": "192", "value": 2, "text": "+2% скорости атаки" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "8.4",
+      "rarity": "C",
+      "name": "Линялый Грелль",
+      "nameAcc": "Линялого Грелля",
+      "status": "confirmed",
+      "displayId": 10816,
+      "scale": 0.6,
+      "icon": { "spellIconId": 3171, "name": "ability_warlock_empoweredimp", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191073, "summon": 102073, "buffAura": 103073, "debuffAura": 104073, "scroll": 110073 },
+      "sources": { "modelNpc": 9777 },
+      "effects": {
+        "positive": [ { "code": "192", "value": 2, "text": "+2% скорости атаки" } ],
+        "negative": [ { "code": "137/4", "value": -2, "text": "-2% духа" } ]
+      }
+    },
+    {
+      "fp": "8.5",
+      "rarity": "C",
+      "name": "Глаз Скверны",
+      "nameAcc": "Глаз Скверны",
+      "status": "confirmed",
+      "displayId": 14430,
+      "muteAmbient": true,
+      "scale": 0.8,
+      "icon": { "spellIconId": 135, "name": "spell_shadow_evileye", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191074, "summon": 102074, "buffAura": 103074, "debuffAura": null, "scroll": 110074 },
+      "sources": { "modelNpc": 19440 },
+      "effects": {
+        "positive": [ { "code": "31", "value": 2, "text": "+2% скорости передвижения" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "8.6",
+      "rarity": "C",
+      "name": "Тусклый Глаз Скверны",
+      "nameAcc": "Тусклый Глаз Скверны",
+      "status": "confirmed",
+      "displayId": 14430,
+      "muteAmbient": true,
+      "scale": 0.8,
+      "icon": { "spellIconId": 135, "name": "spell_shadow_evileye", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191075, "summon": 102075, "buffAura": 103075, "debuffAura": 104075, "scroll": 110075 },
+      "sources": { "modelNpc": 19440 },
+      "effects": {
+        "positive": [ { "code": "31", "value": 2, "text": "+2% скорости передвижения" } ],
+        "negative": [ { "code": "137/2", "value": -1, "text": "-1% выносливости" } ]
+      }
+    },
+    {
+      "fp": "8.7",
+      "rarity": "R",
+      "name": "Страж Ужаса",
+      "nameAcc": "Стража Ужаса",
+      "status": "confirmed",
+      "displayId": 21381,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3908, "name": "inv_pet_sleepywilly", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191076, "summon": 102076, "buffAura": 103076, "debuffAura": null, "scroll": 110076 },
+      "sources": { "modelNpc": 23231 },
+      "effects": {
+        "positive": [
+          { "code": "290", "value": 3, "text": "+3% шанса критического удара" },
+          { "code": "192", "value": 3, "text": "+3% скорости атаки" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "8.8",
+      "rarity": "R",
+      "name": "Суккуб-Малышка",
+      "nameAcc": "Суккуба-Малышку",
+      "status": "confirmed",
+      "displayId": 159,
+      "scale": 1.0,
+      "icon": { "spellIconId": 216, "name": "spell_shadow_summonsuccubus", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191077, "summon": 102077, "buffAura": 103077, "debuffAura": null, "scroll": 110077 },
+      "sources": { "modelNpc": 49 },
+      "effects": {
+        "positive": [
+          { "code": "290", "value": 4, "text": "+4% шанса критического удара" },
+          { "code": "31", "value": 5, "text": "+5% скорости передвижения" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "8.9",
+      "rarity": "R",
+      "name": "Адская Гончая",
+      "nameAcc": "Адскую Гончую",
+      "status": "confirmed",
+      "displayId": 10993,
+      "scale": 1.0,
+      "icon": { "spellIconId": 214, "name": "spell_shadow_summonfelhunter", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191078, "summon": 102078, "buffAura": 103078, "debuffAura": null, "scroll": 110078 },
+      "sources": { "modelNpc": 11327 },
+      "effects": {
+        "positive": [
+          { "code": "192", "value": 3, "text": "+3% скорости атаки" },
+          { "code": "65", "value": 3, "text": "+3% спелл-хейста" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "8.10",
+      "rarity": "E",
+      "name": "Повелитель Преисподней",
+      "nameAcc": "Повелителя Преисподней",
+      "status": "confirmed",
+      "displayId": 10992,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2795, "name": "inv_diablostone", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191079, "summon": 102079, "buffAura": 103079, "debuffAura": 104079, "scroll": 110079 },
+      "sources": { "modelNpc": 11326 },
+      "effects": {
+        "positive": [
+          { "code": "290", "value": 5, "text": "+5% шанса критического удара" },
+          { "code": "192", "value": 5, "text": "+5% скорости атаки" },
+          { "code": "31", "value": 5, "text": "+5% скорости передвижения" }
+        ],
+        "negative": [
+          { "code": "22/16", "value": -5, "text": "-5 сопр. морозу" },
+          { "code": "137/2", "value": -5, "text": "-5% выносливости" }
+        ]
+      }
+    }
+  ]
+}

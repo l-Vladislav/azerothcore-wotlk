@@ -1,0 +1,196 @@
+{
+  "family": 7,
+  "key": "arcane",
+  "name": "Тайный",
+  "role": "Arcane DPS",
+  "modelTheme": "Мана-вирмы, дракондоры, зачарованные мётлы, эфириалы, небесные драконы",
+  "chestItem": 110106,
+  "_schema": {
+    "ids": "creature/summon/buffAura/scroll = formula from fp; debuffAura set only when effects.negative is non-empty",
+    "status": "draft = pending owner data; confirmed = reviewed/edited by owner",
+    "icon": "spellIconId = real SpellIcon.dbc row (resolved from name); 1582 = server-safe placeholder",
+    "effect.code": "79/64 arcane dmg, 137/3 Int, 137/4 Spi, 137/2 Sta, 65 spell haste, 57 spell crit, 110 mana regen, 22/4 fire res, 22/16 frost res; value = percent (sign carries buff/debuff), flat for 22"
+  },
+  "pets": [
+    {
+      "fp": "7.1",
+      "rarity": "C",
+      "name": "Манчик",
+      "nameAcc": "Манчика",
+      "status": "confirmed",
+      "displayId": 29372,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2383, "name": "inv_elemental_primal_mana", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191060, "summon": 102060, "buffAura": 103060, "debuffAura": null, "scroll": 110060 },
+      "sources": { "modelNpc": 34724 },
+      "effects": {
+        "positive": [ { "code": "79/64", "value": 2, "text": "+2% урона тайной магией" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "7.2",
+      "rarity": "C",
+      "name": "Истощённый Манчик",
+      "nameAcc": "Истощённого Манчика",
+      "status": "confirmed",
+      "displayId": 29372,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2383, "name": "inv_elemental_primal_mana", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191061, "summon": 102061, "buffAura": 103061, "debuffAura": 104061, "scroll": 110061 },
+      "sources": { "modelNpc": 34724 },
+      "effects": {
+        "positive": [ { "code": "79/64", "value": 2, "text": "+2% урона тайной магией" } ],
+        "negative": [ { "code": "137/4", "value": -1, "text": "-1% духа" } ]
+      }
+    },
+    {
+      "fp": "7.3",
+      "rarity": "C",
+      "name": "Малый Дракондор",
+      "nameAcc": "Малого Дракондора",
+      "status": "confirmed",
+      "displayId": 20029,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2328, "name": "ability_hunter_pet_dragonhawk", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191062, "summon": 102062, "buffAura": 103062, "debuffAura": null, "scroll": 110062 },
+      "sources": { "modelNpc": 21056 },
+      "effects": {
+        "positive": [ { "code": "137/3", "value": 2, "text": "+2% интеллекта" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "7.4",
+      "rarity": "C",
+      "name": "Побитый Дракондор",
+      "nameAcc": "Побитого Дракондора",
+      "status": "confirmed",
+      "displayId": 20029,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2328, "name": "ability_hunter_pet_dragonhawk", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191063, "summon": 102063, "buffAura": 103063, "debuffAura": 104063, "scroll": 110063 },
+      "sources": { "modelNpc": 21056 },
+      "effects": {
+        "positive": [ { "code": "137/3", "value": 2, "text": "+2% интеллекта" } ],
+        "negative": [ { "code": "137/4", "value": -2, "text": "-2% духа" } ]
+      }
+    },
+    {
+      "fp": "7.5",
+      "rarity": "C",
+      "name": "Подметалка",
+      "nameAcc": "Подметалку",
+      "status": "confirmed",
+      "displayId": 16910,
+      "muteAmbient": true,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1502, "name": "inv_staff_10", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191064, "summon": 102064, "buffAura": 103064, "debuffAura": null, "scroll": 110064 },
+      "sources": { "modelNpc": 33227 },
+      "effects": {
+        "positive": [ { "code": "65", "value": 2, "text": "+2% спелл-хейста" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "7.6",
+      "rarity": "C",
+      "name": "Сломанная Подметалка",
+      "nameAcc": "Сломанную Подметалку",
+      "status": "confirmed",
+      "displayId": 16910,
+      "muteAmbient": true,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1502, "name": "inv_staff_10", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191065, "summon": 102065, "buffAura": 103065, "debuffAura": 104065, "scroll": 110065 },
+      "sources": { "modelNpc": 33227 },
+      "effects": {
+        "positive": [ { "code": "65", "value": 2, "text": "+2% спелл-хейста" } ],
+        "negative": [ { "code": "137/2", "value": -1, "text": "-1% выносливости" } ]
+      }
+    },
+    {
+      "fp": "7.7",
+      "rarity": "R",
+      "name": "Эфириальный Дух",
+      "nameAcc": "Эфириального Духа",
+      "status": "confirmed",
+      "displayId": 25002,
+      "muteAmbient": true,
+      "scale": 0.7,
+      "icon": { "spellIconId": 1677, "name": "spell_nature_groundingtotem", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191066, "summon": 102066, "buffAura": 103066, "debuffAura": null, "scroll": 110066 },
+      "sources": { "modelNpc": 27914 },
+      "effects": {
+        "positive": [
+          { "code": "79/64", "value": 5, "text": "+5% урона тайной магией" },
+          { "code": "65", "value": 3, "text": "+3% спелл-хейста" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "7.8",
+      "rarity": "R",
+      "name": "Звёздный Дракон",
+      "nameAcc": "Звёздного Дракона",
+      "status": "confirmed",
+      "displayId": 17723,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2449, "name": "inv_netherwhelp", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191067, "summon": 102067, "buffAura": 103067, "debuffAura": null, "scroll": 110067 },
+      "sources": { "modelNpc": 18381 },
+      "effects": {
+        "positive": [
+          { "code": "79/64", "value": 5, "text": "+5% урона тайной магией" },
+          { "code": "137/3", "value": 3, "text": "+3% интеллекта" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "7.9",
+      "rarity": "R",
+      "name": "Лунный Хранитель",
+      "nameAcc": "Лунного Хранителя",
+      "status": "confirmed",
+      "displayId": 14273,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1910, "name": "ability_creature_disease_05", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191068, "summon": 102068, "buffAura": 103068, "debuffAura": null, "scroll": 110068 },
+      "sources": { "modelNpc": 32643 },
+      "effects": {
+        "positive": [
+          { "code": "79/64", "value": 5, "text": "+5% урона тайной магией" },
+          { "code": "137/4", "value": 3, "text": "+3% духа" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "7.10",
+      "rarity": "E",
+      "name": "Звёздный Дух",
+      "nameAcc": "Звёздного Духа",
+      "status": "confirmed",
+      "displayId": 31956,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1928, "name": "ability_mount_netherdrakepurple", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191069, "summon": 102069, "buffAura": 103069, "debuffAura": 104069, "scroll": 110069 },
+      "sources": { "modelNpc": 40624 },
+      "effects": {
+        "positive": [
+          { "code": "79/64", "value": 10, "text": "+10% урона тайной магией" },
+          { "code": "57", "value": 5, "text": "+5% спелл-крита" },
+          { "code": "137/3", "value": 5, "text": "+5% интеллекта" }
+        ],
+        "negative": [
+          { "code": "22/4", "value": -5, "text": "-5 сопр. огню" },
+          { "code": "22/16", "value": -5, "text": "-5 сопр. морозу" },
+          { "code": "137/2", "value": -5, "text": "-5% выносливости" }
+        ]
+      }
+    }
+  ]
+}

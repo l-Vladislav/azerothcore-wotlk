@@ -42,7 +42,7 @@ $fam = [System.IO.File]::ReadAllText($jsonPath, (New-Object System.Text.UTF8Enco
 $key = $fam.key
 $sqlPath = Join-Path $repo "data/sql/updates/pending_db_world/nemesis_familiars_gacha_$key.sql"
 
-$scrollDisplay = 20629  # ItemDisplayInfo with InventoryIcon INV_Box_PetCarrier_01 (cage, stock)
+$scrollDisplay = 58861  # ItemDisplayInfo with InventoryIcon inv_pet_magicalcradadbox (stock, sic - Blizzard typo)
 $qualityMap = @{ 'C' = 1; 'R' = 3; 'E' = 4 }
 $sellPrice = 1000000   # 100g (catalog: duplicate scrolls vendor for 100g)
 
@@ -61,7 +61,7 @@ function StatRu([string]$code) {
     $c = Parse-Code $code; $aura = $c.Aura; $misc = $c.Misc
     $flat = $false; $gen = $null
     switch ($aura) {
-        137 { $gen = @{'0'='силы';'1'='ловкости';'2'='выносливости';'3'='интеллекта';'4'='духа'}["$misc"] }
+        137 { $gen = @{'-1'='всех характеристик';'0'='силы';'1'='ловкости';'2'='выносливости';'3'='интеллекта';'4'='духа'}["$misc"] }
         101 { if ($misc -eq 1) { $gen = 'брони' } else { $gen = 'сопротивления' } }
         22  { $flat = $true; $gen = @{'2'='сопротивления свету';'4'='сопротивления огню';'8'='сопротивления природе';'16'='сопротивления морозу';'32'='сопротивления тени';'64'='сопротивления тайной магии';'126'='сопротивления всем школам магии';'127'='сопротивления всем школам магии'}["$misc"] }
         79  { $gen = @{'1'='физического урона';'2'='урона светом';'4'='урона огнём';'8'='урона природой';'16'='урона морозом';'32'='урона тенью';'64'='урона тайной магией';'126'='урона магией';'127'='всего урона'}["$misc"] }
@@ -259,6 +259,19 @@ $idx = @{}; for ($i = 0; $i -lt $cols2.Count; $i++) { $idx[$cols2[$i]] = $i }
 
 function Split-CsvRow([string]$row) { return $row.Substring(1, $row.Length - 2) -split '","' }
 function Join-CsvRow([string[]]$f) { return '"' + ($f -join '","') + '"' }
+function UpsertCustomCsv([string]$path, [string]$header, $rows, $ids) {
+    $o = New-Object System.Collections.ArrayList
+    if (Test-Path $path) {
+        $ex = [System.IO.File]::ReadAllLines($path, [System.Text.UTF8Encoding]::new($true))
+        [void]$o.Add($ex[0])
+        for ($i = 1; $i -lt $ex.Count; $i++) {
+            $rid = ($ex[$i] -split '","')[0].TrimStart('"')
+            if ($ids -notcontains $rid) { [void]$o.Add($ex[$i]) }
+        }
+    } else { [void]$o.Add($header) }
+    foreach ($r in $rows) { [void]$o.Add($r) }
+    [System.IO.File]::WriteAllLines($path, $o, $enc)
+}
 
 $tmplSummon = $null; $tmplAura = $null
 for ($i = 1; $i -lt $lines.Count; $i++) {
@@ -331,6 +344,20 @@ foreach ($r in $newRows) { $output.Add($r) | Out-Null }
 Write-Host ("CSV: appended {0} rows to {1}" -f $newRows.Count, $csvPath)
 
 # ---------------------------------------------------------------------------
+# Item.dbc rows for the cage items — the 3.3.5 client shows a "?" icon for
+# items missing from its Item.dbc. Owner merges Item_custom.csv into the
+# MPQ's Item.dbc (client-only; server logs only LOG_DEBUG for missing rows).
+# ---------------------------------------------------------------------------
+$itemHeader = '"ID","ClassID","SubclassID","SoundOverrideSubclassID","Material","DisplayInfoID","InventoryType","SheatheType"'
+$cageRows = @(); $cageIds = @()
+foreach ($p in $fam.pets) {
+    $cageRows += ('"{0}","15","2","-1","4","{1}","0","0"' -f $p.ids.scroll, $scrollDisplay)
+    $cageIds += "$($p.ids.scroll)"
+}
+UpsertCustomCsv (Join-Path $repo '.claude/dbc/Item_custom.csv') $itemHeader $cageRows $cageIds
+Write-Host ("CSV: upserted {0} cage rows into Item_custom.csv (DisplayInfoID={1})" -f $cageRows.Count, $scrollDisplay)
+
+# ---------------------------------------------------------------------------
 # muteAmbient — clone CDI row (+ its effective sound kit with LoopSoundID=0)
 # into CreatureDisplayInfo_custom.csv / CreatureSoundData_custom.csv.
 # Owner merges these via WDBX into BOTH the client MPQ DBCs AND the server's
@@ -350,20 +377,6 @@ if ($mutedSpecs.Count -gt 0) {
         }
         return $null
     }
-    function UpsertCustomCsv([string]$path, [string]$header, $rows, $ids) {
-        $o = New-Object System.Collections.ArrayList
-        if (Test-Path $path) {
-            $ex = [System.IO.File]::ReadAllLines($path, [System.Text.UTF8Encoding]::new($true))
-            [void]$o.Add($ex[0])
-            for ($i = 1; $i -lt $ex.Count; $i++) {
-                $rid = ($ex[$i] -split '","')[0].TrimStart('"')
-                if ($ids -notcontains $rid) { [void]$o.Add($ex[$i]) }
-            }
-        } else { [void]$o.Add($header) }
-        foreach ($r in $rows) { [void]$o.Add($r) }
-        [System.IO.File]::WriteAllLines($path, $o, $enc)
-    }
-
     $newCdi = @(); $newCsd = @()
     foreach ($ms in $mutedSpecs) {
         $src = FindRowById $cdiL "$($ms.SourceDisplay)"
