@@ -1,0 +1,194 @@
+{
+  "family": 3,
+  "key": "ice",
+  "name": "Ледяной",
+  "role": "Magic DPS (Frost)",
+  "modelTheme": "Пингвины, морозные элементали, ледяные виверны",
+  "chestItem": 110102,
+  "_schema": {
+    "ids": "creature/summon/buffAura/scroll = formula from fp; debuffAura set only when effects.negative is non-empty",
+    "status": "draft = pending owner data/decision; confirmed = reviewed/edited by owner",
+    "icon": "spellIconId = real SpellIcon.dbc row (resolved from name); 1582 = server-safe placeholder",
+    "effect.code": "79/16 frost dmg, 22/16 frost res, 22/4 fire res, 65 spell haste, 57 spell crit, 31 move speed, 137/3 Int; value = percent (sign carries buff/debuff), flat for 22"
+  },
+  "pets": [
+    {
+      "fp": "3.1",
+      "rarity": "C",
+      "name": "Холодок",
+      "nameAcc": "Холодка",
+      "status": "confirmed",
+      "displayId": 26452,
+      "scale": 1.0,
+      "icon": { "spellIconId": 4074, "name": "inv_misc_penguinpet", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191020, "summon": 102020, "buffAura": 103020, "debuffAura": null, "scroll": 110020 },
+      "sources": { "modelNpc": 29726 },
+      "effects": {
+        "positive": [ { "code": "79/16", "value": 2, "text": "+2% урона морозом" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "3.2",
+      "rarity": "C",
+      "name": "Маленький Холодок",
+      "nameAcc": "Маленького Холодка",
+      "status": "confirmed",
+      "displayId": 26452,
+      "scale": 1.0,
+      "icon": { "spellIconId": 4074, "name": "inv_misc_penguinpet", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191021, "summon": 102021, "buffAura": 103021, "debuffAura": 104021, "scroll": 110021 },
+      "sources": { "modelNpc": 29726 },
+      "effects": {
+        "positive": [ { "code": "79/16", "value": 2, "text": "+2% урона морозом" } ],
+        "negative": [ { "code": "22/4", "value": -1, "text": "-1 сопр. огню" } ]
+      }
+    },
+    {
+      "fp": "3.3",
+      "rarity": "C",
+      "name": "Льдинка",
+      "nameAcc": "Льдинку",
+      "status": "confirmed",
+      "displayId": 28216,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3911, "name": "inv_pet_nurturedpenguinegg", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191022, "summon": 102022, "buffAura": 103022, "debuffAura": null, "scroll": 110022 },
+      "sources": { "modelNpc": 32595 },
+      "effects": {
+        "positive": [ { "code": "22/16", "value": 5, "text": "+5 сопр. морозу" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "3.4",
+      "rarity": "C",
+      "name": "Маленькая Льдинка",
+      "nameAcc": "Маленькую Льдинку",
+      "status": "confirmed",
+      "displayId": 28216,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3911, "name": "inv_pet_nurturedpenguinegg", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191023, "summon": 102023, "buffAura": 103023, "debuffAura": 104023, "scroll": 110023 },
+      "sources": { "modelNpc": 32595 },
+      "effects": {
+        "positive": [ { "code": "22/16", "value": 5, "text": "+5 сопр. морозу" } ],
+        "negative": [ { "code": "31", "value": -1, "text": "-1% скорости передвижения" } ]
+      }
+    },
+    {
+      "fp": "3.5",
+      "rarity": "C",
+      "name": "Иней",
+      "nameAcc": "Иней",
+      "status": "confirmed",
+      "displayId": 31722,
+      "muteAmbient": true,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2132, "name": "spell_frost_frozencore", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191024, "summon": 102024, "buffAura": 103024, "debuffAura": null, "scroll": 110024 },
+      "sources": { "modelNpc": 40198 },
+      "effects": {
+        "positive": [ { "code": "65", "value": 2, "text": "+2% спелл-хейста" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "3.6",
+      "rarity": "C",
+      "name": "Подмёрзший Иней",
+      "nameAcc": "Подмёрзший Иней",
+      "status": "confirmed",
+      "displayId": 31722,
+      "muteAmbient": true,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2132, "name": "spell_frost_frozencore", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191025, "summon": 102025, "buffAura": 103025, "debuffAura": 104025, "scroll": 110025 },
+      "sources": { "modelNpc": 40198 },
+      "effects": {
+        "positive": [ { "code": "65", "value": 2, "text": "+2% спелл-хейста" } ],
+        "negative": [ { "code": "137/3", "value": -1, "text": "-1% интеллекта" } ]
+      }
+    },
+    {
+      "fp": "3.7",
+      "rarity": "R",
+      "name": "Ледяной Сильф",
+      "nameAcc": "Ледяного Сильфа",
+      "status": "confirmed",
+      "displayId": 15671,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3073, "name": "inv_misc_bag_17", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191026, "summon": 102026, "buffAura": 103026, "debuffAura": null, "scroll": 110026 },
+      "sources": { "modelNpc": 15710 },
+      "effects": {
+        "positive": [
+          { "code": "79/16", "value": 5, "text": "+5% урона морозом" },
+          { "code": "65", "value": 3, "text": "+3% спелл-хейста" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "3.8",
+      "rarity": "R",
+      "name": "Зимний Дух",
+      "nameAcc": "Зимнего Духа",
+      "status": "confirmed",
+      "displayId": 19033,
+      "scale": 1.0,
+      "icon": { "spellIconId": 4094, "name": "inv_misc_herb_frostlotus", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191027, "summon": 102027, "buffAura": 103027, "debuffAura": null, "scroll": 110027 },
+      "sources": { "modelNpc": 19586 },
+      "effects": {
+        "positive": [
+          { "code": "79/16", "value": 5, "text": "+5% урона морозом" },
+          { "code": "22/16", "value": 5, "text": "+5 сопр. морозу" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "3.9",
+      "rarity": "R",
+      "name": "Морозный Дракончик",
+      "nameAcc": "Морозного Дракончика",
+      "status": "confirmed",
+      "displayId": 6293,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1700, "name": "inv_misc_head_dragon_blue", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191028, "summon": 102028, "buffAura": 103028, "debuffAura": null, "scroll": 110028 },
+      "sources": { "modelNpc": 7547 },
+      "effects": {
+        "positive": [
+          { "code": "57", "value": 5, "text": "+5% спелл-крита" },
+          { "code": "137/3", "value": 3, "text": "+3% интеллекта" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "3.10",
+      "rarity": "E",
+      "name": "Морозец",
+      "nameAcc": "Морозца",
+      "status": "confirmed",
+      "displayId": 28456,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3752, "name": "inv_pet_frostwyrm", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191029, "summon": 102029, "buffAura": 103029, "debuffAura": 104029, "scroll": 110029 },
+      "sources": { "modelNpc": 28883 },
+      "effects": {
+        "positive": [
+          { "code": "79/16", "value": 10, "text": "+10% урона морозом" },
+          { "code": "137/3", "value": 5, "text": "+5% интеллекта" },
+          { "code": "22/16", "value": 5, "text": "+5 сопр. морозу" }
+        ],
+        "negative": [
+          { "code": "22/4", "value": -10, "text": "-10 сопр. огню" },
+          { "code": "137/2", "value": -5, "text": "-5% выносливости" }
+        ]
+      }
+    }
+  ]
+}

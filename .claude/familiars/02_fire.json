@@ -20,12 +20,12 @@
       "status": "confirmed",
       "displayId": 10817,
       "muteAmbient": true,
-      "scale": 0.8,
+      "scale": 0.5,
       "icon": { "spellIconId": 876, "name": "spell_fire_lavaspawn", "fileDataId": null, "sourceSpell": null },
       "ids": { "creature": 191010, "summon": 102010, "buffAura": 103010, "debuffAura": null, "scroll": 110010 },
       "sources": { "modelNpc": 11669 },
       "effects": {
-        "positive": [ { "code": "79/4", "value": 1, "text": "+1% урона огнём" } ],
+        "positive": [ { "code": "79/4", "value": 2, "text": "+2% урона огнём" } ],
         "negative": []
       }
     },
@@ -37,12 +37,12 @@
       "status": "confirmed",
       "displayId": 10817,
       "muteAmbient": true,
-      "scale": 0.8,
+      "scale": 0.5,
       "icon": { "spellIconId": 876, "name": "spell_fire_lavaspawn", "fileDataId": null, "sourceSpell": null },
       "ids": { "creature": 191011, "summon": 102011, "buffAura": 103011, "debuffAura": 104011, "scroll": 110011 },
       "sources": { "modelNpc": 11669 },
       "effects": {
-        "positive": [ { "code": "79/4", "value": 1, "text": "+1% урона огнём" } ],
+        "positive": [ { "code": "79/4", "value": 2, "text": "+2% урона огнём" } ],
         "negative": [ { "code": "22/16", "value": -1, "text": "-1 сопр. морозу" } ]
       }
     },
@@ -54,7 +54,7 @@
       "status": "confirmed",
       "displayId": 14380,
       "muteAmbient": true,
-      "scale": 0.8,
+      "scale": 0.6,
       "icon": { "spellIconId": 2019, "name": "spell_fire_totemofwrath", "fileDataId": null, "sourceSpell": null },
       "ids": { "creature": 191012, "summon": 102012, "buffAura": 103012, "debuffAura": null, "scroll": 110012 },
       "sources": { "modelNpc": 14349 },
@@ -71,7 +71,7 @@
       "status": "confirmed",
       "displayId": 14380,
       "muteAmbient": true,
-      "scale": 0.8,
+      "scale": 0.6,
       "icon": { "spellIconId": 2019, "name": "spell_fire_totemofwrath", "fileDataId": null, "sourceSpell": null },
       "ids": { "creature": 191013, "summon": 102013, "buffAura": 103013, "debuffAura": 104013, "scroll": 110013 },
       "sources": { "modelNpc": 14349 },
@@ -126,7 +126,7 @@
       "sources": { "modelNpc": 25706 },
       "effects": {
         "positive": [
-          { "code": "79/4", "value": 3, "text": "+3% урона огнём" },
+          { "code": "79/4", "value": 5, "text": "+5% урона огнём" },
           { "code": "57", "value": 3, "text": "+3% спелл-крита" }
         ],
         "negative": []
@@ -145,7 +145,7 @@
       "sources": { "modelNpc": 26119 },
       "effects": {
         "positive": [
-          { "code": "79/4", "value": 3, "text": "+3% урона огнём" },
+          { "code": "79/4", "value": 5, "text": "+5% урона огнём" },
           { "code": "22/4", "value": 5, "text": "+5 сопр. огню" }
         ],
         "negative": []
@@ -164,7 +164,7 @@
       "sources": { "modelNpc": 36871 },
       "effects": {
         "positive": [
-          { "code": "79/4", "value": 3, "text": "+3% урона огнём" },
+          { "code": "79/4", "value": 5, "text": "+5% урона огнём" },
           { "code": "65", "value": 3, "text": "+3% спелл-хейста" }
         ],
         "negative": []
@@ -178,18 +178,18 @@
       "status": "confirmed",
       "displayId": 18139,
       "muteAmbient": true,
-      "scale": 0.2,
+      "scale": 0.1,
       "icon": { "spellIconId": 3819, "name": "achievement_boss_ragnaros", "fileDataId": null, "sourceSpell": null },
       "ids": { "creature": 191019, "summon": 102019, "buffAura": 103019, "debuffAura": 104019, "scroll": 110019 },
       "sources": { "modelNpc": 19973 },
       "effects": {
         "positive": [
-          { "code": "79/4", "value": 5, "text": "+5% урона огнём" },
+          { "code": "79/4", "value": 10, "text": "+10% урона огнём" },
           { "code": "57", "value": 5, "text": "+5% спелл-крита" },
           { "code": "137/3", "value": 5, "text": "+5% интеллекта" }
         ],
         "negative": [
-          { "code": "137/2", "value": -10, "text": "-10% выносливости" },
+          { "code": "137/2", "value": -5, "text": "-5% выносливости" },
           { "code": "22/16", "value": -5, "text": "-5 сопр. морозу" }
         ]
       }

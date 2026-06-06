@@ -24,9 +24,9 @@ REPLACE INTO spell_dbc (ID, Attributes, CastingTimeIndex, DurationIndex, RangeIn
 -- STEP 2: spell_dbc — positive owner-auras (103xxx, buff bar)
 DELETE FROM spell_dbc WHERE ID IN (103010, 103011, 103012, 103013, 103014, 103015, 103016, 103017, 103018, 103019);
 REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, EquippedItemClass, Effect_1, EffectAura_1, EffectBasePoints_1, EffectDieSides_1, EffectMiscValue_1, ImplicitTargetA_1, SchoolMask, SpellIconID, Name_Lang_enUS, Description_Lang_enUS) VALUES
-(103010, 2147483648, 21, 101, 1, -1, 6, 79, 0, 1, 4, 1, 1, 876, 'Familiar Aura: Бес-Поджигатель', '+1% урона огнём');
+(103010, 2147483648, 21, 101, 1, -1, 6, 79, 1, 1, 4, 1, 1, 876, 'Familiar Aura: Бес-Поджигатель', '+2% урона огнём');
 REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, EquippedItemClass, Effect_1, EffectAura_1, EffectBasePoints_1, EffectDieSides_1, EffectMiscValue_1, ImplicitTargetA_1, SchoolMask, SpellIconID, Name_Lang_enUS, Description_Lang_enUS) VALUES
-(103011, 2147483648, 21, 101, 1, -1, 6, 79, 0, 1, 4, 1, 1, 876, 'Familiar Aura: Хромой Бесёныш', '+1% урона огнём');
+(103011, 2147483648, 21, 101, 1, -1, 6, 79, 1, 1, 4, 1, 1, 876, 'Familiar Aura: Хромой Бесёныш', '+2% урона огнём');
 REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, EquippedItemClass, Effect_1, EffectAura_1, EffectBasePoints_1, EffectDieSides_1, EffectMiscValue_1, ImplicitTargetA_1, SchoolMask, SpellIconID, Name_Lang_enUS, Description_Lang_enUS) VALUES
 (103012, 2147483648, 21, 101, 1, -1, 6, 57, 0, 1, 0, 1, 1, 2019, 'Familiar Aura: Уголёк', '+1% шанса критического удара заклинаний');
 REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, EquippedItemClass, Effect_1, EffectAura_1, EffectBasePoints_1, EffectDieSides_1, EffectMiscValue_1, ImplicitTargetA_1, SchoolMask, SpellIconID, Name_Lang_enUS, Description_Lang_enUS) VALUES
@@ -36,13 +36,13 @@ REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, E
 REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, EquippedItemClass, Effect_1, EffectAura_1, EffectBasePoints_1, EffectDieSides_1, EffectMiscValue_1, ImplicitTargetA_1, SchoolMask, SpellIconID, Name_Lang_enUS, Description_Lang_enUS) VALUES
 (103015, 2147483648, 21, 101, 1, -1, 6, 137, 0, 1, 3, 1, 1, 1548, 'Familiar Aura: Опалённый Огнекрыл', '+1% интеллекта');
 REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, EquippedItemClass, Effect_1, EffectAura_1, EffectBasePoints_1, EffectDieSides_1, EffectMiscValue_1, ImplicitTargetA_1, Effect_2, EffectAura_2, EffectBasePoints_2, EffectDieSides_2, EffectMiscValue_2, ImplicitTargetA_2, SchoolMask, SpellIconID, Name_Lang_enUS, Description_Lang_enUS) VALUES
-(103016, 2147483648, 21, 101, 1, -1, 6, 79, 2, 1, 4, 1, 6, 57, 2, 1, 0, 1, 1, 3874, 'Familiar Aura: Пламенный Жнец', '+3% урона огнём, +3% шанса критического удара заклинаний');
+(103016, 2147483648, 21, 101, 1, -1, 6, 79, 4, 1, 4, 1, 6, 57, 2, 1, 0, 1, 1, 3874, 'Familiar Aura: Пламенный Жнец', '+5% урона огнём, +3% шанса критического удара заклинаний');
 REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, EquippedItemClass, Effect_1, EffectAura_1, EffectBasePoints_1, EffectDieSides_1, EffectMiscValue_1, ImplicitTargetA_1, Effect_2, EffectAura_2, EffectBasePoints_2, EffectDieSides_2, EffectMiscValue_2, ImplicitTargetA_2, SchoolMask, SpellIconID, Name_Lang_enUS, Description_Lang_enUS) VALUES
-(103017, 2147483648, 21, 101, 1, -1, 6, 79, 2, 1, 4, 1, 6, 22, 4, 1, 4, 1, 1, 2787, 'Familiar Aura: Фоукс', '+3% урона огнём, +5 сопротивления огню');
+(103017, 2147483648, 21, 101, 1, -1, 6, 79, 4, 1, 4, 1, 6, 22, 4, 1, 4, 1, 1, 2787, 'Familiar Aura: Фоукс', '+5% урона огнём, +5 сопротивления огню');
 REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, EquippedItemClass, Effect_1, EffectAura_1, EffectBasePoints_1, EffectDieSides_1, EffectMiscValue_1, ImplicitTargetA_1, Effect_2, EffectAura_2, EffectBasePoints_2, EffectDieSides_2, EffectMiscValue_2, ImplicitTargetA_2, SchoolMask, SpellIconID, Name_Lang_enUS, Description_Lang_enUS) VALUES
-(103018, 2147483648, 21, 101, 1, -1, 6, 79, 2, 1, 4, 1, 6, 65, 2, 1, 0, 1, 1, 4062, 'Familiar Aura: Демон-Поджигатель', '+3% урона огнём, +3% скорости накладывания заклинаний');
+(103018, 2147483648, 21, 101, 1, -1, 6, 79, 4, 1, 4, 1, 6, 65, 2, 1, 0, 1, 1, 4062, 'Familiar Aura: Демон-Поджигатель', '+5% урона огнём, +3% скорости накладывания заклинаний');
 REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, EquippedItemClass, Effect_1, EffectAura_1, EffectBasePoints_1, EffectDieSides_1, EffectMiscValue_1, ImplicitTargetA_1, Effect_2, EffectAura_2, EffectBasePoints_2, EffectDieSides_2, EffectMiscValue_2, ImplicitTargetA_2, Effect_3, EffectAura_3, EffectBasePoints_3, EffectDieSides_3, EffectMiscValue_3, ImplicitTargetA_3, SchoolMask, SpellIconID, Name_Lang_enUS, Description_Lang_enUS) VALUES
-(103019, 2147483648, 21, 101, 1, -1, 6, 79, 4, 1, 4, 1, 6, 57, 4, 1, 0, 1, 6, 137, 4, 1, 3, 1, 1, 3819, 'Familiar Aura: Аватар Огня', '+5% урона огнём, +5% шанса критического удара заклинаний, +5% интеллекта');
+(103019, 2147483648, 21, 101, 1, -1, 6, 79, 9, 1, 4, 1, 6, 57, 4, 1, 0, 1, 6, 137, 4, 1, 3, 1, 1, 3819, 'Familiar Aura: Аватар Огня', '+10% урона огнём, +5% шанса критического удара заклинаний, +5% интеллекта');
 
 -- STEP 3: spell_dbc — negative owner-auras (104xxx, debuff bar)
 DELETE FROM spell_dbc WHERE ID IN (104011, 104013, 104015, 104019);
@@ -53,7 +53,7 @@ REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, E
 REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, EquippedItemClass, Effect_1, EffectAura_1, EffectBasePoints_1, EffectDieSides_1, EffectMiscValue_1, ImplicitTargetA_1, SchoolMask, SpellIconID, Name_Lang_enUS, Description_Lang_enUS) VALUES
 (104015, 2214592512, 21, 101, 1, -1, 6, 137, -2, 1, 4, 1, 1, 1548, 'Familiar Debuff: Опалённый Огнекрыл', '-1% духа');
 REPLACE INTO spell_dbc (ID, Attributes, DurationIndex, ProcChance, RangeIndex, EquippedItemClass, Effect_1, EffectAura_1, EffectBasePoints_1, EffectDieSides_1, EffectMiscValue_1, ImplicitTargetA_1, Effect_2, EffectAura_2, EffectBasePoints_2, EffectDieSides_2, EffectMiscValue_2, ImplicitTargetA_2, SchoolMask, SpellIconID, Name_Lang_enUS, Description_Lang_enUS) VALUES
-(104019, 2214592512, 21, 101, 1, -1, 6, 137, -11, 1, 2, 1, 6, 22, -6, 1, 16, 1, 1, 3819, 'Familiar Debuff: Аватар Огня', '-10% выносливости, -5 сопротивления морозу');
+(104019, 2214592512, 21, 101, 1, -1, 6, 137, -6, 1, 2, 1, 6, 22, -6, 1, 16, 1, 1, 3819, 'Familiar Debuff: Аватар Огня', '-5% выносливости, -5 сопротивления морозу');
 
 -- STEP 4: creature_template + _model + _locale
 DELETE FROM creature_template_locale WHERE entry IN (191010, 191011, 191012, 191013, 191014, 191015, 191016, 191017, 191018, 191019);
@@ -73,16 +73,16 @@ REPLACE INTO creature_template (entry, name, subname, minlevel, maxlevel, factio
 (191019, 'Аватар Огня', '', 1, 1, 35, 1, 7, 0, 0, '');
 
 INSERT INTO creature_template_model (CreatureID, Idx, CreatureDisplayID, DisplayScale, Probability, VerifiedBuild) VALUES
-(191010, 0, 65010, 0.8, 1, 0),
-(191011, 0, 65011, 0.8, 1, 0),
-(191012, 0, 65012, 0.8, 1, 0),
-(191013, 0, 65013, 0.8, 1, 0),
+(191010, 0, 65010, 0.5, 1, 0),
+(191011, 0, 65011, 0.5, 1, 0),
+(191012, 0, 65012, 0.6, 1, 0),
+(191013, 0, 65013, 0.6, 1, 0),
 (191014, 0, 6290, 1.0, 1, 0),
 (191015, 0, 6290, 1.0, 1, 0),
 (191016, 0, 65016, 1.0, 1, 0),
 (191017, 0, 23574, 1.0, 1, 0),
 (191018, 0, 30462, 1.0, 1, 0),
-(191019, 0, 65019, 0.2, 1, 0);
+(191019, 0, 65019, 0.1, 1, 0);
 
 INSERT INTO creature_template_locale (entry, locale, Name, Title) VALUES
 (191010, 'ruRU', 'Бес-Поджигатель', ''),
@@ -116,25 +116,25 @@ DELETE FROM item_template_locale WHERE ID IN (110010, 110011, 110012, 110013, 11
 DELETE FROM item_template        WHERE entry IN (110010, 110011, 110012, 110013, 110014, 110015, 110016, 110017, 110018, 110019);
 
 REPLACE INTO item_template (entry, class, subclass, name, displayid, Quality, Flags, BuyPrice, SellPrice, InventoryType, AllowableClass, ItemLevel, RequiredLevel, MaxCount, stackable, spellid_1, spelltrigger_1, spellcharges_1, spellid_2, spelltrigger_2, spellcharges_2, bonding, description, Material) VALUES
-(110010, 15, 2, 'Клетка с: Бес-Поджигатель', 20629, 1, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102010, 6, 0, 1, 'Обучает призывать фамильяра: Бес-Поджигатель. +1% урона огнём', 4),
-(110011, 15, 2, 'Клетка с: Хромой Бесёныш', 20629, 1, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102011, 6, 0, 1, 'Обучает призывать фамильяра: Хромой Бесёныш. +1% урона огнём; -1 сопротивления морозу', 4),
+(110010, 15, 2, 'Клетка с: Бес-Поджигатель', 20629, 1, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102010, 6, 0, 1, 'Обучает призывать фамильяра: Бес-Поджигатель. +2% урона огнём', 4),
+(110011, 15, 2, 'Клетка с: Хромой Бесёныш', 20629, 1, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102011, 6, 0, 1, 'Обучает призывать фамильяра: Хромой Бесёныш. +2% урона огнём; -1 сопротивления морозу', 4),
 (110012, 15, 2, 'Клетка с: Уголёк', 20629, 1, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102012, 6, 0, 1, 'Обучает призывать фамильяра: Уголёк. +1% шанса критического удара заклинаний', 4),
 (110013, 15, 2, 'Клетка с: Тлеющий Уголёк', 20629, 1, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102013, 6, 0, 1, 'Обучает призывать фамильяра: Тлеющий Уголёк. +1% шанса критического удара заклинаний; -1% выносливости', 4),
 (110014, 15, 2, 'Клетка с: Огнекрыл-Малыш', 20629, 1, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102014, 6, 0, 1, 'Обучает призывать фамильяра: Огнекрыл-Малыш. +1% интеллекта', 4),
 (110015, 15, 2, 'Клетка с: Опалённый Огнекрыл', 20629, 1, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102015, 6, 0, 1, 'Обучает призывать фамильяра: Опалённый Огнекрыл. +1% интеллекта; -1% духа', 4),
-(110016, 15, 2, 'Клетка с: Пламенный Жнец', 20629, 3, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102016, 6, 0, 1, 'Обучает призывать фамильяра: Пламенный Жнец. +3% урона огнём, +3% шанса критического удара заклинаний', 4),
-(110017, 15, 2, 'Клетка с: Фоукс', 20629, 3, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102017, 6, 0, 1, 'Обучает призывать фамильяра: Фоукс. +3% урона огнём, +5 сопротивления огню', 4),
-(110018, 15, 2, 'Клетка с: Демон-Поджигатель', 20629, 3, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102018, 6, 0, 1, 'Обучает призывать фамильяра: Демон-Поджигатель. +3% урона огнём, +3% скорости накладывания заклинаний', 4),
-(110019, 15, 2, 'Клетка с: Аватар Огня', 20629, 4, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102019, 6, 0, 1, 'Обучает призывать фамильяра: Аватар Огня. +5% урона огнём, +5% шанса критического удара заклинаний, +5% интеллекта; -10% выносливости, -5 сопротивления морозу', 4);
+(110016, 15, 2, 'Клетка с: Пламенный Жнец', 20629, 3, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102016, 6, 0, 1, 'Обучает призывать фамильяра: Пламенный Жнец. +5% урона огнём, +3% шанса критического удара заклинаний', 4),
+(110017, 15, 2, 'Клетка с: Фоукс', 20629, 3, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102017, 6, 0, 1, 'Обучает призывать фамильяра: Фоукс. +5% урона огнём, +5 сопротивления огню', 4),
+(110018, 15, 2, 'Клетка с: Демон-Поджигатель', 20629, 3, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102018, 6, 0, 1, 'Обучает призывать фамильяра: Демон-Поджигатель. +5% урона огнём, +3% скорости накладывания заклинаний', 4),
+(110019, 15, 2, 'Клетка с: Аватар Огня', 20629, 4, 64, 0, 1000000, 0, -1, 1, 1, 0, 1, 55884, 0, -1, 102019, 6, 0, 1, 'Обучает призывать фамильяра: Аватар Огня. +10% урона огнём, +5% шанса критического удара заклинаний, +5% интеллекта; -5% выносливости, -5 сопротивления морозу', 4);
 
 INSERT INTO item_template_locale (ID, locale, Name, Description) VALUES
-(110010, 'ruRU', 'Клетка с: Бес-Поджигатель', 'Обучает призывать фамильяра: Бес-Поджигатель. +1% урона огнём'),
-(110011, 'ruRU', 'Клетка с: Хромой Бесёныш', 'Обучает призывать фамильяра: Хромой Бесёныш. +1% урона огнём; -1 сопротивления морозу'),
+(110010, 'ruRU', 'Клетка с: Бес-Поджигатель', 'Обучает призывать фамильяра: Бес-Поджигатель. +2% урона огнём'),
+(110011, 'ruRU', 'Клетка с: Хромой Бесёныш', 'Обучает призывать фамильяра: Хромой Бесёныш. +2% урона огнём; -1 сопротивления морозу'),
 (110012, 'ruRU', 'Клетка с: Уголёк', 'Обучает призывать фамильяра: Уголёк. +1% шанса критического удара заклинаний'),
 (110013, 'ruRU', 'Клетка с: Тлеющий Уголёк', 'Обучает призывать фамильяра: Тлеющий Уголёк. +1% шанса критического удара заклинаний; -1% выносливости'),
 (110014, 'ruRU', 'Клетка с: Огнекрыл-Малыш', 'Обучает призывать фамильяра: Огнекрыл-Малыш. +1% интеллекта'),
 (110015, 'ruRU', 'Клетка с: Опалённый Огнекрыл', 'Обучает призывать фамильяра: Опалённый Огнекрыл. +1% интеллекта; -1% духа'),
-(110016, 'ruRU', 'Клетка с: Пламенный Жнец', 'Обучает призывать фамильяра: Пламенный Жнец. +3% урона огнём, +3% шанса критического удара заклинаний'),
-(110017, 'ruRU', 'Клетка с: Фоукс', 'Обучает призывать фамильяра: Фоукс. +3% урона огнём, +5 сопротивления огню'),
-(110018, 'ruRU', 'Клетка с: Демон-Поджигатель', 'Обучает призывать фамильяра: Демон-Поджигатель. +3% урона огнём, +3% скорости накладывания заклинаний'),
-(110019, 'ruRU', 'Клетка с: Аватар Огня', 'Обучает призывать фамильяра: Аватар Огня. +5% урона огнём, +5% шанса критического удара заклинаний, +5% интеллекта; -10% выносливости, -5 сопротивления морозу');
+(110016, 'ruRU', 'Клетка с: Пламенный Жнец', 'Обучает призывать фамильяра: Пламенный Жнец. +5% урона огнём, +3% шанса критического удара заклинаний'),
+(110017, 'ruRU', 'Клетка с: Фоукс', 'Обучает призывать фамильяра: Фоукс. +5% урона огнём, +5 сопротивления огню'),
+(110018, 'ruRU', 'Клетка с: Демон-Поджигатель', 'Обучает призывать фамильяра: Демон-Поджигатель. +5% урона огнём, +3% скорости накладывания заклинаний'),
+(110019, 'ruRU', 'Клетка с: Аватар Огня', 'Обучает призывать фамильяра: Аватар Огня. +10% урона огнём, +5% шанса критического удара заклинаний, +5% интеллекта; -5% выносливости, -5 сопротивления морозу');

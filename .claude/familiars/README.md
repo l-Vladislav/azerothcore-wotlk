@@ -12,8 +12,8 @@
 |---|---|---|---|
 | 1 | [01_mech.json](01_mech.json) | Механический | Танк (броня / Sta / блок) |
 | 2 | [02_fire.json](02_fire.json) | Огненный | Magic DPS (Fire) |
-| 3 | [03_ice.md](03_ice.md) | Лёд | Magic DPS (Frost) |
-| 4 | [04_nature.md](04_nature.md) | Природа | Хилер / Друид |
+| 3 | [03_ice.json](03_ice.json) | Ледяной | Magic DPS (Frost) |
+| 4 | [04_nature.json](04_nature.json) | Природный | Хилер / Друид |
 | 5 | [05_light.md](05_light.md) | Свет | Healer + Resist Tank |
 | 6 | [06_shadow.md](06_shadow.md) | Тень | Shadow DoT / Debuff-res |
 | 7 | [07_arcane.md](07_arcane.md) | Тайна | Arcane DPS |

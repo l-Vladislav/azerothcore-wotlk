@@ -1,0 +1,194 @@
+{
+  "family": 4,
+  "key": "nature",
+  "name": "Природный",
+  "role": "Хилер / Друид",
+  "modelTheme": "Виспы, лесные духи, лозы, древни",
+  "chestItem": 110103,
+  "_schema": {
+    "ids": "creature/summon/buffAura/scroll = formula from fp; debuffAura set only when effects.negative is non-empty",
+    "status": "draft = baseline pending owner review; confirmed = reviewed/edited by owner",
+    "icon": "spellIconId = real SpellIcon.dbc row (resolved from name); 1582 = server-safe placeholder",
+    "effect.code": "136 healing done %, 110 mana regen %, 137/4 Spi, 137/3 Int, 137/2 Sta, 22/126 all res, 22/8 nature res, 22/32 shadow res, 31 move; value = percent (sign carries buff/debuff), flat for 22"
+  },
+  "pets": [
+    {
+      "fp": "4.1",
+      "rarity": "C",
+      "name": "Светлячок",
+      "nameAcc": "Светлячка",
+      "status": "confirmed",
+      "displayId": 16587,
+      "scale": 1.0,
+      "icon": { "spellIconId": 122, "name": "spell_nature_wispsplode", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191030, "summon": 102030, "buffAura": 103030, "debuffAura": null, "scroll": 110030 },
+      "sources": { "modelNpc": 16701 },
+      "effects": {
+        "positive": [ { "code": "136", "value": 2, "text": "+2% исходящего лечения" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "4.2",
+      "rarity": "C",
+      "name": "Угасший Светлячок",
+      "nameAcc": "Угасшего Светлячка",
+      "status": "confirmed",
+      "displayId": 16587,
+      "scale": 1.0,
+      "icon": { "spellIconId": 122, "name": "spell_nature_wispsplode", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191031, "summon": 102031, "buffAura": 103031, "debuffAura": 104031, "scroll": 110031 },
+      "sources": { "modelNpc": 16701 },
+      "effects": {
+        "positive": [ { "code": "136", "value": 2, "text": "+2% исходящего лечения" } ],
+        "negative": [ { "code": "137/3", "value": -1, "text": "-1% интеллекта" } ]
+      }
+    },
+    {
+      "fp": "4.3",
+      "rarity": "C",
+      "name": "Лесной дух",
+      "nameAcc": "Лесного духа",
+      "status": "confirmed",
+      "displayId": 24465,
+      "muteAmbient": true,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3088, "name": "spell_nature_wispsplodegreen", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191032, "summon": 102032, "buffAura": 103032, "debuffAura": null, "scroll": 110032 },
+      "sources": { "modelNpc": 27252 },
+      "effects": {
+        "positive": [ { "code": "137/4", "value": 2, "text": "+2% духа" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "4.4",
+      "rarity": "C",
+      "name": "Заблудший лесной дух",
+      "nameAcc": "Заблудшего лесного духа",
+      "status": "confirmed",
+      "displayId": 24465,
+      "muteAmbient": true,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3088, "name": "spell_nature_wispsplodegreen", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191033, "summon": 102033, "buffAura": 103033, "debuffAura": 104033, "scroll": 110033 },
+      "sources": { "modelNpc": 27252 },
+      "effects": {
+        "positive": [ { "code": "137/4", "value": 2, "text": "+2% духа" } ],
+        "negative": [ { "code": "31", "value": -1, "text": "-1% скорости передвижения" } ]
+      }
+    },
+    {
+      "fp": "4.5",
+      "rarity": "C",
+      "name": "Корешок",
+      "nameAcc": "Корешка",
+      "status": "confirmed",
+      "displayId": 28493,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2585, "name": "inv_misc_flower_04", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191034, "summon": 102034, "buffAura": 103034, "debuffAura": null, "scroll": 110034 },
+      "sources": { "modelNpc": 33205 },
+      "effects": {
+        "positive": [ { "code": "22/126", "value": 3, "text": "+3 все резисты" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "4.6",
+      "rarity": "C",
+      "name": "Высохший Корешок",
+      "nameAcc": "Высохшего Корешка",
+      "status": "confirmed",
+      "displayId": 28493,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2585, "name": "inv_misc_flower_04", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191035, "summon": 102035, "buffAura": 103035, "debuffAura": 104035, "scroll": 110035 },
+      "sources": { "modelNpc": 33205 },
+      "effects": {
+        "positive": [ { "code": "22/126", "value": 3, "text": "+3 все резисты" } ],
+        "negative": [ { "code": "137/4", "value": -1, "text": "-1% духа" } ]
+      }
+    },
+    {
+      "fp": "4.7",
+      "rarity": "R",
+      "name": "Изумрудный дракон",
+      "nameAcc": "Изумрудного дракона",
+      "status": "confirmed",
+      "displayId": 6291,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1702, "name": "inv_misc_head_dragon_green", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191036, "summon": 102036, "buffAura": 103036, "debuffAura": null, "scroll": 110036 },
+      "sources": { "modelNpc": 7545 },
+      "effects": {
+        "positive": [
+          { "code": "136", "value": 5, "text": "+5% исходящего лечения" },
+          { "code": "110", "value": 3, "text": "+3% восстановления маны" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "4.8",
+      "rarity": "R",
+      "name": "Детеныш хамелеона",
+      "nameAcc": "Детеныша хамелеона",
+      "status": "confirmed",
+      "displayId": 6294,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1514, "name": "inv_egg_02", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191037, "summon": 102037, "buffAura": 103037, "debuffAura": null, "scroll": 110037 },
+      "sources": { "modelNpc": 9662 },
+      "effects": {
+        "positive": [
+          { "code": "136", "value": 5, "text": "+5% исходящего лечения" },
+          { "code": "137/3", "value": 3, "text": "+3% интеллекта" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "4.9",
+      "rarity": "R",
+      "name": "Древник-Хранитель",
+      "nameAcc": "Древника-Хранителя",
+      "status": "confirmed",
+      "displayId": 28482,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1217, "name": "inv_misc_herb_03", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191038, "summon": 102038, "buffAura": 103038, "debuffAura": null, "scroll": 110038 },
+      "sources": { "modelNpc": 33188 },
+      "effects": {
+        "positive": [
+          { "code": "136", "value": 5, "text": "+5% исходящего лечения" },
+          { "code": "22/8", "value": 5, "text": "+5 сопр. природе" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "4.10",
+      "rarity": "E",
+      "name": "Дух Древа",
+      "nameAcc": "Духа Древа",
+      "status": "confirmed",
+      "displayId": 8824,
+      "scale": 0.3,
+      "icon": { "spellIconId": 2258, "name": "ability_druid_forceofnature", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191039, "summon": 102039, "buffAura": 103039, "debuffAura": 104039, "scroll": 110039 },
+      "sources": { "modelNpc": 9601 },
+      "effects": {
+        "positive": [
+          { "code": "136", "value": 10, "text": "+10% исходящего лечения" },
+          { "code": "137/4", "value": 5, "text": "+5% духа" },
+          { "code": "137/3", "value": 5, "text": "+5% интеллекта" }
+        ],
+        "negative": [
+          { "code": "22/32", "value": -10, "text": "-10 сопр. тени" },
+          { "code": "137/2", "value": -5, "text": "-5% выносливости" }
+        ]
+      }
+    }
+  ]
+}

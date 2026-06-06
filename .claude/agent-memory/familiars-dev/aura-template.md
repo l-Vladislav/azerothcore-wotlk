@@ -2,6 +2,16 @@
 
 **Critical.** Skipping any required field makes the aura silently no-op or apply with amount=0. Empirically validated end-to-end on PTR 2026-05-29 (5 test pets, both buff bar + debuff bar render correctly).
 
+## Small % stat buffs can round to ZERO visible points — not a bug
+
+Verified 2026-06-06 (+100% boost test on 103032): aura 137 (`MOD_TOTAL_STAT_PERCENTAGE`)
+works for ALL stat indexes incl. Spirit (misc=4). But the sheet shows int-truncated
+stats: +2% of Spirit 49 = 49.98 → displays 49, "doesn't increase". +3% of Sta 126 =
+129.78 → visibly 129. Low-base stats (Spi/Int on melee, low level) swallow +1-2%
+entirely. Owner-accepted (percent design scales with gear). When the owner reports
+"+N% <stat> не работает" — first compute base × (1+N/100) and check the integer part
+before debugging.
+
 ## School-damage % auras (79) work but are INVISIBLE in the char sheet — accepted
 
 Verified 2026-06-05 with a +100% diagnostic boost: aura 79 (`MOD_DAMAGE_PERCENT_DONE`,
