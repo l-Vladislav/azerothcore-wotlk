@@ -1,0 +1,191 @@
+{
+  "family": 9,
+  "key": "beast",
+  "name": "Звериный",
+  "role": "Phys DPS (сила)",
+  "modelTheme": "Рапторы, волчеры, тигрята, медвежата, скорпионы, волки",
+  "chestItem": 110108,
+  "_schema": {
+    "ids": "creature/summon/buffAura/scroll = formula from fp; debuffAura set only when effects.negative is non-empty",
+    "status": "draft = pending owner data; confirmed = reviewed/edited by owner",
+    "icon": "spellIconId = real SpellIcon.dbc row (resolved from name); 1582 = server-safe placeholder",
+    "effect.code": "137/0 Str, 290 crit, 49 dodge, 31 move, 192 attack speed, 137/2 Sta; value = percent (sign carries buff/debuff)"
+  },
+  "pets": [
+    {
+      "fp": "9.1",
+      "rarity": "C",
+      "name": "Раптор",
+      "nameAcc": "Раптора",
+      "status": "confirmed",
+      "displayId": 29807,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1584, "name": "ability_hunter_pet_raptor", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191080, "summon": 102080, "buffAura": 103080, "debuffAura": null, "scroll": 110080 },
+      "sources": { "modelNpc": 35395 },
+      "effects": {
+        "positive": [ { "code": "290", "value": 1, "text": "+1% шанса критического удара" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "9.2",
+      "rarity": "C",
+      "name": "Хромой Раптор",
+      "nameAcc": "Хромого Раптора",
+      "status": "confirmed",
+      "displayId": 29807,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1584, "name": "ability_hunter_pet_raptor", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191081, "summon": 102081, "buffAura": 103081, "debuffAura": 104081, "scroll": 110081 },
+      "sources": { "modelNpc": 35395 },
+      "effects": {
+        "positive": [ { "code": "290", "value": 1, "text": "+1% шанса критического удара" } ],
+        "negative": [ { "code": "137/2", "value": -1, "text": "-1% выносливости" } ]
+      }
+    },
+    {
+      "fp": "9.3",
+      "rarity": "C",
+      "name": "Полосатый Волчер",
+      "nameAcc": "Полосатого Волчера",
+      "status": "confirmed",
+      "displayId": 25384,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3775, "name": "achievement_reputation_wolvar", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191082, "summon": 102082, "buffAura": 103082, "debuffAura": null, "scroll": 110082 },
+      "sources": { "modelNpc": 33529 },
+      "effects": {
+        "positive": [ { "code": "137/0", "value": 2, "text": "+2% силы" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "9.4",
+      "rarity": "C",
+      "name": "Тощий Волчер",
+      "nameAcc": "Тощего Волчера",
+      "status": "confirmed",
+      "displayId": 25384,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3775, "name": "achievement_reputation_wolvar", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191083, "summon": 102083, "buffAura": 103083, "debuffAura": 104083, "scroll": 110083 },
+      "sources": { "modelNpc": 33529 },
+      "effects": {
+        "positive": [ { "code": "137/0", "value": 2, "text": "+2% силы" } ],
+        "negative": [ { "code": "49", "value": -1, "text": "-1% уворота" } ]
+      }
+    },
+    {
+      "fp": "9.5",
+      "rarity": "C",
+      "name": "Тигрёнок",
+      "nameAcc": "Тигрёнка",
+      "status": "confirmed",
+      "displayId": 16942,
+      "scale": 1.0,
+      "icon": { "spellIconId": 293, "name": "inv_misc_head_tiger_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191084, "summon": 102084, "buffAura": 103084, "debuffAura": null, "scroll": 110084 },
+      "sources": { "modelNpc": 17254 },
+      "effects": {
+        "positive": [ { "code": "49", "value": 1, "text": "+1% уворота" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "9.6",
+      "rarity": "C",
+      "name": "Раненый Тигрёнок",
+      "nameAcc": "Раненого Тигрёнка",
+      "status": "confirmed",
+      "displayId": 16942,
+      "scale": 1.0,
+      "icon": { "spellIconId": 293, "name": "inv_misc_head_tiger_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191085, "summon": 102085, "buffAura": 103085, "debuffAura": 104085, "scroll": 110085 },
+      "sources": { "modelNpc": 17254 },
+      "effects": {
+        "positive": [ { "code": "49", "value": 1, "text": "+1% уворота" } ],
+        "negative": [ { "code": "137/2", "value": -1, "text": "-1% выносливости" } ]
+      }
+    },
+    {
+      "fp": "9.7",
+      "rarity": "R",
+      "name": "Свирепый Медвежонок",
+      "nameAcc": "Свирепого Медвежонка",
+      "status": "confirmed",
+      "displayId": 16189,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3896, "name": "inv_pet_babyblizzardbear", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191086, "summon": 102086, "buffAura": 103086, "debuffAura": null, "scroll": 110086 },
+      "sources": { "modelNpc": 32841 },
+      "effects": {
+        "positive": [
+          { "code": "137/0", "value": 3, "text": "+3% силы" },
+          { "code": "49", "value": 3, "text": "+3% уворота" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "9.8",
+      "rarity": "R",
+      "name": "Скорпиончик",
+      "nameAcc": "Скорпиончика",
+      "status": "confirmed",
+      "displayId": 2488,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1585, "name": "ability_hunter_pet_scorpid", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191087, "summon": 102087, "buffAura": 103087, "debuffAura": null, "scroll": 110087 },
+      "sources": { "modelNpc": 3226 },
+      "effects": {
+        "positive": [
+          { "code": "49", "value": 3, "text": "+3% уворота" },
+          { "code": "31", "value": 5, "text": "+5% скорости передвижения" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "9.9",
+      "rarity": "R",
+      "name": "Волкус",
+      "nameAcc": "Волкуса",
+      "status": "confirmed",
+      "displayId": 11412,
+      "scale": 0.8,
+      "icon": { "spellIconId": 956, "name": "ability_mount_whitedirewolf", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191088, "summon": 102088, "buffAura": 103088, "debuffAura": null, "scroll": 110088 },
+      "sources": { "modelNpc": 521 },
+      "effects": {
+        "positive": [
+          { "code": "290", "value": 3, "text": "+3% шанса критического удара" },
+          { "code": "137/0", "value": 3, "text": "+3% силы" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "9.10",
+      "rarity": "E",
+      "name": "Спектральный Зверь",
+      "nameAcc": "Спектрального Зверя",
+      "status": "confirmed",
+      "displayId": 30409,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3891, "name": "ability_mount_spectraltiger", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191089, "summon": 102089, "buffAura": 103089, "debuffAura": 104089, "scroll": 110089 },
+      "sources": { "modelNpc": 36511 },
+      "effects": {
+        "positive": [
+          { "code": "290", "value": 5, "text": "+5% шанса критического удара" },
+          { "code": "137/0", "value": 5, "text": "+5% силы" },
+          { "code": "192", "value": 5, "text": "+5% скорости атаки" }
+        ],
+        "negative": [
+          { "code": "137/2", "value": -10, "text": "-10% выносливости" }
+        ]
+      }
+    }
+  ]
+}

@@ -20,8 +20,8 @@
 | 6. Теневой | [06_shadow.json](../familiars/06_shadow.json) | Shadow DoT / Debuff-res |
 | 7. Тайный | [07_arcane.json](../familiars/07_arcane.json) | Arcane DPS |
 | 8. Демонический | [08_demon.json](../familiars/08_demon.json) | TBD (бывш. Гроза) |
-| 9. Зверь | [09_beast.md](../familiars/09_beast.md) | Phys DPS |
-| 10. Дух | [10_spirit.md](../familiars/10_spirit.md) | Utility (XP / honor / rep) |
+| 9. Звериный | [09_beast.json](../familiars/09_beast.json) | Phys DPS (сила) |
+| 10. Дух | [10_spirit.json](../familiars/10_spirit.json) | Utility (XP / honor / rep) |
 
 ## Распределение редкостей
 

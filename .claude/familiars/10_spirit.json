@@ -1,0 +1,192 @@
+{
+  "family": 10,
+  "key": "spirit",
+  "name": "Дух",
+  "role": "Utility (XP / честь / репутация)",
+  "modelTheme": "Сквернокот, жаба, тотемы, яйцо, мурлок, слайм, кролик",
+  "chestItem": 110109,
+  "_schema": {
+    "ids": "creature/summon/buffAura/scroll = formula from fp; debuffAura set only when effects.negative is non-empty",
+    "status": "draft = pending owner data; confirmed = reviewed/edited by owner",
+    "icon": "spellIconId = real SpellIcon.dbc row (resolved from name); 1582 = server-safe placeholder",
+    "effect.code": "200 XP %, 281 honor %, 156 reputation %, 137/-1 all stats, 31 move, 192 attack speed, 137/2 Sta; value = percent (sign carries buff/debuff)"
+  },
+  "pets": [
+    {
+      "fp": "10.1",
+      "rarity": "C",
+      "name": "Сквернокот",
+      "nameAcc": "Сквернокота",
+      "status": "confirmed",
+      "displayId": 9209,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2224, "name": "ability_hunter_catlikereflexes", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191090, "summon": 102090, "buffAura": 103090, "debuffAura": null, "scroll": 110090 },
+      "sources": { "modelNpc": 9936 },
+      "effects": {
+        "positive": [ { "code": "137/-1", "value": 1, "text": "+1% всех характеристик" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "10.2",
+      "rarity": "C",
+      "name": "Хромой Сквернокот",
+      "nameAcc": "Хромого Сквернокота",
+      "status": "confirmed",
+      "displayId": 9209,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2224, "name": "ability_hunter_catlikereflexes", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191091, "summon": 102091, "buffAura": 103091, "debuffAura": 104091, "scroll": 110091 },
+      "sources": { "modelNpc": 9936 },
+      "effects": {
+        "positive": [ { "code": "137/-1", "value": 1, "text": "+1% всех характеристик" } ],
+        "negative": [ { "code": "137/2", "value": -1, "text": "-1% выносливости" } ]
+      }
+    },
+    {
+      "fp": "10.3",
+      "rarity": "C",
+      "name": "Хлебная Жаба",
+      "nameAcc": "Хлебную Жабу",
+      "status": "confirmed",
+      "displayId": 22459,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3058, "name": "spell_shaman_hex", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191092, "summon": 102092, "buffAura": 103092, "debuffAura": null, "scroll": 110092 },
+      "sources": { "modelNpc": 24480 },
+      "effects": {
+        "positive": [ { "code": "200", "value": 2, "text": "+2% опыта" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "10.4",
+      "rarity": "C",
+      "name": "Подмокшая Хлебная Жаба",
+      "nameAcc": "Подмокшую Хлебную Жабу",
+      "status": "confirmed",
+      "displayId": 22459,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3058, "name": "spell_shaman_hex", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191093, "summon": 102093, "buffAura": 103093, "debuffAura": 104093, "scroll": 110093 },
+      "sources": { "modelNpc": 24480 },
+      "effects": {
+        "positive": [ { "code": "200", "value": 2, "text": "+2% опыта" } ],
+        "negative": [ { "code": "137/-1", "value": -1, "text": "-1% всех характеристик" } ]
+      }
+    },
+    {
+      "fp": "10.5",
+      "rarity": "C",
+      "name": "Тотемный Дух",
+      "nameAcc": "Тотемного Духа",
+      "status": "confirmed",
+      "displayId": 29189,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2804, "name": "inv_misc_coin_15", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191094, "summon": 102094, "buffAura": 103094, "debuffAura": null, "scroll": 110094 },
+      "sources": { "modelNpc": 33810 },
+      "effects": {
+        "positive": [ { "code": "281", "value": 3, "text": "+3% прироста чести" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "10.6",
+      "rarity": "C",
+      "name": "Треснутый Тотемный Дух",
+      "nameAcc": "Треснутого Тотемного Духа",
+      "status": "confirmed",
+      "displayId": 29189,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2804, "name": "inv_misc_coin_15", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191095, "summon": 102095, "buffAura": 103095, "debuffAura": 104095, "scroll": 110095 },
+      "sources": { "modelNpc": 33810 },
+      "effects": {
+        "positive": [ { "code": "281", "value": 3, "text": "+3% прироста чести" } ],
+        "negative": [ { "code": "137/2", "value": -1, "text": "-1% выносливости" } ]
+      }
+    },
+    {
+      "fp": "10.7",
+      "rarity": "R",
+      "name": "Живое Яйцо",
+      "nameAcc": "Живое Яйцо",
+      "status": "confirmed",
+      "displayId": 21382,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3910, "name": "inv_pet_egbert", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191096, "summon": 102096, "buffAura": 103096, "debuffAura": null, "scroll": 110096 },
+      "sources": { "modelNpc": 23258 },
+      "effects": {
+        "positive": [
+          { "code": "137/-1", "value": 2, "text": "+2% всех характеристик" },
+          { "code": "281", "value": 3, "text": "+3% прироста чести" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "10.8",
+      "rarity": "R",
+      "name": "Милый Урчаль",
+      "nameAcc": "Милого Урчаля",
+      "status": "confirmed",
+      "displayId": 15398,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2316, "name": "inv_egg_03", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191097, "summon": 102097, "buffAura": 103097, "debuffAura": null, "scroll": 110097 },
+      "sources": { "modelNpc": 15358 },
+      "effects": {
+        "positive": [
+          { "code": "200", "value": 5, "text": "+5% опыта" },
+          { "code": "31", "value": 5, "text": "+5% скорости передвижения" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "10.9",
+      "rarity": "R",
+      "name": "Слайм",
+      "nameAcc": "Слайма",
+      "status": "confirmed",
+      "displayId": 31073,
+      "muteAmbient": true,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1541, "name": "inv_misc_slime_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191098, "summon": 102098, "buffAura": 103098, "debuffAura": null, "scroll": 110098 },
+      "sources": { "modelNpc": 38374 },
+      "effects": {
+        "positive": [
+          { "code": "200", "value": 5, "text": "+5% опыта" },
+          { "code": "156", "value": 5, "text": "+5% прироста репутации" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "10.10",
+      "rarity": "E",
+      "name": "Везунчик",
+      "nameAcc": "Везунчика",
+      "status": "confirmed",
+      "displayId": 21304,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2717, "name": "inv_misc_elvencoins", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191099, "summon": 102099, "buffAura": 103099, "debuffAura": 104099, "scroll": 110099 },
+      "sources": { "modelNpc": 23114 },
+      "effects": {
+        "positive": [
+          { "code": "200", "value": 10, "text": "+10% опыта" },
+          { "code": "281", "value": 10, "text": "+10% прироста чести" },
+          { "code": "156", "value": 10, "text": "+10% прироста репутации" }
+        ],
+        "negative": [
+          { "code": "137/-1", "value": -5, "text": "-5% всех характеристик" }
+        ]
+      }
+    }
+  ]
+}

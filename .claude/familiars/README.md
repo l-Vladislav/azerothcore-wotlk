@@ -18,8 +18,8 @@
 | 6 | [06_shadow.json](06_shadow.json) | Теневой | Shadow DoT / Debuff-res |
 | 7 | [07_arcane.json](07_arcane.json) | Тайный | Arcane DPS |
 | 8 | [08_demon.json](08_demon.json) | Демонический | TBD (бывш. Гроза) |
-| 9 | [09_beast.md](09_beast.md) | Зверь | Phys DPS |
-| 10 | [10_spirit.md](10_spirit.md) | Дух | Utility (XP / honor / rep) |
+| 9 | [09_beast.json](09_beast.json) | Звериный | Phys DPS (сила) |
+| 10 | [10_spirit.json](10_spirit.json) | Дух | Utility (XP / honor / rep) |
 
 ## Структура каждого файла
 
