@@ -69,6 +69,17 @@ pwsh scripts/familiar-gen-sql.ps1 -Json .claude/familiars/01_mech.json -Csv    #
   `Get-Content` (defaults to ANSI → mojibake names). Generated SQL uses unquoted identifiers (no backticks)
   to dodge the `\`"` escape trap.
 
+## Owner's DBC can hold STALE rows for reused IDs (hit 2026-06-07)
+
+Deleting rows from `Spell_custom.csv` does NOT delete them from the owner's patched
+`Spell.dbc` — WDBX import only adds/updates rows present in the CSV (and can even
+append duplicate-ID rows; the client then reads the stale one). Symptom: a pet on a
+REUSED id shows the old pet's icon/description in Companions (e.g. 102080 Раптор
+showed the May-era «Рыжий Лисёнок» test row). Fix procedure for the owner: in WDBX
+delete the whole gacha range `102000–104099` from Spell.dbc, then import the full
+current `Spell_custom.csv` (240 rows) fresh. Keep 100xxx (T1 templates + StatBooster)
+untouched. Check for duplicate IDs after import.
+
 ## Apply + test loop
 
 1. `scripts/ptr-sql-apply.ps1 -IKnow data/sql/updates/pending_db_world/nemesis_familiars_gacha_<key>.sql`
