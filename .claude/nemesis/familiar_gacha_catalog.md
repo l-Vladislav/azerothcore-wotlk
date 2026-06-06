@@ -21,7 +21,7 @@
 | 7. Тайный | [07_arcane.json](../familiars/07_arcane.json) | Arcane DPS |
 | 8. Демонический | [08_demon.json](../familiars/08_demon.json) | TBD (бывш. Гроза) |
 | 9. Звериный | [09_beast.json](../familiars/09_beast.json) | Phys DPS (сила) |
-| 10. Дух | [10_spirit.json](../familiars/10_spirit.json) | Utility (XP / honor / rep) |
+| 10. Общий | [10_spirit.json](../familiars/10_spirit.json) | Utility (XP / honor / rep) |
 
 ## Распределение редкостей
 

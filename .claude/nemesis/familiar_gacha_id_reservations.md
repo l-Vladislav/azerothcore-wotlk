@@ -34,7 +34,7 @@ For family `F` (1..10), pet `P` (1..10) within family:
 Examples:
 - 1.2 (Механический / Ржавая Механокурица) → creature 191001, summon 102001, aura+103001 (buff), aura−104001 (debuff −1%), scroll 110001, family chest 110100.
 - 6.4 (Тень / Полинялый Мотылёк) → creature 191053, summon 102053, aura+103053 (buff), aura−104053 (debuff), scroll 110053, family chest 110105.
-- 10.10 (Дух / Меха-Лорд) → creature 191099, summon 102099, aura+103099 (3 buffs), aura−104099 (1–2 penalties), scroll 110099, family chest 110109.
+- 10.10 (Общий / Везунчик) → creature 191099, summon 102099, aura+103099 (3 buffs), aura−104099 (1–2 penalties), scroll 110099, family chest 110109.
 - 1.1 (Механический / Механокурица — clean Common) → creature 191000, summon 102000, aura+103000 (buff only), **no 104000** (clean has no penalty), scroll 110000.
 
 ## Retired ranges (cleaned up in gacha migration SQL)

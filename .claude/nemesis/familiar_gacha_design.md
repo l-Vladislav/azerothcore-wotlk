@@ -27,7 +27,7 @@ Convert the existing 3-pet familiar system into a **100-pet gacha collection** o
 | 7 | Тайна | Arcane DPS | Mana Wisp, Star Dust, Starlet | Манчики, звёздная пыль, эльфята, кометы |
 | 8 | Гроза | Speed / Crit / Burst | Falcon Chick, Hawk, Spark | Соколята, ястребки, грозовые коты, молнии |
 | 9 | Зверь | Phys DPS | Fox Cub, Tiger Cub, Scarab | Хищники, лисята, тигрята, скорпионы |
-| 10 | Дух | Utility (XP/honor/rep) | Ethereal Wisp, Cog, Clockwork Chick | Эфирные, призрачные, гномьи механизмы |
+| 10 | Общий (бывш. Дух) | Utility (XP/honor/rep) | Сквернокот, Хлебная Жаба, Тотемный Дух | Питомцы-талисманы: кот, жаба, тотем, яйцо, мурлок, слайм, кролик |
 
 Each family: **6 Common + 3 Rare + 1 Epic = 10 pets**. Commons are arranged as **3 базовых питомца × 2 варианта** — «чистый» (1 положительный эффект) и «побитый» (тот же бафф + маленький −1% дебафф, та же модель / DisplayID). See [familiar_gacha_catalog.md](familiar_gacha_catalog.md) for the full table.
 
@@ -54,7 +54,7 @@ Note: `110110–110119` is freed compared to the old 20×5 reservation; remains 
 - scroll item = `110000 + (F-1)*10 + (P-1)`
 - element chest = `110100 + (F-1)`
 
-So Механический family 1.1 has creature 191000, spell 102000, aura 103000, scroll 110000, family chest 110100. Family 10.10 (Меха-Лорд / Дух) has creature 191099, spell 102099, aura 103099, scroll 110099, family chest 110109.
+So Механический family 1.1 has creature 191000, spell 102000, aura 103000, scroll 110000, family chest 110100. Family 10.10 (Везунчик / Общий) has creature 191099, spell 102099, aura 103099, scroll 110099, family chest 110109.
 
 **Retired ranges:**
 - `100120–100134` (old T1 summons) — migrate `character_spell` rows to new 102000-099 mapping, then drop.
