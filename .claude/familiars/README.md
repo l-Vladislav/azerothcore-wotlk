@@ -14,8 +14,8 @@
 | 2 | [02_fire.json](02_fire.json) | Огненный | Magic DPS (Fire) |
 | 3 | [03_ice.json](03_ice.json) | Ледяной | Magic DPS (Frost) |
 | 4 | [04_nature.json](04_nature.json) | Природный | Хилер / Друид |
-| 5 | [05_light.md](05_light.md) | Свет | Healer + Resist Tank |
-| 6 | [06_shadow.md](06_shadow.md) | Тень | Shadow DoT / Debuff-res |
+| 5 | [05_light.json](05_light.json) | Светлый | Healer + Resist Tank |
+| 6 | [06_shadow.json](06_shadow.json) | Теневой | Shadow DoT / Debuff-res |
 | 7 | [07_arcane.md](07_arcane.md) | Тайна | Arcane DPS |
 | 8 | [08_storm.md](08_storm.md) | Гроза | Speed / Crit / Burst |
 | 9 | [09_beast.md](09_beast.md) | Зверь | Phys DPS |

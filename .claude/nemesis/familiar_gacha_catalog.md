@@ -16,8 +16,8 @@
 | 2. Огненный | [02_fire.json](../familiars/02_fire.json) | Magic DPS (Fire) |
 | 3. Ледяной | [03_ice.json](../familiars/03_ice.json) | Magic DPS (Frost) |
 | 4. Природный | [04_nature.json](../familiars/04_nature.json) | Хилер / Друид |
-| 5. Свет | [05_light.md](../familiars/05_light.md) | Healer + Resist Tank |
-| 6. Тень | [06_shadow.md](../familiars/06_shadow.md) | Shadow DoT / Debuff-res |
+| 5. Светлый | [05_light.json](../familiars/05_light.json) | Healer + Resist Tank |
+| 6. Теневой | [06_shadow.json](../familiars/06_shadow.json) | Shadow DoT / Debuff-res |
 | 7. Тайна | [07_arcane.md](../familiars/07_arcane.md) | Arcane DPS |
 | 8. Гроза | [08_storm.md](../familiars/08_storm.md) | Speed / Crit / Burst |
 | 9. Зверь | [09_beast.md](../familiars/09_beast.md) | Phys DPS |

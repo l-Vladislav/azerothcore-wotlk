@@ -1,0 +1,192 @@
+{
+  "family": 6,
+  "key": "shadow",
+  "name": "Теневой",
+  "role": "Shadow DPS / Debuff-res",
+  "modelTheme": "Нетопыри, тараканы, крысы, марионетки, черепа, нежить",
+  "chestItem": 110105,
+  "_schema": {
+    "ids": "creature/summon/buffAura/scroll = formula from fp; debuffAura set only when effects.negative is non-empty",
+    "status": "draft = pending owner data; confirmed = reviewed/edited by owner",
+    "icon": "spellIconId = real SpellIcon.dbc row (resolved from name); 1582 = server-safe placeholder",
+    "effect.code": "79/32 shadow dmg, 22/126 all res, 22/8 nature res, 65 spell haste, 49 dodge, 137/2 Sta, 137/3 Int, 31 move; value = percent (sign carries buff/debuff), flat for 22"
+  },
+  "pets": [
+    {
+      "fp": "6.1",
+      "rarity": "C",
+      "name": "Нетопырь",
+      "nameAcc": "Нетопыря",
+      "status": "confirmed",
+      "displayId": 4185,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1577, "name": "ability_hunter_pet_bat", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191050, "summon": 102050, "buffAura": 103050, "debuffAura": null, "scroll": 110050 },
+      "sources": { "modelNpc": 28513 },
+      "effects": {
+        "positive": [ { "code": "79/32", "value": 2, "text": "+2% урона тенью" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "6.2",
+      "rarity": "C",
+      "name": "Облезлый Нетопырь",
+      "nameAcc": "Облезлого Нетопыря",
+      "status": "confirmed",
+      "displayId": 4185,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1577, "name": "ability_hunter_pet_bat", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191051, "summon": 102051, "buffAura": 103051, "debuffAura": 104051, "scroll": 110051 },
+      "sources": { "modelNpc": 28513 },
+      "effects": {
+        "positive": [ { "code": "79/32", "value": 2, "text": "+2% урона тенью" } ],
+        "negative": [ { "code": "137/3", "value": -1, "text": "-1% интеллекта" } ]
+      }
+    },
+    {
+      "fp": "6.3",
+      "rarity": "C",
+      "name": "Тёмный Таракан",
+      "nameAcc": "Тёмного Таракана",
+      "status": "confirmed",
+      "displayId": 3233,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3905, "name": "inv_pet_cockroach", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191052, "summon": 102052, "buffAura": 103052, "debuffAura": null, "scroll": 110052 },
+      "sources": { "modelNpc": 27845 },
+      "effects": {
+        "positive": [ { "code": "137/3", "value": 1, "text": "+1% интеллекта" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "6.4",
+      "rarity": "C",
+      "name": "Таракан",
+      "nameAcc": "Таракана",
+      "status": "confirmed",
+      "displayId": 3233,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3905, "name": "inv_pet_cockroach", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191053, "summon": 102053, "buffAura": 103053, "debuffAura": 104053, "scroll": 110053 },
+      "sources": { "modelNpc": 27845 },
+      "effects": {
+        "positive": [ { "code": "137/3", "value": 1, "text": "+1% интеллекта" } ],
+        "negative": [ { "code": "31", "value": -1, "text": "-1% скорости передвижения" } ]
+      }
+    },
+    {
+      "fp": "6.5",
+      "rarity": "C",
+      "name": "Бубонная Крыса",
+      "nameAcc": "Бубонную Крысу",
+      "status": "confirmed",
+      "displayId": 22175,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3907, "name": "inv_pet_ratcage", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191054, "summon": 102054, "buffAura": 103054, "debuffAura": null, "scroll": 110054 },
+      "sources": { "modelNpc": 24174 },
+      "effects": {
+        "positive": [ { "code": "22/126", "value": 2, "text": "+2 все резисты" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "6.6",
+      "rarity": "C",
+      "name": "Дохлая Крыса",
+      "nameAcc": "Дохлую Крысу",
+      "status": "confirmed",
+      "displayId": 22175,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3907, "name": "inv_pet_ratcage", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191055, "summon": 102055, "buffAura": 103055, "debuffAura": 104055, "scroll": 110055 },
+      "sources": { "modelNpc": 24174 },
+      "effects": {
+        "positive": [ { "code": "22/126", "value": 2, "text": "+2 все резисты" } ],
+        "negative": [ { "code": "137/2", "value": -1, "text": "-1% выносливости" } ]
+      }
+    },
+    {
+      "fp": "6.7",
+      "rarity": "R",
+      "name": "Слуга Тьмы",
+      "nameAcc": "Слугу Тьмы",
+      "status": "confirmed",
+      "displayId": 29404,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3932, "name": "inv_misc_bone_humanskull_02", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191056, "summon": 102056, "buffAura": 103056, "debuffAura": null, "scroll": 110056 },
+      "sources": { "modelNpc": 34770 },
+      "effects": {
+        "positive": [
+          { "code": "79/32", "value": 5, "text": "+5% урона тенью" },
+          { "code": "65", "value": 3, "text": "+3% спелл-хейста" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "6.8",
+      "rarity": "R",
+      "name": "Чумной Жнец",
+      "nameAcc": "Чумного Жнеца",
+      "status": "confirmed",
+      "displayId": 21900,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1747, "name": "inv_misc_food_59", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191057, "summon": 102057, "buffAura": 103057, "debuffAura": null, "scroll": 110057 },
+      "sources": { "modelNpc": 23909 },
+      "effects": {
+        "positive": [
+          { "code": "79/32", "value": 5, "text": "+5% урона тенью" },
+          { "code": "137/3", "value": 3, "text": "+3% интеллекта" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "6.9",
+      "rarity": "R",
+      "name": "Услужливый Шептун",
+      "nameAcc": "Услужливого Шептуна",
+      "status": "confirmed",
+      "displayId": 28089,
+      "scale": 1.0,
+      "icon": { "spellIconId": 1611, "name": "inv_misc_bone_humanskull_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191058, "summon": 102058, "buffAura": 103058, "debuffAura": null, "scroll": 110058 },
+      "sources": { "modelNpc": 29147 },
+      "effects": {
+        "positive": [
+          { "code": "79/32", "value": 5, "text": "+5% урона тенью" },
+          { "code": "49", "value": 3, "text": "+3% уворота" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "6.10",
+      "rarity": "E",
+      "name": "Лик Сумрака",
+      "nameAcc": "Лик Сумрака",
+      "status": "confirmed",
+      "displayId": 30507,
+      "scale": 1.0,
+      "icon": { "spellIconId": 4075, "name": "achievement_boss_kelthuzad_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191059, "summon": 102059, "buffAura": 103059, "debuffAura": 104059, "scroll": 110059 },
+      "sources": { "modelNpc": 36979 },
+      "effects": {
+        "positive": [
+          { "code": "79/32", "value": 10, "text": "+10% урона тенью" },
+          { "code": "137/3", "value": 5, "text": "+5% интеллекта" },
+          { "code": "22/32", "value": 5, "text": "+5 сопр. тени" }
+        ],
+        "negative": [
+          { "code": "22/8", "value": -10, "text": "-10 сопр. природе" },
+          { "code": "137/2", "value": -5, "text": "-5% выносливости" }
+        ]
+      }
+    }
+  ]
+}

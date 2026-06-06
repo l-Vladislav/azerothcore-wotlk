@@ -1,0 +1,195 @@
+{
+  "family": 5,
+  "key": "light",
+  "name": "Светлый",
+  "role": "Holy DPS / Support",
+  "modelTheme": "Птенцы света, мотыльки, оруженосцы Серебряного Авангарда, наару",
+  "chestItem": 110104,
+  "_schema": {
+    "ids": "creature/summon/buffAura/scroll = formula from fp; debuffAura set only when effects.negative is non-empty",
+    "status": "draft = pending owner data; confirmed = reviewed/edited by owner",
+    "icon": "spellIconId = real SpellIcon.dbc row (resolved from name); 1582 = server-safe placeholder",
+    "effect.code": "79/2 holy dmg, 118 healing taken %, 136 healing done %, 22/32 shadow res, 137/0 Str, 137/2 Sta, 137/3 Int, 137/4 Spi, 31 move; value = percent (sign carries buff/debuff), flat for 22"
+  },
+  "pets": [
+    {
+      "fp": "5.1",
+      "rarity": "C",
+      "name": "Светлокрылка",
+      "nameAcc": "Светлокрылку",
+      "status": "confirmed",
+      "displayId": 28215,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3052, "name": "inv_box_birdcage_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191040, "summon": 102040, "buffAura": 103040, "debuffAura": null, "scroll": 110040 },
+      "sources": { "modelNpc": 32590 },
+      "effects": {
+        "positive": [ { "code": "79/2", "value": 2, "text": "+2% урона светом" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "5.2",
+      "rarity": "C",
+      "name": "Тусклокрылка",
+      "nameAcc": "Тусклокрылку",
+      "status": "confirmed",
+      "displayId": 28214,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3052, "name": "inv_box_birdcage_01", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191041, "summon": 102041, "buffAura": 103041, "debuffAura": 104041, "scroll": 110041 },
+      "sources": { "modelNpc": 32589 },
+      "effects": {
+        "positive": [ { "code": "79/2", "value": 2, "text": "+2% урона светом" } ],
+        "negative": [ { "code": "137/3", "value": -1, "text": "-1% интеллекта" } ]
+      }
+    },
+    {
+      "fp": "5.3",
+      "rarity": "C",
+      "name": "Святой Мотылёк",
+      "nameAcc": "Святого Мотылька",
+      "status": "confirmed",
+      "displayId": 19999,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3278, "name": "ability_hunter_pet_moth", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191042, "summon": 102042, "buffAura": 103042, "debuffAura": null, "scroll": 110042 },
+      "sources": { "modelNpc": 21018 },
+      "effects": {
+        "positive": [ { "code": "118", "value": 2, "text": "+2% получаемого лечения" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "5.4",
+      "rarity": "C",
+      "name": "Раненый Мотылёк",
+      "nameAcc": "Раненого Мотылька",
+      "status": "confirmed",
+      "displayId": 19999,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3278, "name": "ability_hunter_pet_moth", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191043, "summon": 102043, "buffAura": 103043, "debuffAura": 104043, "scroll": 110043 },
+      "sources": { "modelNpc": 21018 },
+      "effects": {
+        "positive": [ { "code": "118", "value": 2, "text": "+2% получаемого лечения" } ],
+        "negative": [ { "code": "31", "value": -1, "text": "-1% скорости передвижения" } ]
+      }
+    },
+    {
+      "fp": "5.5",
+      "rarity": "C",
+      "name": "Святой Помощник",
+      "nameAcc": "Святого Помощника",
+      "status": "confirmed",
+      "displayId": 28946,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3744, "name": "achievement_reputation_argentchampion", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191044, "summon": 102044, "buffAura": 103044, "debuffAura": null, "scroll": 110044 },
+      "sources": { "modelNpc": 33238 },
+      "effects": {
+        "positive": [ { "code": "136", "value": 2, "text": "+2% исходящего лечения" } ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "5.6",
+      "rarity": "C",
+      "name": "Малый Святой Помощник",
+      "nameAcc": "Малого Святого Помощника",
+      "status": "confirmed",
+      "displayId": 28946,
+      "scale": 1.0,
+      "icon": { "spellIconId": 3744, "name": "achievement_reputation_argentchampion", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191045, "summon": 102045, "buffAura": 103045, "debuffAura": 104045, "scroll": 110045 },
+      "sources": { "modelNpc": 33238 },
+      "effects": {
+        "positive": [ { "code": "136", "value": 2, "text": "+2% исходящего лечения" } ],
+        "negative": [ { "code": "137/4", "value": -1, "text": "-1% духа" } ]
+      }
+    },
+    {
+      "fp": "5.7",
+      "rarity": "R",
+      "name": "Осветляющий",
+      "nameAcc": "Осветляющего",
+      "status": "confirmed",
+      "displayId": 22981,
+      "muteAmbient": true,
+      "scale": 0.1,
+      "icon": { "spellIconId": 540, "name": "spell_holy_prayerofhealing02", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191046, "summon": 102046, "buffAura": 103046, "debuffAura": null, "scroll": 110046 },
+      "sources": { "modelNpc": 25174 },
+      "effects": {
+        "positive": [
+          { "code": "79/2", "value": 5, "text": "+5% урона светом" },
+          { "code": "137/2", "value": 3, "text": "+3% выносливости" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "5.8",
+      "rarity": "R",
+      "name": "Светлый Защитник",
+      "nameAcc": "Светлого Защитника",
+      "status": "confirmed",
+      "displayId": 17072,
+      "muteAmbient": true,
+      "scale": 0.4,
+      "icon": { "spellIconId": 1801, "name": "spell_holy_greaterblessingoflight", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191047, "summon": 102047, "buffAura": 103047, "debuffAura": null, "scroll": 110047 },
+      "sources": { "modelNpc": 17545 },
+      "effects": {
+        "positive": [
+          { "code": "79/2", "value": 5, "text": "+5% урона светом" },
+          { "code": "137/3", "value": 3, "text": "+3% интеллекта" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "5.9",
+      "rarity": "R",
+      "name": "Светлый Победитель",
+      "nameAcc": "Светлого Победителя",
+      "status": "confirmed",
+      "displayId": 18135,
+      "muteAmbient": true,
+      "scale": 0.1,
+      "icon": { "spellIconId": 540, "name": "spell_holy_prayerofhealing02", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191048, "summon": 102048, "buffAura": 103048, "debuffAura": null, "scroll": 110048 },
+      "sources": { "modelNpc": 18481 },
+      "effects": {
+        "positive": [
+          { "code": "79/2", "value": 5, "text": "+5% урона светом" },
+          { "code": "22/32", "value": 5, "text": "+5 сопр. тени" }
+        ],
+        "negative": []
+      }
+    },
+    {
+      "fp": "5.10",
+      "rarity": "E",
+      "name": "Хранитель Света",
+      "nameAcc": "Хранителя Света",
+      "status": "confirmed",
+      "displayId": 25900,
+      "scale": 1.0,
+      "icon": { "spellIconId": 2176, "name": "spell_holy_surgeoflight", "fileDataId": null, "sourceSpell": null },
+      "ids": { "creature": 191049, "summon": 102049, "buffAura": 103049, "debuffAura": 104049, "scroll": 110049 },
+      "sources": { "modelNpc": 29089 },
+      "effects": {
+        "positive": [
+          { "code": "79/2", "value": 10, "text": "+10% урона светом" },
+          { "code": "137/2", "value": 5, "text": "+5% выносливости" },
+          { "code": "137/0", "value": 5, "text": "+5% силы" }
+        ],
+        "negative": [
+          { "code": "22/32", "value": -10, "text": "-10 сопр. тени" },
+          { "code": "137/3", "value": -5, "text": "-5% интеллекта" }
+        ]
+      }
+    }
+  ]
+}
