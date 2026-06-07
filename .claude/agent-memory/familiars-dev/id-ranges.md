@@ -15,7 +15,7 @@ For family `F` (1..10), pet `P` (1..10):
 | scroll item | `110000 + (F−1)*10 + (P−1)` | 110000–110099 |
 | element chest | `110100 + (F−1)` | 110100–110109 |
 | universal chest | `110120` | — |
-| tavern coin | `110150` | — |
+| «Монета авантюриста» (gacha currency) | `110150` | — |
 | free for promo | `110110–110119`, `110151–110199` | — |
 
 ## Family index

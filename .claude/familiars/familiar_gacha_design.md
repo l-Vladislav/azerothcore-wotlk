@@ -42,7 +42,7 @@ Each family: **6 Common + 3 Rare + 1 Epic = 10 pets**. Commons are arranged as *
 | `110000–110099` | Familiar scroll items | 100 |
 | `110100–110109` | Element-specific chests (10, one per family) | 10 |
 | `110120` | Universal chest | 1 |
-| `110150` | Tavern daily coin (gacha currency) | 1 |
+| `110150` | «Монета авантюриста» (gacha currency) | 1 |
 
 Note: `110110–110119` is freed compared to the old 20×5 reservation; remains reserved for future chest variants if needed.
 
@@ -72,24 +72,27 @@ The 3 existing T1 pets are integrated into the new 10×10 pool as Common starter
 ## Gacha mechanics
 
 ### Currency
-- **«Жетон таверны»** (item 110150) — quest item, class=12, BoP, stackable up to 200.
-- One per day via tavern daily quest (Фаза 7, отложено).
-- Until daily quest exists: admin-grant or rotate from existing bounty-token economy.
+- **«Монета авантюриста»** (item 110150, LIVE on PTR 2026-06-07) — class 15, BoP,
+  stackable 200, Quality 3, иконка inv_misc_coin_17 (displayid 55217).
+- One per day via special quests (Фаза 7, отложено).
+- Until quests exist: GM-grant (`.additem 110150`).
+- Продажа сумок: у **мастера таверны** (тот же NPC, что и товары за жетоны
+  немезиды) через ранговые гослип-подменю — см. familiar_gacha_chests_plan.md.
 
-### Chests
-**Universal chest «Сундук Авантюриста»** (item 110120):
-- Cost: 1 жетон таверны
+### Chests (LIVE on PTR 2026-06-07)
+**Universal bag «Сумка Авантюриста»** (item 110120):
+- Cost: 1 монета авантюриста
 - Pool: all 100 pets
 - Drop distribution: 89% Common / 10% Rare / 1% Epic
 - Per-pet odds (60C+30R+10E): Common 1.483% · Rare 0.333% · Epic 0.100%
 
-**Element chest «Сундук <Стихия>»** (items 110100–110109):
-- Cost: 3 жетона таверны
+**Element bag «<Стихия> сумка»** (items 110100–110109):
+- Cost: 5 монет авантюриста
 - Pool: 10 pets of that family only (6C+3R+1E)
-- Drop distribution: 70% Common / 20% Rare / 10% Epic
-- Per-pet odds: Common 11.67% · Rare 6.67% · Epic 10.00%
+- Drop distribution: 75% Common / 20% Rare / 5% Epic (owner 2026-06-07: epic 10→5)
+- Per-pet odds: Common 12.5% · Rare 6.67% · Epic 5.00%
 
-→ Universal Epic chance per specific pet: 0.10%. Element-chest Epic of *that* family: 10% = **100× ratio for 3× cost**.
+→ Universal Epic chance per specific pet: 0.10%. Element-bag Epic of *that* family: 5% = **50× ratio for 5× cost**.
 
 ### Duplicates
 No protection. Duplicate scroll = sellable to any vendor for **100g** (`SellPrice = 1000000` copper). Right-click on a duplicate scroll teaches nothing (server check on use; or scroll fails silently). Players liquidate dupes for gold.

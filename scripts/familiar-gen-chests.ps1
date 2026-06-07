@@ -16,8 +16,12 @@
 #
 #   Universal 110120: 60 Common @ 1.4833 + 30 Rare @ 0.3333 + 10 Epic @ 0
 #                     => ~89% C / ~10% R / ~1.003% E (~0.1% per specific epic)
-#   Element  1101xx:   6 Common @ 11.6667 + 3 Rare @ 6.6667 + 1 Epic @ 0
-#                     => ~70% C / ~20% R / ~10% E
+#   Element  1101xx:   6 Common @ 12.5 + 3 Rare @ 6.6667 + 1 Epic @ 0
+#                     => ~75% C / ~20% R / ~5% E (owner 2026-06-07: epic 10->5)
+#
+# Also emits the gacha currency item 110150 "Монета авантюриста" (plain item,
+# class 15, BoP, stack 200; earned 1/day via special quests — Phase 7).
+# Prices (recorded for the future vendor): universal bag 1 coin, element 5.
 #
 # stackable=1 is MANDATORY: LootHandler.cpp DoLootRelease destroys the whole
 # item SLOT when its loot is emptied — a stack of 20 would vanish on one open.
@@ -60,9 +64,15 @@ $chestCfg = @{
 }
 
 $qualityUniversal = 3   # rare/blue (cheap chest, 1 coin)
-$qualityElement   = 4   # epic/purple (3 coins, 10% family epic)
-$uniC = 1.4833; $uniR = 0.3333      # universal group chances (epic = 0 -> remainder)
-$elC  = 11.6667; $elR = 6.6667      # element group chances (epic = 0 -> remainder)
+$qualityElement   = 4   # epic/purple (5 coins, 5% family epic)
+$uniC = 1.4833; $uniR = 0.3333      # universal group chances (epic = 0 -> remainder ~1%)
+$elC  = 12.5;   $elR = 6.6667       # element group chances (epic = 0 -> remainder ~5%)
+
+# gacha currency (owner-confirmed 2026-06-07): icon inv_misc_coin_17
+$coinId = 110150
+$coinName = 'Монета авантюриста'
+$coinDisplay = 55217   # ItemDisplayInfo: INV_Misc_Coin_17 (WotLK row, Champion's Seal icon)
+$coinDesc = 'Награда за особые задания - не больше одной в день. Обменивается на сумки с фамильярами: Сумка Авантюриста - 1 монета, сумка семейства - 5 монет.'
 
 function Esc([string]$s) { return ($s -replace "'", "''") }
 function TrimComma([string]$s) { return $s.Trim().TrimEnd(',') }
@@ -110,7 +120,7 @@ foreach ($fam in $families) {
     $chest = $fam.chestItem
     $expected = 110100 + ($fam.family - 1)
     if ($chest -ne $expected) { throw "Family $($fam.family): chestItem $chest != formula $expected" }
-    $desc = "Содержит клетку со случайным фамильяром семейства `"$($fam.name)`". Шансы: обычный 70%, редкий 20%, эпический 10%."
+    $desc = "Содержит клетку со случайным фамильяром семейства `"$($fam.name)`". Шансы: обычный 75%, редкий 20%, эпический 5%."
     $chestIds += $chest
     $itRows += "($chest, 15, 0, -1, '$(Esc $cfg.Name)', $($cfg.Display), $qualityElement, 4, 0, 0, 0, -1, 1, 0, 0, 1, 1, '$(Esc $desc)', 4),"
     $ilRows += "($chest, 'ruRU', '$(Esc $cfg.Name)', '$(Esc $desc)'),"
@@ -120,7 +130,11 @@ foreach ($fam in $families) {
     }
 }
 
-$idList = $chestIds -join ', '
+# gacha currency coin — plain item (no Flags=4, no loot); stack 200, BoP.
+$itRows += "($coinId, 15, 0, -1, '$(Esc $coinName)', $coinDisplay, 3, 0, 0, 0, 0, -1, 1, 0, 0, 200, 1, '$(Esc $coinDesc)', 4),"
+$ilRows += "($coinId, 'ruRU', '$(Esc $coinName)', '$(Esc $coinDesc)'),"
+
+$idList = ($chestIds + $coinId) -join ', '
 
 $sql = @"
 -- ============================================================================
@@ -153,7 +167,7 @@ $(TrimComma ($lootRows -join "`n"));
 
 [System.IO.File]::WriteAllText($sqlPath, $sql, (New-Object System.Text.UTF8Encoding $false))
 Write-Host "SQL written: $sqlPath"
-Write-Host ("  chests={0} loot rows={1} (universal 100 + 10x10)" -f $chestIds.Count, $lootRows.Count)
+Write-Host ("  chests={0} (+coin {1}) loot rows={2} (universal 100 + 10x10)" -f $chestIds.Count, $coinId, $lootRows.Count)
 Write-Host ("  universal sums: C={0} R={1} (E remainder={2})" -f (60 * $uniC), (30 * $uniR), (100 - 60 * $uniC - 30 * $uniR))
 Write-Host ("  element   sums: C={0} R={1} (E remainder={2})" -f (6 * $elC), (3 * $elR), (100 - 6 * $elC - 3 * $elR))
 
@@ -172,6 +186,8 @@ $enc = New-Object System.Text.UTF8Encoding $true
 $chestRows = @(); $chestIdStrs = @()
 $chestRows += ('"{0}","15","0","-1","4","{1}","0","0"' -f $universalId, $chestCfg['U'].Display)
 $chestIdStrs += "$universalId"
+$chestRows += ('"{0}","15","0","-1","4","{1}","0","0"' -f $coinId, $coinDisplay)
+$chestIdStrs += "$coinId"
 foreach ($fam in $families) {
     $cfg = $chestCfg["$($fam.family)"]
     $chestRows += ('"{0}","15","0","-1","4","{1}","0","0"' -f $fam.chestItem, $cfg.Display)

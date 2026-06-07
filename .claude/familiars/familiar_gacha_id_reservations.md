@@ -16,7 +16,7 @@ Active ID ranges for the **100-pet gacha system** (**10 elemental families × 10
 | `110100–110109` | Element-specific chests (one per family) | 10 |
 | `110110–110119` | (free) — reserved for future chest variants | 10 |
 | `110120` | Universal chest | 1 |
-| `110150` | Жетон таверны (gacha currency) | 1 |
+| `110150` | «Монета авантюриста» (gacha currency, LIVE on PTR) | 1 |
 
 ## Linear mapping (10×10)
 

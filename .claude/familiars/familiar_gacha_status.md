@@ -13,14 +13,14 @@ The previous **3 roles × 5 tiers** familiar system (`familiar_system_design.md`
 - 100 collectible familiars organised as **10 elemental families × 10 pets** (6 Common + 3 Rare + 1 Epic per family).
 - Common внутри семейства — **3 базовых питомца × 2 варианта качества**: «чистый» (1 положительный эффект) и «побитый» (тот же бафф + маленький −1% дебафф, идентичная модель / DisplayID). Это даёт натуральный пул («тот же тип, но похуже») и сохраняет коллекционную ценность дубликатов.
 - 3 Rare и 1 Epic в каждом семействе — уникальные питомцы без вариантов.
-- Pulled exclusively from chests purchased with «Жетон таверны» (1 per daily quest from innkeeper — Фаза 7, deferred).
+- Pulled exclusively from chests purchased with «Монета авантюриста» (110150; 1 per day via special quests — Фаза 7, deferred). Продажа — у мастера таверны через ранговые гослип-подменю (план в chests_plan).
 - Each pet is a summonable companion that applies a passive owner-aura while active. Аура **неотменяема** (`SPELL_ATTR0_NO_AURA_CANCEL`) и **бессрочна** (`DurationIndex=21` → permanent в SpellDuration.dbc), снимается только C++-хуком при де-спауне.
 
 ## Chest economy
 
-- **Универсальный сундук** (item 110120) — 1 жетон → roll any of 100 (89% C / 10% R / 1% E)
-- **10 стихийных сундуков** (110100–110109) — 3 жетона → roll 10 pets of that family (70% C / 20% R / 10% E)
-- → Element chest is **100× more likely** to give you that family's specific Epic, for 3× cost
+- **«Сумка Авантюриста»** (item 110120) — 1 монета → roll any of 100 (89% C / 10% R / 1% E)
+- **10 сумок семейств** (110100–110109) — 5 монет → roll 10 pets of that family (75% C / 20% R / 5% E; epic 10→5 по решению владельца 2026-06-07)
+- → Element bag is **50× more likely** to give you that family's specific Epic, for 5× cost
 - No duplicate protection — duplicate scrolls sell to vendor for **100g** (`SellPrice = 1000000`)
 
 ## Phases
@@ -35,10 +35,12 @@ The previous **3 roles × 5 tiers** familiar system (`familiar_system_design.md`
 | 4 | ~~C++ chest `ItemScript`~~ | ОТМЕНЕНО 2026-06-07 — сундуки через `Flags=4` + `item_loot_template` (см. design.md); aura map уже работает по формуле |
 | 5 | Optional: `nemesis_familiar_pool` DB-driven weight table | не нужен — шансы живут в `item_loot_template.Chance` |
 | 6 | MPQ rebuild — only when explicit "prepare MPQ" per memory rule | владелец делает по циклу (WDBX → MPQ) |
-| 7 | Tavern daily quest granting coin (110150) | deferred — до этого сундуки GM-only |
+| 3d | Продажа сумок у мастера таверны (гослип-подменю по рангам немезиды) | **next** — план в [familiar_gacha_chests_plan.md](familiar_gacha_chests_plan.md) |
+| 7 | Особые задания, дающие «Монету авантюриста» (110150, 1/день) | deferred — до этого монета GM-only |
 
 ## Recent activity (newest on top)
 
+- **2026-06-07 — Шансы 75/20/5 + «Монета авантюриста» (110150) на PTR ✅.** По решению владельца: эпик в сумках семейств 10% → **5%** (освободившиеся 5% — обычным: 6C@12.5 + 3R@6.6667 + 1E@0, сумма 95.0001, верифицировано). Валюта переименована «Жетон таверны» → **«Монета авантюриста»**: item 110150, class 15, BoP, stack 200, Quality 3, иконка inv_misc_coin_17 (displayid 55217, выбор владельца). Цены: универсальная 1 монета, сумка семейства 5 монет; монета — не больше 1/день за особые задания (Фаза 7). Item_custom.csv теперь 132 строки (+монета). Эпик семейства: ×50 вероятность за ×5 цены (было ×100/×3). Следующее: **продажа у мастера таверны** — отдельные гослип-подменю по рангам немезиды (1: общие товары, 2: StatBooster печати/нашивки, 3: сумки семейств).
 - **2026-06-07 — Сумки на PTR ✅ (11 шт., data-driven).** Владелец прислал имена+иконки (теперь «сумки», кроме 110100 «Механический сундук»; 110120 «Сумка Авантюриста»; «Странная Сумка» нормализована → «Странная сумка»). DisplayID разрезолвлены из ItemDisplayInfo.csv (чистые строки без моделей). Новый генератор `scripts/familiar-gen-chests.ps1` (читает все 10 JSON, валидирует 6C/3R/1E, эмитит item_template+locale+item_loot_template 200 строк, `-Csv` упсертит 11 строк в Item_custom.csv — итого 131). **Критичная находка: stackable=1 обязателен** — `LootHandler.cpp DoLootRelease` уничтожает весь слот после забора лута (стак исчез бы целиком); bonding=1, Quality 3/4, lockid=0 (эталон Bag of Fishing Treasures 44663). Применено, PTR перезапущен (11с), верифицировано: суммы шансов 90.0003×10 / 98.997, violation-чеки чисты, «Loaded 3478 item loot templates» без ошибок. Папки реорганизованы: все familiar-доки переехали `.claude/nemesis/` → `.claude/familiars/` (commit d755a6e11). Осталось: владелец WDBX-мержит Item_custom.csv → Item.dbc → MPQ → тест открытий.
 - **2026-06-07 — План сундуков готов, handoff для новой сессии.** Решение: data-driven, БЕЗ C++ — `item_template.Flags=4` (HAS_LOOT) + `item_loot_template` с одной loot-группой на сундук (семантика подтверждена `LootMgr.cpp` `LootGroup::Roll` ~1292: явные шансы кумулятивно против одного rand(0..100), записи `Chance=0` равновероятно делят остаток → дроп гарантирован; `Rate.Drop.*` НЕ масштабирует групповые шансы). Кодировка: универсальный 110120 = 60C@1.4833 + 30R@0.3333 + 10E@0 (≈0.1% каждому эпику); стихийный 1101xx = 6C@11.6667 + 3R@6.6667 + 1E@0 (≈10%). Полный план реализации (шаги, верификационные запросы, открытые вопросы владельцу) — [familiar_gacha_chests_plan.md](familiar_gacha_chests_plan.md); раздел «Chest opening flow» в design.md переписан (старый C++ ItemScript-план удалён). Реализация НЕ начата (Docker был выключен). Новой сессии: начинать с familiar_gacha_chests_plan.md + agent-memory/familiars-dev/INDEX.md.
 - **2026-06-07 — Сотня подтверждена владельцем в игре ✅.** Последний баг: Раптор (102080) показывал в «Спутниках» иконку/описание майского тест-пета «Рыжий Лисёнок» — stale-строка в клиентском Spell.dbc на переиспользованном ID (урок: удаление из CSV не удаляет из DBC владельца; процедура фикса в [agent-memory/familiars-dev/json-workflow.md](../agent-memory/familiars-dev/json-workflow.md)). Семейство 10 переименовано «Дух» → **«Общий»**. **Следующий этап (владелец вернётся позже): гача-механика** — сундуки 110100–09/110120 (C++ ItemScript, Фаза 4), жетон таверны + дейли-квесты (Фаза 7), миграция T1 (`character_spell` 100120–22 → 102000/102070/102050, retire старых ID).
