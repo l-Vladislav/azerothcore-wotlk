@@ -129,7 +129,14 @@ roll `DungeonNemesis.Chance` (3%) to become a **TEMPORARY** nemesis:
   late joiners get the map's temps via `NemesisDungeonMapScript`
   (`OnPlayerEnterAll`); kill rewards/rep flow through the regular kill hook
   because state resolution now sees temps;
-- map announcement: «[Немезида]: {} затаился(ась) в этом подземелье (ранг N)!»;
+- announcement (owner 2026-06-07): single atmospheric map-local message
+  «Вы чувствуете присутствие сильного врага в этом месте.» — no names/ranks,
+  ONE message per enter-sweep batch (and per later individual spawn);
+- kill announcements for dungeon nemeses are MAP-LOCAL (`AnnounceToMap`),
+  never server-wide — instance runs don't spam the world feed;
+- addon zone tab: `isNemesisInCurrentZone` (WorldMap.lua) gained a dungeon
+  branch — inside an instance it matches `nemesis.zoneName ==
+  GetRealZoneText()` (world-map file matching can't work there);
 - config `NemesisSystem.DungeonNemesis.*` (Enable, Chance 3.0, IncludeRaids 0,
   RequireRealPlayers 1).
 
