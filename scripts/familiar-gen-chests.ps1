@@ -72,7 +72,7 @@ $elC  = 12.5;   $elR = 6.6667       # element group chances (epic = 0 -> remaind
 $coinId = 110150
 $coinName = 'Монета авантюриста'
 $coinDisplay = 55217   # ItemDisplayInfo: INV_Misc_Coin_17 (WotLK row, Champion's Seal icon)
-$coinDesc = 'Награда за особые задания - не больше одной в день. Обменивается на сумки с фамильярами: Сумка Авантюриста - 1 монета, сумка семейства - 5 монет.'
+$coinDesc = 'Выдаётся за особое поручение трактирщика.'
 
 function Esc([string]$s) { return ($s -replace "'", "''") }
 function TrimComma([string]$s) { return $s.Trim().TrimEnd(',') }
