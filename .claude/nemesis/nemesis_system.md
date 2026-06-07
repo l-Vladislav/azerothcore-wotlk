@@ -80,6 +80,32 @@ Client parsing in `UpsertNemesisFromFields(fields, startIndex, source)`:
 - startIndex+22 = runtimeGuid
 - startIndex+23 = nemesisTitle
 
+### Ambient Nemesis Generation (2026-06-07, PTR)
+Nemeses no longer require a player death to be born. A `WorldScript` tick
+(`NemesisAmbientWorldScript` → `RunAmbientGenerationTick()`):
+- collects open-world zones holding at least one REAL player (playerbots
+  excluded via `IsPlayerbotVictim`; config `RequireRealPlayers`);
+- if the zone has fewer nemeses than `FillPercent` (50%) of
+  `NemesisSystem.MaxPerZone` — promotes ONE random eligible mob per tick
+  (reservoir sampling over the map's spawned creatures);
+- eligibility (`IsEligibleAmbientCandidate`): alive, persistent spawn,
+  hostile to players, not pet/critter/totem/trigger/civilian/npcflag,
+  allowed rank but NOT rare (rare dedup is keyed to player targets), not a
+  boss, level within Min/MaxCreatureLevel, not already a nemesis;
+- promotion (`PromoteAmbientNemesis`): same path as kill-driven promotion
+  (state → affixes → save → scaling → Russian title) with
+  `nemesis_target_guid = 0` (ambient-born marker);
+- birth announcement with creature-type flavor (`AmbientBirthFlavor`,
+  2 variants per type: beast/dragonkin/demon/elemental/giant/undead/
+  humanoid/mechanical + fallback), zone-local by default;
+- GM command `.nemesis ambient` forces one pass (reports birth count);
+- config block `NemesisSystem.AmbientGeneration.*` (Enable, IntervalSeconds
+  300, FillPercent 50, RequireRealPlayers, Announce, AnnounceZoneOnly).
+- The promote path is map-agnostic on purpose — planned reuse: dungeon
+  nemesis generation on player enter, then gossip "особые поручения"
+  daily quests rewarding «Монета авантюриста» (speed-kill, other-continent,
+  dungeon nemesis, revenge, rank hunt — см. обсуждение 2026-06-07).
+
 ## Client Addon (ClientAddon/NemesisTracker/)
 
 ### Files

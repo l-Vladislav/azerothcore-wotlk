@@ -4,6 +4,16 @@ Last updated: 2026-06-07. Branch `feat/wow-ak-1-nemesis-familiars`.
 
 ## PTR-only (NOT yet on live)
 
+### Ambient nemesis generation (2026-06-07)
+- `NemesisAmbientWorldScript` (WorldScript::OnUpdate, default tick 300s):
+  зоны с реальными игроками ниже 50% от `MaxPerZone` получают 1 рождение
+  немезиды за тик — случайный подходящий моб, `nemesis_target_guid=0`.
+- Анонс рождения с текстом по типу существа (2 варианта/тип), только в зоне.
+- GM `.nemesis ambient` — форс-проход (вернул кол-во рождений).
+- Конфиг `NemesisSystem.AmbientGeneration.*`. Детали в nemesis_system.md.
+- Задел: переиспользовать промоут для генерации немезид в подземельях
+  (хук входа) и «особых поручений» за «Монету авантюриста».
+
 ### Rank-gated tavern shop (2026-06-07)
 - `NemesisBountyVendorScript`: «Награды охотника за головами» теперь открывает
   ПОДМЕНЮ вместо плоского вендора 190000: «Общие товары» (ранг 1),
