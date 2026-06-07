@@ -63,10 +63,11 @@ Balanced around **1g per rank at level 60** for revenge kills.
 - Note: WoW 3.3.5 caches creature names by entry ID — name shows correctly for players who encounter the nemesis after it's promoted. Players who cached the entry before promotion may need to relog.
 
 ### Server Announcements — Russian
-All `[Nemesis]` prefixes changed to `[Немезида]` in:
-- Zone-wide creation/rank-up announcements
-- Kill announcements (revenge/bounty)
-- Mail subject for full-inventory rewards
+All `[Nemesis]` prefixes were first changed to `[Немезида]`, then the prefix
+was REMOVED entirely from chat announcements and system replies (owner request
+2026-06-07) — messages now start with the content («Кровозуб достиг ранга 3!»).
+The only place keeping the tag is the full-inventory fallback mail subject
+(«[Немезида] Reward»).
 
 ### Addon Payload Format (25 fields after V2: prefix)
 ```
@@ -135,8 +136,10 @@ roll `DungeonNemesis.Chance` (3%) to become a **TEMPORARY** nemesis:
 ### Special Daily Tasks — «Особое поручение» (2026-06-07, PTR)
 Innkeeper gossip item (after the bounty board). **One completion per day**,
 the day's task choice is FINAL (abandon allowed; re-accept the same type only —
-fresh timer for speed). Reward: 1× «Монета авантюриста» (110150) via
-`AddItemOrMail`. State: `character_nemesis_special_task` (characters DB),
+fresh timer for speed). Reward: 1× «Монета авантюриста» (110150) — **always by
+MAIL** (owner request) from the virtual Innkeeper 190002 with randomized RP
+flavor: 4 subjects × 3 bodies per task type (`SendTaskRewardMail`).
+State: `character_nemesis_special_task` (characters DB),
 day window aligned to the server daily-quest reset. Types
 (`NemesisSpecialTask` namespace; completion checked per reward recipient →
 group credit works):
