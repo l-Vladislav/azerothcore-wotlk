@@ -164,7 +164,7 @@ So the file now lives at `data/sql/updates/pending_db_world/` and is auto-applie
 - `.claude/dbc/Item_custom.csv` — 3 scroll rows appended
 
 ### Design doc
-- `.claude/nemesis/familiar_system_design.md` — restructured to match what was actually implemented; added "Confirmed values from Phase 2 prototyping" table; corrected the owner-only aura section; removed Pattern A (proven unworkable).
+- `.claude/familiars/familiar_system_design.md` (до 2026-06-07 — `.claude/nemesis/`) — restructured to match what was actually implemented; added "Confirmed values from Phase 2 prototyping" table; corrected the owner-only aura section; removed Pattern A (proven unworkable).
 
 ### Docs path refactor
 - All `.claude/statBoosterItems/**` docs updated to point to `.claude/dbc/` instead of `.claude/statBoosterItems/dbc/`, and to drop the `_custom16` suffix (files renamed to `Spell_custom.csv` / `Item_custom.csv` / `SkillLineAbility_custom.csv` etc.).

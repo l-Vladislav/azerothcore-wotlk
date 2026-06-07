@@ -10,7 +10,7 @@ This fork reserves IDs above **1,000,000** for fork-private custom content (spel
 
 1. Grep `data/sql/base/` and `data/sql/updates/` for the proposed ID — must return zero hits.
 2. Check `.claude/dbc/id_mapping.json` — central reservation registry. Search for both the exact ID and the range block.
-3. Check `.claude/nemesis/familiar_gacha_id_reservations.md` — narrower registry for familiar/nemesis IDs; many ranges within 1M+ are already claimed.
+3. Check `.claude/familiars/familiar_gacha_id_reservations.md` — narrower registry for familiar/nemesis IDs; many ranges within 1M+ are already claimed.
 4. For spells specifically: also grep `.claude/dbc/Spell_custom.csv` and `Spell.csv` for the ID.
 
 ## After assigning

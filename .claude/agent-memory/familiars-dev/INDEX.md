@@ -11,7 +11,7 @@ Read this file at the start of every task. Then load only the sub-docs whose hoo
 - [russian-text.md](russian-text.md) — **CRITICAL** for any Russian text. Stat abbreviation translation table (Int→инт./Sta→вын./Holy res→сопр. свету…), description format conventions, animate-accusative declension for pet names in «Призывает …», ASCII-only punctuation rule. Load whenever writing or editing ruRU names/descriptions.
 - [model-sounds.md](model-sounds.md) — Loud looping ambient on pet models (fire crackle etc.): CDI.SoundID → CreatureSoundData.LoopSoundID, server can't control it. Fix ladder: quiet visual-twin display (server-only) → other model → custom CDI row (MPQ). **Check every new model for loops before applying.** Local CDI/CSD CSV exports in `.claude/dbc/`.
 - [json-workflow.md](json-workflow.md) — **Source of truth is now per-family JSON** (`0X_<key>.json`), not the `.md` tables. Schema, owner input format (npc=/spell=/icon name), the `scripts/familiar-gen-sql.ps1` generator (SQL + `-Csv` DBC rows), and the PS5.1 UTF-8/BOM traps. Load before editing any family or generating SQL.
-- [docs-map.md](docs-map.md) — Where each piece of info lives across `.claude/familiars/` and `.claude/nemesis/familiar_gacha_*`. Load to orient before edits.
+- [docs-map.md](docs-map.md) — Where each piece of info lives in `.claude/familiars/` (JSONs + все familiar_gacha_*-доки; переехали из `.claude/nemesis/` 2026-06-07). Load to orient before edits.
 - [ptr-only.md](ptr-only.md) — Agent writes go to `*_ptr` DBs only; SQL must live in `data/sql/updates/pending_db_world/`. Load before any DB or SQL work.
 
 ## How to grow this memory

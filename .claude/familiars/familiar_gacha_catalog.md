@@ -1,27 +1,27 @@
 # Каталог гача-петомцев Немезиды — 100 шт. (10×10)
 
-Главный обзор гача-системы. **Детальные таблицы петомцев по семействам — в подпапке [.claude/familiars/](../familiars/)**, по одному файлу на стихию. Здесь — глобальные сведения: распределение редкостей, формулы ID-маппинга, drop-rates, сводка aura ID, история реорганизации.
+Главный обзор гача-системы. **Детальные таблицы петомцев по семействам — в этой же папке (`0X_<key>.json`)**, по одному файлу на стихию. Здесь — глобальные сведения: распределение редкостей, формулы ID-маппинга, drop-rates, сводка aura ID, история реорганизации.
 
 Компаньон-файлы:
 - [familiar_gacha_design.md](familiar_gacha_design.md) — общий дизайн (концепция, фазы, attribute-требования).
 - [familiar_gacha_id_reservations.md](familiar_gacha_id_reservations.md) — диапазоны ID.
 - [familiar_gacha_status.md](familiar_gacha_status.md) — статус фаз и последние правки.
-- [.claude/familiars/README.md](../familiars/README.md) — индекс per-family файлов.
+- [README.md](README.md) — индекс per-family файлов.
 
 ## Структура пула
 
 | Семейство | Файл | Доминирующая роль |
 |---|---|---|
-| 1. Механический | [01_mech.json](../familiars/01_mech.json) | Танк (броня / Sta / блок) |
-| 2. Огненный | [02_fire.json](../familiars/02_fire.json) | Magic DPS (Fire) |
-| 3. Ледяной | [03_ice.json](../familiars/03_ice.json) | Magic DPS (Frost) |
-| 4. Природный | [04_nature.json](../familiars/04_nature.json) | Хилер / Друид |
-| 5. Светлый | [05_light.json](../familiars/05_light.json) | Healer + Resist Tank |
-| 6. Теневой | [06_shadow.json](../familiars/06_shadow.json) | Shadow DoT / Debuff-res |
-| 7. Тайный | [07_arcane.json](../familiars/07_arcane.json) | Arcane DPS |
-| 8. Демонический | [08_demon.json](../familiars/08_demon.json) | TBD (бывш. Гроза) |
-| 9. Звериный | [09_beast.json](../familiars/09_beast.json) | Phys DPS (сила) |
-| 10. Общий | [10_spirit.json](../familiars/10_spirit.json) | Utility (XP / honor / rep) |
+| 1. Механический | [01_mech.json](01_mech.json) | Танк (броня / Sta / блок) |
+| 2. Огненный | [02_fire.json](02_fire.json) | Magic DPS (Fire) |
+| 3. Ледяной | [03_ice.json](03_ice.json) | Magic DPS (Frost) |
+| 4. Природный | [04_nature.json](04_nature.json) | Хилер / Друид |
+| 5. Светлый | [05_light.json](05_light.json) | Healer + Resist Tank |
+| 6. Теневой | [06_shadow.json](06_shadow.json) | Shadow DoT / Debuff-res |
+| 7. Тайный | [07_arcane.json](07_arcane.json) | Arcane DPS |
+| 8. Демонический | [08_demon.json](08_demon.json) | TBD (бывш. Гроза) |
+| 9. Звериный | [09_beast.json](09_beast.json) | Phys DPS (сила) |
+| 10. Общий | [10_spirit.json](10_spirit.json) | Utility (XP / honor / rep) |
 
 ## Распределение редкостей
 

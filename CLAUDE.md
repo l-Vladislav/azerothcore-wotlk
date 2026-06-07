@@ -130,7 +130,7 @@ Type(Scope/Subscope): Short description (max 50 chars)
 Specialized subagents live in `.claude/agents/`. Prefer delegating to the matching agent over doing the work in the main thread — they encode the conventions for their area.
 
 - **sql-migration-writer** — any SQL change. Enforces `pending_db_*` placement and idempotency.
-- **familiars-dev** — Familiars gacha system (10 elemental stones). Reads `.claude/familiars/` + `.claude/nemesis/familiar_gacha_*`.
+- **familiars-dev** — Familiars gacha system (10 elemental families). Reads `.claude/familiars/` (per-family JSONs + familiar_gacha_* docs).
 - **nemesis-dev** — Nemesis system, ticket bounty board, branch_private changes. Reads `.claude/nemesis/`.
 - **statbooster-dev** — Fortune Pool / Scrolls / custom enchants. Reads `.claude/statBoosterItems/`.
 - **playerbots-dev** — Playerbots AI tuning (strategies, actions, triggers, class/dungeon/raid logic).

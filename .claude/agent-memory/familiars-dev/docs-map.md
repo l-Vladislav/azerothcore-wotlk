@@ -4,15 +4,15 @@
 
 | Topic | File |
 |---|---|
-| Overall concept, phases, attribute rules | `.claude/nemesis/familiar_gacha_design.md` |
-| Chest implementation plan (Flags=4 + item_loot_template, NO C++) | `.claude/nemesis/familiar_gacha_chests_plan.md` — START HERE for chest work |
+| Overall concept, phases, attribute rules | `.claude/familiars/familiar_gacha_design.md` |
+| Chest implementation plan (Flags=4 + item_loot_template, NO C++) | `.claude/familiars/familiar_gacha_chests_plan.md` — START HERE for chest work |
 | Per-pet effects, names, exact ID per slot | `.claude/familiars/0X_<element>.json` (migrated families — SOURCE OF TRUTH) or `0X_<element>.md` (not-yet-migrated baseline) |
 | JSON schema, input format, SQL/CSV generator | `json-workflow.md` (this folder) |
-| Family index, drop-rates aggregate, history | `.claude/nemesis/familiar_gacha_catalog.md` |
-| Active ID ranges, retired ranges, T1 migration | `.claude/nemesis/familiar_gacha_id_reservations.md` |
-| Phase status, what's done / pending | `.claude/nemesis/familiar_gacha_status.md` |
+| Family index, drop-rates aggregate, history | `.claude/familiars/familiar_gacha_catalog.md` |
+| Active ID ranges, retired ranges, T1 migration | `.claude/familiars/familiar_gacha_id_reservations.md` |
+| Phase status, what's done / pending | `.claude/familiars/familiar_gacha_status.md` |
 | In-flight changes log | `.claude/nemesis/pending_changes.md` |
-| Old T1 (rollback-only reference) | `.claude/nemesis/familiar_system_design.md`, `familiar_system_implementation.md` |
+| Old T1 (rollback-only reference) | `.claude/familiars/familiar_system_design.md`, `familiar_system_implementation.md` |
 
 ## Read order before any task
 

@@ -63,7 +63,7 @@ Custom spells live in this CSV (mirrored to `spell_dbc` SQL table). The 90xxx en
 | Vanilla 3.3.5 range | base | Read-only |
 | `17827-17830, 17883-17885, 17888-17889, 17891-17896, 18599` | **StatBooster** | live — 16 scroll items (repurposed vanilla QA placeholders, no client patch needed) |
 | 41605 | **StatBooster** | live — Attribute Recalibrator (existing vanilla item, repurposed) |
-| Other custom items (100017+, etc.) | various features | Out of StatBooster scope — check `.claude/nemesis/familiar_gacha_id_reservations.md` and `.claude/dbc/Item_custom.csv` before claiming |
+| Other custom items (100017+, etc.) | various features | Out of StatBooster scope — check `.claude/familiars/familiar_gacha_id_reservations.md` and `.claude/dbc/Item_custom.csv` before claiming |
 
 ## Notes
 

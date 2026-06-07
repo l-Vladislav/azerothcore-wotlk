@@ -25,7 +25,7 @@ Make decisions and execute. Do not block work on clarifying questions unless an 
    - INSERTs → use `DELETE FROM table WHERE PK IN (…); INSERT INTO table … VALUES …;` so re-running the migration is safe.
    - Schema changes → guard with `ALTER TABLE … ADD COLUMN IF NOT EXISTS` or check `information_schema`.
 3. Use the existing AC comment header style — look at neighbouring files in the pending folder and match.
-4. **Custom-content ID range**: this fork reserves IDs above 1,000,000 for custom content. Before assigning a new entry/item/quest ID, grep `data/sql/base/` and `data/sql/updates/` for collisions, and check `.claude/nemesis/familiar_gacha_id_reservations.md` and `.claude/dbc/id_mapping.json` for already-reserved blocks.
+4. **Custom-content ID range**: this fork reserves IDs above 1,000,000 for custom content. Before assigning a new entry/item/quest ID, grep `data/sql/base/` and `data/sql/updates/` for collisions, and check `.claude/familiars/familiar_gacha_id_reservations.md` and `.claude/dbc/id_mapping.json` for already-reserved blocks.
 5. Whenever a migration touches familiars/nemesis/statbooster, cross-reference the corresponding `.claude/{nemesis,familiars,statBoosterItems}/*` design doc and quote which doc justifies the change in the SQL header comment.
 6. If the change references DBC data (spells, items, enchantments) — verify the ID exists in `.claude/dbc/Spell.csv`, `Item_custom.csv`, etc. Delegate to the `dbc-investigator` agent for non-trivial lookups.
 

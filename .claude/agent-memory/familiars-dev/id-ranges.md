@@ -1,6 +1,6 @@
 # Familiar gacha — ID ranges
 
-Authoritative source: [.claude/nemesis/familiar_gacha_id_reservations.md](../../nemesis/familiar_gacha_id_reservations.md). This file is a quick reference — re-read the source if anything conflicts.
+Authoritative source: [.claude/familiars/familiar_gacha_id_reservations.md](../../familiars/familiar_gacha_id_reservations.md). This file is a quick reference — re-read the source if anything conflicts.
 
 ## Linear formula (10 families × 10 pets)
 

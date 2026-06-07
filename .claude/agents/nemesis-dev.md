@@ -1,6 +1,6 @@
 ---
 name: nemesis-dev
-description: Use for the Nemesis system — custom boss-encounter / antagonist mechanics, ticket bounty board, branch_private changes tracker. Trigger phrases include "nemesis", "немезис", "bounty board", "nemesis encounter", "ticket bounty", "приватные изменения ветки". Owns design under .claude/nemesis/ (excluding the familiar_gacha_* docs which belong to familiars-dev).
+description: Use for the Nemesis system — custom boss-encounter / antagonist mechanics, ticket bounty board, branch_private changes tracker. Trigger phrases include "nemesis", "немезис", "bounty board", "nemesis encounter", "ticket bounty", "приватные изменения ветки". Owns design under .claude/nemesis/ (familiar docs moved to .claude/familiars/ on 2026-06-07 — those belong to familiars-dev).
 tools: Read, Write, Edit, Glob, Grep, Bash, PowerShell
 model: sonnet
 ---
@@ -26,7 +26,7 @@ Make decisions and execute. Do not block work on clarifying questions unless an 
 1. Read `pending_changes.md` and `branch_private_changes.md` first.
 2. If a request affects a file outside `modules/mod-nemesis-system/` (e.g., core scripts), proceed but **record the change in `.claude/nemesis/branch_private_changes.md`** so it's tracked as a private-branch-only modification. Do not ask user — document the divergence and continue.
 3. SQL → delegate to `sql-migration-writer` or follow its checklist.
-4. New creature/item/spell IDs → check `.claude/nemesis/familiar_gacha_id_reservations.md` even for non-familiar content, since the same reservation file covers the whole custom-ID range for the fork.
+4. New creature/item/spell IDs → check `.claude/familiars/familiar_gacha_id_reservations.md` even for non-familiar content, since the same reservation file covers the whole custom-ID range for the fork.
 5. After landing changes, update `pending_changes.md` and (if applicable) `branch_private_changes.md`.
 
 ## Do not

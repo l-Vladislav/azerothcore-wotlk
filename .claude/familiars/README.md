@@ -2,9 +2,11 @@
 
 Эта папка содержит **10 файлов по одному на каждое семейство** гача-системы петомцев Немезиды. Каждый файл — полная таблица 10 петомцев семейства (6 Common + 3 Rare + 1 Epic) с эффектами в SQL-готовом виде.
 
-**Источник правды** для конкретных эффектов / имён / ID отдельных питомцев — эти 10 файлов. Главный каталог [familiar_gacha_catalog.md](../nemesis/familiar_gacha_catalog.md) — тонкий обзор с глобальными таблицами (распределение редкостей, формулы маппинга, сводка aura ID).
+**Источник правды** для конкретных эффектов / имён / ID отдельных питомцев — эти 10 файлов. Главный каталог [familiar_gacha_catalog.md](familiar_gacha_catalog.md) — тонкий обзор с глобальными таблицами (распределение редкостей, формулы маппинга, сводка aura ID).
 
-> **Миграция на JSON (в процессе):** ревизованные семейства переводятся из `.md`-таблиц в структурированный `NN_<key>.json` (источник правды для генерации SQL). Готово: семейство 1 (`01_mech.json`). Остальные пока в `.md`-формате (baseline), мигрируются по мере ревизии. Формульные ID (creature/summon/buffAura/scroll) вычисляются из `fp`; `debuffAura` (104xxx) проставляется только при наличии негативных эффектов.
+С 2026-06-07 здесь же живут все дизайн-доки гача-системы (переехали из `.claude/nemesis/`): [familiar_gacha_design.md](familiar_gacha_design.md), [familiar_gacha_catalog.md](familiar_gacha_catalog.md), [familiar_gacha_id_reservations.md](familiar_gacha_id_reservations.md), [familiar_gacha_status.md](familiar_gacha_status.md), [familiar_gacha_chests_plan.md](familiar_gacha_chests_plan.md), плюс rollback-референсы старого T1 (`familiar_system_*.md`).
+
+> **Миграция на JSON завершена (2026-06-06):** все 10 семейств — в структурированных `NN_<key>.json` (источник правды для генерации SQL через `scripts/familiar-gen-sql.ps1`). Формульные ID (creature/summon/buffAura/scroll) вычисляются из `fp`; `debuffAura` (104xxx) проставляется только при наличии негативных эффектов.
 
 ## 10 семейств
 
@@ -46,4 +48,4 @@ Common внутри семейства = **3 базовых питомца × 2 
 - `EffectDieSides_N=1` (обязательно, иначе amount=0)
 - `ImplicitTargetA_N=1` (caster — на хозяина)
 
-Полный шаблон + список aura ID — в [familiar_gacha_design.md](../nemesis/familiar_gacha_design.md) → секции «spell_dbc row shape» и «Common aura IDs».
+Полный шаблон + список aura ID — в [familiar_gacha_design.md](familiar_gacha_design.md) → секции «spell_dbc row shape» и «Common aura IDs».
