@@ -129,14 +129,23 @@ roll `DungeonNemesis.Chance` (3%) to become a **TEMPORARY** nemesis:
   late joiners get the map's temps via `NemesisDungeonMapScript`
   (`OnPlayerEnterAll`); kill rewards/rep flow through the regular kill hook
   because state resolution now sees temps;
-- announcement (owner 2026-06-07): single atmospheric map-local message
-  «Вы чувствуете присутствие сильного врага в этом месте.» — no names/ranks,
-  ONE message per enter-sweep batch (and per later individual spawn);
-- kill announcements for dungeon nemeses are MAP-LOCAL (`AnnounceToMap`),
-  never server-wide — instance runs don't spam the world feed;
-- addon zone tab: `isNemesisInCurrentZone` (WorldMap.lua) gained a dungeon
-  branch — inside an instance it matches `nemesis.zoneName ==
-  GetRealZoneText()` (world-map file matching can't work there);
+- announcement (owner 2026-06-07): single atmospheric message «Вы чувствуете
+  присутствие сильного врага в этом месте.» — no names/ranks, MAP-LOCAL and
+  DEBOUNCED per instance (`PresenceCooldownSeconds`, 120s) so trickle spawns
+  deeper in the dungeon don't re-spam it;
+- kill announcements for dungeon nemeses are SILENT — neither global nor
+  map feed (the titled corpse is announcement enough);
+- **HP self-heal** (`OnAllCreatureUpdate`): a freshly entered instance's
+  creatures hit JUST_RESPAWNED→SelectLevel→InitStatsForLevel on their first
+  Update, which resets `UNIT_MOD_HEALTH` BASE_VALUE and wipes our scaled max
+  health (scale survives — "model big, HP normal"). When a nemesis's live
+  max drifts BELOW target, re-apply the state preserving current health %
+  (no combat heal-loop; fires once per drift). Open-world nemeses never
+  respawn post-promotion so this is dungeon-specific in practice;
+- addon zone tab: the server pushes `V2:DUNGEON:<mapId>` on map enter
+  (0 = open world); `isNemesisInCurrentZone` (WorldMap.lua) matches dungeon
+  entries by `nemesis.mapId == currentDungeonMapId` (instances have no
+  world-map file and zone-name matching is unreliable across subzones);
 - config `NemesisSystem.DungeonNemesis.*` (Enable, Chance 3.0, IncludeRaids 0,
   RequireRealPlayers 1).
 
