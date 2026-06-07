@@ -1,6 +1,25 @@
 # Nemesis System — Deployment Status
 
-Last updated: 2026-04-18. Branch `feat/wow-ac-nemesis-bounty-board`.
+Last updated: 2026-06-07. Branch `feat/wow-ak-1-nemesis-familiars`.
+
+## PTR-only (NOT yet on live)
+
+### Rank-gated tavern shop (2026-06-07)
+- `NemesisBountyVendorScript`: «Награды охотника за головами» теперь открывает
+  ПОДМЕНЮ вместо плоского вендора 190000: «Общие товары» (ранг 1),
+  «Печати и нашивки» (StatBooster, ранг 2), «Сумки с фамильярами» (ранг 3).
+  Залоченные пункты видны с пометкой «(требуется ранг: …)».
+- Новые conf-опции: `BountyVendor.RankMenus.Enable` (1), `.GeneralEntry`
+  (190100), `.StatBoosterEntry` (190101), `.FamiliarEntry` (190102),
+  `.StatBoosterRank` (2), `.FamiliarRank` (3). Гейт — по
+  `NemesisReputation::GetRank` (Hunter's Covenant 1-5).
+- SQL `pending_db_world/nemesis_familiars_gacha_vendor.sql`: IEC 100006
+  (1×110150) / 100007 (5×110150) + npc_vendor 190100/190101/190102.
+  Легаси-вендор 190000 не тронут (фолбэк при RankMenus=0).
+- Клиенту нужны IEC 100006/07 в ItemExtendedCost.dbc
+  (`.claude/dbc/ItemExtendedCost_custom.csv`) для отрисовки цен.
+- Деплой на live: см. familiar gacha доки в `.claude/familiars/` — сумки
+  110100-09/110120, монета 110150, клетки 110000-99 идут одним пакетом.
 
 ## Currently deployed on live + PTR
 
