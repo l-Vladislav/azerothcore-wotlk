@@ -28,15 +28,18 @@ The previous **3 roles × 5 tiers** familiar system (`familiar_system_design.md`
 | # | Phase | Status |
 |---|---|---|
 | 1 | Design docs + ID reservations + memory updates | ✓ done 2026-05-18, перестроено под 10×10 (2026-05-22) |
-| 2 | DisplayID / SpellIconID verification (docker required) | pending |
-| 3 | SQL migration in 5 parts: spells / creatures / items / chests / t1-migrate | pending |
-| 4 | C++ — extended aura map + chest `ItemScript` | pending |
-| 5 | Optional: `nemesis_familiar_pool` DB-driven weight table | pending |
-| 6 | MPQ rebuild — only when explicit "prepare MPQ" per memory rule | deferred |
-| 7 | Tavern daily quest granting coin | deferred |
+| 2 | DisplayID / SpellIconID verification (docker required) | ✓ done — все 100 проверены в процессе семейных циклов |
+| 3 | SQL migration: spells / creatures / items | ✓ done 2026-06-07 — все 100 петов живы на PTR, подтверждены владельцем |
+| 3b | Chests (110100–09 + 110120) — data-driven, БЕЗ C++ | **next** — план готов: [familiar_gacha_chests_plan.md](familiar_gacha_chests_plan.md) |
+| 3c | T1 migrate (`character_spell` 100120–22 → 102000/102070/102050, retire old IDs) | pending |
+| 4 | ~~C++ chest `ItemScript`~~ | ОТМЕНЕНО 2026-06-07 — сундуки через `Flags=4` + `item_loot_template` (см. design.md); aura map уже работает по формуле |
+| 5 | Optional: `nemesis_familiar_pool` DB-driven weight table | не нужен — шансы живут в `item_loot_template.Chance` |
+| 6 | MPQ rebuild — only when explicit "prepare MPQ" per memory rule | владелец делает по циклу (WDBX → MPQ) |
+| 7 | Tavern daily quest granting coin (110150) | deferred — до этого сундуки GM-only |
 
 ## Recent activity (newest on top)
 
+- **2026-06-07 — План сундуков готов, handoff для новой сессии.** Решение: data-driven, БЕЗ C++ — `item_template.Flags=4` (HAS_LOOT) + `item_loot_template` с одной loot-группой на сундук (семантика подтверждена `LootMgr.cpp` `LootGroup::Roll` ~1292: явные шансы кумулятивно против одного rand(0..100), записи `Chance=0` равновероятно делят остаток → дроп гарантирован; `Rate.Drop.*` НЕ масштабирует групповые шансы). Кодировка: универсальный 110120 = 60C@1.4833 + 30R@0.3333 + 10E@0 (≈0.1% каждому эпику); стихийный 1101xx = 6C@11.6667 + 3R@6.6667 + 1E@0 (≈10%). Полный план реализации (шаги, верификационные запросы, открытые вопросы владельцу) — [familiar_gacha_chests_plan.md](familiar_gacha_chests_plan.md); раздел «Chest opening flow» в design.md переписан (старый C++ ItemScript-план удалён). Реализация НЕ начата (Docker был выключен). Новой сессии: начинать с familiar_gacha_chests_plan.md + agent-memory/familiars-dev/INDEX.md.
 - **2026-06-07 — Сотня подтверждена владельцем в игре ✅.** Последний баг: Раптор (102080) показывал в «Спутниках» иконку/описание майского тест-пета «Рыжий Лисёнок» — stale-строка в клиентском Spell.dbc на переиспользованном ID (урок: удаление из CSV не удаляет из DBC владельца; процедура фикса в [agent-memory/familiars-dev/json-workflow.md](../agent-memory/familiars-dev/json-workflow.md)). Семейство 10 переименовано «Дух» → **«Общий»**. **Следующий этап (владелец вернётся позже): гача-механика** — сундуки 110100–09/110120 (C++ ItemScript, Фаза 4), жетон таверны + дейли-квесты (Фаза 7), миграция T1 (`character_spell` 100120–22 → 102000/102070/102050, retire старых ID).
 
 - **2026-06-06 — 🎉 ВСЕ 10 СЕМЕЙСТВ (100/100) НА PTR.** Финальная пара: **9 «Звериный»** (Phys/сила: Раптор=Deviate Hatchling 29807, Волчер=Curious Wolvar Pup 25384, Тигрёнок=White Tiger Cub 16942, Медвежонок 16189, Скорпиончик 2488, Волкус=Lupos 11412 @0.8, эпик Спектральный Зверь=Spectral Tiger Cub 30409) и **10 «Дух»** (утилити XP/честь/реп: Сквернокот=Corrupted Kitten 9209, Хлебная Жаба=Mojo 22459, Тотемный Дух=Sen'jin Fetish 29189, Живое Яйцо=Egbert 21382, Милый Урчаль=Lurky 15398, Слайм=Toxic Wasteling 31073 → **muted 65098** (луп 5894), эпик Везунчик=Lucky 21304). Отловлены и исправлены битые ссылки владельца: 9.3/9.5 (копипаст npc демонов), 10.7 Арфус (retail npc 213605 + retail-иконка) → Живое Яйцо. **Итоговая верификация всей сотни: 100 summon / 100 buff / 40 debuff / 100 models / 100 cages (58861), violation-чеки полей аур чисты, лог сервера чист (24163 model info).** 240 строк spell_dbc — точно по каталогу. Custom-DBC финал: **20 muted** (CDI 24282 / CSD 1326), Item_custom 120 строк, Spell_custom 240 строк. Осталось из дизайна: сундуки/гача-механика (Фаза 4 C++ ItemScript), жетон таверны (Фаза 7), миграция T1.

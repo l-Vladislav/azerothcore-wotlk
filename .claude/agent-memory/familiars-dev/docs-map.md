@@ -5,6 +5,7 @@
 | Topic | File |
 |---|---|
 | Overall concept, phases, attribute rules | `.claude/nemesis/familiar_gacha_design.md` |
+| Chest implementation plan (Flags=4 + item_loot_template, NO C++) | `.claude/nemesis/familiar_gacha_chests_plan.md` — START HERE for chest work |
 | Per-pet effects, names, exact ID per slot | `.claude/familiars/0X_<element>.json` (migrated families — SOURCE OF TRUTH) or `0X_<element>.md` (not-yet-migrated baseline) |
 | JSON schema, input format, SQL/CSV generator | `json-workflow.md` (this folder) |
 | Family index, drop-rates aggregate, history | `.claude/nemesis/familiar_gacha_catalog.md` |
