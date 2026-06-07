@@ -99,8 +99,10 @@ Nemeses no longer require a player death to be born. A `WorldScript` tick
   2 variants per type: beast/dragonkin/demon/elemental/giant/undead/
   humanoid/mechanical + fallback), zone-local by default;
 - GM command `.nemesis ambient` forces one pass (reports birth count);
-- config block `NemesisSystem.AmbientGeneration.*` (Enable, IntervalSeconds
-  300, FillPercent 50, RequireRealPlayers, Announce, AnnounceZoneOnly).
+- config block `NemesisSystem.AmbientGeneration.*` (Enable,
+  IntervalMinSeconds 300 / IntervalMaxSeconds 600 — пауза между проходами
+  ре-роллится случайно в этом диапазоне, FillPercent 50, RequireRealPlayers,
+  Announce, AnnounceZoneOnly).
 - The promote path is map-agnostic on purpose — planned reuse: dungeon
   nemesis generation on player enter, then gossip "особые поручения"
   daily quests rewarding «Монета авантюриста» (speed-kill, other-continent,

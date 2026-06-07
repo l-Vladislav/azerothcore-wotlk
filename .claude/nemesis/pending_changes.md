@@ -5,9 +5,11 @@ Last updated: 2026-06-07. Branch `feat/wow-ak-1-nemesis-familiars`.
 ## PTR-only (NOT yet on live)
 
 ### Ambient nemesis generation (2026-06-07)
-- `NemesisAmbientWorldScript` (WorldScript::OnUpdate, default tick 300s):
-  зоны с реальными игроками ниже 50% от `MaxPerZone` получают 1 рождение
-  немезиды за тик — случайный подходящий моб, `nemesis_target_guid=0`.
+- `NemesisAmbientWorldScript` (WorldScript::OnUpdate, случайный тик
+  300-600с, ре-ролл после каждого прохода): зоны с реальными игроками ниже
+  50% от `MaxPerZone` получают 1 рождение немезиды за тик — случайный
+  подходящий моб из ЛЮБОГО загруженного грида зоны (гриды держат и боты,
+  так что пул — вся обжитая зона), `nemesis_target_guid=0`.
 - Анонс рождения с текстом по типу существа (2 варианта/тип), только в зоне.
 - GM `.nemesis ambient` — форс-проход (вернул кол-во рождений).
 - Конфиг `NemesisSystem.AmbientGeneration.*`. Детали в nemesis_system.md.
