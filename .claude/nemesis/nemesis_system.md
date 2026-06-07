@@ -113,6 +113,41 @@ Nemeses no longer require a player death to be born. A `WorldScript` tick
   daily quests rewarding «Монета авантюриста» (speed-kill, other-continent,
   dungeon nemesis, revenge, rank hunt — см. обсуждение 2026-06-07).
 
+### Dungeon Nemeses (2026-06-07, PTR)
+Creatures spawning in dungeon maps (`OnCreatureAddWorld` → `TryRollDungeonNemesis`)
+roll `DungeonNemesis.Chance` (3%) to become a **TEMPORARY** nemesis:
+- weighted random rank 50/30/15/4/1 (clipped to MaxRank); trash + elites only
+  (bosses/rares excluded), hostile-to-players, npcflag 0;
+- temp-keyed by **ObjectGuid** in `ActiveTemporaryNemeses` — NEVER persisted
+  (spawnIds collide across instances of the same dungeon); dies with the
+  instance/creature;
+- core temp-machinery hardened for spawnId-carrying temps: `TryGetNemesisState`
+  / `DeleteNemesisState` / regen accumulators / `OnCreatureRemoveWorld` now
+  check the temp store FIRST; `BroadcastRankFiveNemesisIfPersistent` skips temps;
+- addon: `UPSERT_VALIDATED` pushed to everyone in the instance at creation;
+  late joiners get the map's temps via `NemesisDungeonMapScript`
+  (`OnPlayerEnterAll`); kill rewards/rep flow through the regular kill hook
+  because state resolution now sees temps;
+- map announcement: «[Немезида]: {} затаился(ась) в этом подземелье (ранг N)!»;
+- config `NemesisSystem.DungeonNemesis.*` (Enable, Chance 3.0, IncludeRaids 0,
+  RequireRealPlayers 1).
+
+### Special Daily Tasks — «Особое поручение» (2026-06-07, PTR)
+Innkeeper gossip item (after the bounty board). **One completion per day**,
+the day's task choice is FINAL (abandon allowed; re-accept the same type only —
+fresh timer for speed). Reward: 1× «Монета авантюриста» (110150) via
+`AddItemOrMail`. State: `character_nemesis_special_task` (characters DB),
+day window aligned to the server daily-quest reset. Types
+(`NemesisSpecialTask` namespace; completion checked per reward recipient →
+group credit works):
+1. **SPEED** — kill any nemesis within `SpeedKillMinutes` (30) of accepting;
+   timer expiry on a late kill auto-abandons with a retry hint.
+2. **CONTINENT** — kill a non-gray nemesis on the opposite classic continent
+   (EK↔Kalimdor; accept only while on map 0/1; param = target mapId).
+3. **DUNGEON** — kill a (temporary) nemesis inside a dungeon, solo or group.
+Config `NemesisSpecialTask.*` (Enable, SpeedKillMinutes, RewardItem/Count).
+Gossip actions 9010–9014; UI header via `SendCustomNpcText` (0x7E… ids).
+
 ## Client Addon (ClientAddon/NemesisTracker/)
 
 ### Files

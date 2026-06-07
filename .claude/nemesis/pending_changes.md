@@ -4,6 +4,20 @@ Last updated: 2026-06-07. Branch `feat/wow-ak-1-nemesis-familiars`.
 
 ## PTR-only (NOT yet on live)
 
+### Dungeon nemeses + особые поручения (2026-06-07)
+- Данж-немезиды: 3% на спавн трэша/элиток (без боссов), временные
+  (ObjectGuid-keyed, не в БД), взвешенный ранг 50/30/15/4/1, анонс в карту,
+  аддон-пуш при создании и при входе игрока (`NemesisDungeonMapScript`).
+  Temp-механика укреплена: guid-first lookup/delete/regen для существ со
+  spawnId. Конфиг `NemesisSystem.DungeonNemesis.*`.
+- «Особое поручение» у трактирщика: 1 выполнение/день, выбор финален
+  (бросить можно, перевзять только тот же тип). Типы: на скорость (30 мин),
+  противоположный классический континент (EK<->Калимдор, не серая),
+  немезида в подземелье (соло/группа — кредит всем получателям награды).
+  Награда 1×110150. Таблица `character_nemesis_special_task`
+  (pending_db_characters/nemesis_special_task.sql, применена на PTR).
+  Конфиг `NemesisSpecialTask.*`. Госсип-экшены 9010-9014.
+
 ### Ambient nemesis generation (2026-06-07)
 - `NemesisAmbientWorldScript` (WorldScript::OnUpdate, случайный тик
   300-600с, ре-ролл после каждого прохода): зоны с реальными игроками ниже
