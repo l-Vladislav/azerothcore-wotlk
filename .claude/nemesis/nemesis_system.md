@@ -88,6 +88,11 @@ Nemeses no longer require a player death to be born. A `WorldScript` tick
 - if the zone has fewer nemeses than `FillPercent` (50%) of
   `NemesisSystem.MaxPerZone` — promotes ONE random eligible mob per tick
   (reservoir sampling over the map's spawned creatures);
+- with `RankUpChance` (10%) the zone's action instead RANKS UP a random
+  existing live nemesis of the zone (`AmbientRankUpNemesis`: +1 rank,
+  re-roll affixes, full heal; honors RankUpCooldownSeconds; skips rares;
+  falls back to a birth when no candidate) — announcement
+  «…набирает силу и достигает ранга N!»;
 - eligibility (`IsEligibleAmbientCandidate`): alive, persistent spawn,
   hostile to players, not pet/critter/totem/trigger/civilian/npcflag,
   allowed rank but NOT rare (rare dedup is keyed to player targets), not a
@@ -101,8 +106,8 @@ Nemeses no longer require a player death to be born. A `WorldScript` tick
 - GM command `.nemesis ambient` forces one pass (reports birth count);
 - config block `NemesisSystem.AmbientGeneration.*` (Enable,
   IntervalMinSeconds 300 / IntervalMaxSeconds 600 — пауза между проходами
-  ре-роллится случайно в этом диапазоне, FillPercent 50, RequireRealPlayers,
-  Announce, AnnounceZoneOnly).
+  ре-роллится случайно в этом диапазоне, FillPercent 50, RankUpChance 10,
+  RequireRealPlayers, Announce, AnnounceZoneOnly).
 - The promote path is map-agnostic on purpose — planned reuse: dungeon
   nemesis generation on player enter, then gossip "особые поручения"
   daily quests rewarding «Монета авантюриста» (speed-kill, other-continent,
