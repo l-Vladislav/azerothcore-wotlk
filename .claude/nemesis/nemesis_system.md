@@ -159,11 +159,18 @@ State: `character_nemesis_special_task` (characters DB),
 day window aligned to the server daily-quest reset. Types
 (`NemesisSpecialTask` namespace; completion checked per reward recipient →
 group credit works):
-1. **SPEED** — kill any nemesis within `SpeedKillMinutes` (30) of accepting;
-   timer expiry on a late kill auto-abandons with a retry hint.
-2. **CONTINENT** — kill a non-gray nemesis on the opposite classic continent
-   (EK↔Kalimdor; accept only while on map 0/1; param = target mapId).
-3. **DUNGEON** — kill a (temporary) nemesis inside a dungeon, solo or group.
+1. **SPEED** «Горячий след» — kill a **non-gray** nemesis **in your current
+   zone** (`killed->GetZoneId() == player->GetZoneId()`) within
+   `SpeedKillMinutes` (30) of accepting; timer expiry on a late kill
+   auto-abandons with a retry hint.
+2. **CONTINENT** «Заморская охота» — kill a non-gray nemesis on the opposite
+   classic continent (EK↔Kalimdor; accept only while on map 0/1;
+   param = target mapId).
+3. **DUNGEON** «Охота во тьме» — kill a (temporary) nemesis inside ANY dungeon,
+   solo or group; no gray gate (instances are level-scaled by a module).
+
+Gray gate (owner 2026-06-07): SPEED + CONTINENT require a non-gray target;
+DUNGEON intentionally does not.
 Config `NemesisSpecialTask.*` (Enable, SpeedKillMinutes, RewardItem/Count).
 Gossip actions 9010–9014; UI header via `SendCustomNpcText` (0x7E… ids).
 
