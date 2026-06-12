@@ -138,6 +138,11 @@ public:
         return _value;
     }
 
+    [[nodiscard]] float GetMinValue() const
+    {
+        return _minValue;
+    }
+
 protected:
     bool AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o,
                    float rotation0, float rotation1, float rotation2, float rotation3);
