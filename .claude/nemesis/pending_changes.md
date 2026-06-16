@@ -1,6 +1,30 @@
 # Nemesis System — Deployment Status
 
-Last updated: 2026-06-12. Branch `feat/wow-ak-1-nemesis-familiars`.
+Last updated: 2026-06-16. Branch `feat/wow-ak-1-nemesis-familiars`.
+
+## На LIVE: сервер собран+поднят 2026-06-16 — ждёт только редеплой аддона
+
+### Ранговые пороги: единый источник + экран ранга + back-button (2026-06-16)
+СЕРВЕР: инкрементальная пересборка (ccache) + поднят на live (ac-worldserver-v2,
+rev 85f0c9a0+). КЛИЕНТ: аддон NemesisTracker ещё НЕ скопирован игроку — бар
+покажет 558/1000 только после копирования ClientAddon в Interface/AddOns +
+`/reload` (старый аддон безопасно игнорирует новые поля payload).
+
+- Баг: аддон показывал «558/500». ЗАХАРДКОЖЕННЫЙ устаревший
+  `RANK_THRESHOLDS = {0,500,2500,8000,20000}`, а live-conf давно
+  1000/5000/16000/40000. Сервер считал ранг верно (558/1000), врал только бар.
+- Выровнены ВСЕ копии порогов на 1000/5000/16000/40000: live conf (была),
+  C++ `DefaultThresholds` (NemesisSystem.cpp), `.dist`-шаблон.
+- Аддон сделан server-authoritative: сервер шлёт `repTierFloor`/`repTierNext`
+  в каждом payload (поля 28/29 после expiresAt в BuildAddonEntryPayload), аддон
+  удалил `RANK_THRESHOLDS` и рисует бар по серверным границам — дрейфа больше
+  быть не может. НЕ возвращать хардкод-таблицу в аддон.
+- Госсип трактирщика: строка «Ранг: «<имя>» - <очки>/<next>» + экран
+  `RANK_INFO_ACTION` (ShowRankInfo) с прогрессом до след. ранга.
+- Fix back-button: активный вид доски (ShowBoard, ветка hasActive) не имел
+  кнопки «Назад» — поток после принятия контракта/активной награды был тупиком
+  (только строка [АКТИВНО]). Добавлена «Назад» → SHOP_BACK_ACTION, как в
+  no-active ветке.
 
 ## PTR-only (NOT yet on live)
 
