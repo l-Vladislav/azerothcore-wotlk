@@ -22,7 +22,7 @@ Landed in commits `026933e02` (initial) and `481a3e814` (pool iteration + slot 4
 
 See [current-config.md](current-config.md) for the full mapping (item ID → pool → iLvl band → profession tier). The runtime config is the source of truth.
 
-Vanilla QA item IDs repurposed: `17827-17830, 18599, 17883-17885, 17888-17889, 17891-17896`. Repurposing existing IDs avoids needing a client MPQ patch for `Item.dbc`.
+Vanilla QA item IDs were originally repurposed (17827-17830, 18599, 17883-17896) to avoid needing a client MPQ patch for `Item.dbc`, but all of those items have since been deleted from both DBs. The active scroll items are **100001-100016** only. The scan range in `LoadScrollPoolMap()` reflects this — it was trimmed to `{100001, 100016}` in commit `51386bb` (2026-06-18).
 
 ## Where the pool contents live
 
