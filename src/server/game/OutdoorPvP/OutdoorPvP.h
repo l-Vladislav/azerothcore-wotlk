@@ -137,6 +137,8 @@ public:
     {
         return _value;
     }
+    [[nodiscard]] float GetMaxValue() const { return _maxValue; }
+    [[nodiscard]] float GetMinValue() const { return _minValue; }
 
     [[nodiscard]] float GetMinValue() const
     {
