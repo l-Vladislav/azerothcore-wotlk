@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(powershell -File scripts/ptr-query.ps1*)",
+      "PowerShell(powershell -File scripts\\ptr-query.ps1*)"
+    ]
+  }
+}
