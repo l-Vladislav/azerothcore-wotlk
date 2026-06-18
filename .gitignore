@@ -56,7 +56,9 @@ CMakeLists.txt.user
 #
 # AI tools
 #
-.claude
+# Track .claude/ project docs (nemesis, familiars, dbc, agent-memory, etc.);
+# ignore only machine-local config + runtime lock.
+.claude/settings.local.json
 
 #
 # IDE & other software
