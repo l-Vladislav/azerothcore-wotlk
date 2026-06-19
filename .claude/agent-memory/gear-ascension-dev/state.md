@@ -117,32 +117,37 @@ and **obtainable** (loot/vendor/container source).
 - 6641 Haunting Blade (Q2,ilvl26): dmg 53-80 -> 59-88 -> 64-96, Q2->3->4.
 - 4446 Blackvenom Blade (Q3): dmg1 21-39->24-43, dmg2 1-7->2-8 (+1 floor), Q3->4.
 
-## Item names (DECIDED + IMPLEMENTED 2026-06-19)
-- Material-themed genitive SUFFIX scheme indexed by to_quality (2/3/4).
+## Item names (FINALIZED 2026-06-19, 3-variant pool + rotation DONE 2026-06-19)
+- 3-variant rotation pool. line = baseIndex mod 3 (same for all tiers of one chain).
+  tierIndex = to_quality - 2 (0/1/2). Suffix = POOL[material][tierIndex][line].
 - Composition: item_template.name = "<base enUS name> <enUS suffix>";
   item_template_locale(ruRU).Name = "<base ruRU name> <ruRU suffix>".
-- Suffix table (ruRU LOCKED by owner):
-  Category   | to_q=2 (I)  | to_q=3 (II)  | to_q=4 (III)
-  WEAPON     | Zatoчки     | Yarosti      | Pogibeli
-  METAL      | Zakalki     | Gornila      | Nesokrushimosti
-  LEATHER    | Vydelki     | Zverya       | Pervozданnosti
-  CLOTH      | Pleteniуa   | Чarodeystva  | Arkhimagii
-  ACCESSORY  | Samoтsvetа  | Ogranki      | Ventsa
-  enUS: WEAPON of the Edge/of Fury/of Doom;
-        METAL of Tempering/of the Forge/of the Unbroken;
-        LEATHER of Curing/of the Beast/of the Wild;
-        CLOTH of Weaving/of Sorcery/of the Archmagi;
-        ACCESSORY of the Gem/of the Jewel/of the Crown.
-- Category mapping: WEAPON=class2; CLOTH=sub1; LEATHER=sub2;
-  METAL=sub3/4/6; ACCESSORY=sub0.
-- Both generators updated and regenerated: gear-ascension-gen-sql.ps1 + gear-ascension-gen-white.ps1.
-- Both SQL files re-applied to acore_world_ptr (snapshot 2026-06-19_171311 taken before).
+- ruRU FALLBACK RULE (NEW 2026-06-19): if base has NO ruRU locale row, NO ruRU
+  locale row is emitted for its copies. Client falls back to full enUS name.
+  Do NOT emit mixed "<enUS base> <ruRU suffix>" rows. Both generators enforce this.
+- ruRU pool (LOCKED verbatim by owner, 3 variants per tier per material):
+  WEAPON  I : Жажды|Натиска|Лютости   II: Ярости|Крови|Резни     III: Погибели|Жнеца|Рока
+  METAL   I : Закалки|Ковки|Горна     II: Горнила|Булата|Черной Стали  III: Несокрушимости|Рунической Стали|Цитадели
+  LEATHER I : Ловчего|Чащи|Логова     II: Хищника|Клыка|Зверя     III: Первозданности|Дикой Охоты|Владыки Зверей
+  CLOTH   I : Ворожбы|Наговора|Тени   II: Чародейства|Колдовства|Порчи  III: Чернокнижия|Скверны|Бездны
+  ACCESSORY I: Самоцвета|Кристалла|Талисмана II: Огранки|Оберега|Сияния III: Венца|Реликвии|Проклятия
+- enUS pool (3 variants per tier per material):
+  WEAPON  I : of Bloodthirst|of Onslaught|of Ferocity  II: of Fury|of Blood|of Slaughter  III: of Doom|of the Reaper|of Ruin
+  METAL   I : of Tempering|of Forging|of Embers        II: of the Forge|of Damascus|of Black Steel  III: of the Unbroken|of Runesteel|of the Citadel
+  LEATHER I : of the Hunter|of the Thicket|of the Lair II: of the Predator|of the Fang|of the Beast III: of the Primal|of the Wild Hunt|of the Beastlord
+  CLOTH   I : of Witchery|of the Hex|of Shadow         II: of Sorcery|of Witchcraft|of Corruption   III: of the Warlock|of the Fel|of the Void
+  ACCESSORY I: of the Gem|of the Crystal|of the Talisman II: of the Facet|of the Ward|of Radiance   III: of the Crown|of the Relic|of the Curse
+- Category mapping: WEAPON=class2; CLOTH=sub1; LEATHER=sub2; METAL=sub3/4/6; ACCESSORY=sub0.
+- Both generators regenerated: gear-ascension-gen-sql.ps1 + gear-ascension-gen-white.ps1.
+- Both SQL files re-imported to acore_world_ptr (snapshot 2026-06-19_173854 taken before).
+- PTR counts verified: 28 proto copies + 30 white copies = 58 total; 58 ruRU rows; 58 chain rows.
 
 ## PTR snapshots
 - `2026-06-18_175509` (taken before gear_ascension_kits.sql apply).
 - `2026-06-18_183418_before-id-block-300k-migration` (taken before 1M->300k ID migration).
 - `2026-06-19_165747` (taken before names+whitestats-v2 regen, 2026-06-19).
 - `2026-06-19_171311` (taken before suffix-names+weapon-injection regen, 2026-06-19).
+- `2026-06-19_173854` (taken before 3-variant pool + ruRU fallback regen, 2026-06-19).
 
 ## ID blocks (VERIFIED -- no collision before insert)
 - tier-copy item_template: 300,000-399,999 (moved from 1M block, owner decision 2026-06-18)
@@ -174,6 +179,14 @@ in block range) would false-positive on re-runs.
   to a scalar STRING; indexing `[0]` then returns a CHAR. Always wrap in `@(...)`.
 - `$Out` and `$out` are THE SAME variable in PS5.1 (case-insensitive).
 - Don't put box-drawing/em-dash chars in here-strings: BOM-less .ps1 read as ANSI.
+- **SQL import with Cyrillic: copy file into container + use bash redirect.**
+  `docker cp file.sql container:/tmp/file.sql` then
+  `docker exec container bash -c "mysql -u root -ppassword --default-character-set=utf8mb4 db < /tmp/file.sql"`.
+  Do NOT use `Get-Content | cmd /c "docker exec -i ... mysql"` — PowerShell
+  re-encodes the byte stream and mangles Cyrillic to `?` (0x3F). Do NOT use
+  `ProcessStartInfo + StandardInput.Write(query)` for large SQL -- it truncates.
+  The `Invoke-PtrRead` function (for short queries / SELECT) is fine since it
+  uses Write(string) and the query is ASCII only.
 
 ## GOTCHAS (C++)
 - `targets.GetItemTarget()` returns the target item from the spell cast; works when

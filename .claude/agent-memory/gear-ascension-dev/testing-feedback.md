@@ -14,19 +14,33 @@ changes so they share ONE worldserver rebuild). Status: OPEN unless marked done.
   (validate template + create new BEFORE destroying the original) so one rebuild
   covers both.
 
-## 2. RP item names per tier  (DONE 2026-06-19 -- suffix scheme live)
-- **Material-themed genitive suffix scheme IMPLEMENTED and applied to PTR.**
-  Suffix indexed by to_quality (2/3/4), 5 material categories.
-  ruRU locked by owner; enUS parallel added.
-  Full table in DESIGN.md section 10 and state.md.
-- **Composition:** `item_template.name` = "<base enUS name> <enUS suffix>";
-  `item_template_locale(ruRU).Name` = "<base ruRU name> <ruRU suffix>".
+## 2. RP item names per tier  (DONE 2026-06-19 -- 3-variant pool + rotation LIVE)
+- **3-variant rotation pool IMPLEMENTED and applied to PTR (2026-06-19).**
+  line = baseIndex mod 3 (same line across all tiers of one base's chain).
+  tierIndex = to_quality - 2 (0/1/2). Suffix = POOL[material][tierIndex][line].
+  5 material categories x 3 tiers x 3 variants = 45 ruRU + 45 enUS suffixes.
+- **ruRU FALLBACK RULE:** if base has NO ruRU locale row, NO ruRU locale row is
+  emitted for copies -- client falls back to full enUS name. Mixed-language rows
+  like "Battle Axe Лютости" are prevented. Both generators enforce this rule.
+- **Canonical suffix pool:** DESIGN.md section 10 (editable by owner; generator
+  $enSuffix/$ruSuffix tables must be kept in sync with DESIGN.md).
+- **Composition:** `item_template.name` = "<base enUS name> <enUS suffix[mat][ti][line]>";
+  `item_template_locale(ruRU).Name` = "<base ruRU name> <ruRU suffix[mat][ti][line]>" (only if base has ruRU).
 - Both generators regenerated and applied to acore_world_ptr (2026-06-19).
-  Snapshot 2026-06-19_171311 taken before.
-- **Examples verified in PTR DB:**
-  300001: "Sea King's Crown of Sorcery" / "Корона короля морей Чародейства"
-  300071: "Chestplate of the Northern Lights of the Unbroken" / "Бригантина северного сияния Несокрушимости"
-  300201: "Battle Axe of the Edge" / "Боевой топор Заточки"
+  Snapshot 2026-06-19_173854 taken before.
+- **Examples verified in PTR DB (all ruRU-clean, D0/D1 bytes confirmed):**
+  300001 (CLOTH line=0 tier II):   "Sea King's Crown of Sorcery" / "Корона короля морей Чародейства"
+  300002 (CLOTH line=0 tier III):  "Sea King's Crown of the Warlock" / "Корона короля морей Чернокнижия"
+  300071 (METAL line=1 tier III):  "Chestplate of the Northern Lights of Runesteel" / "Бригантина северного сияния Рунической Стали"
+  300161 (WEAPON line=1 tier II):  "Haunting Blade of Blood" / "Клинок проклятия Крови"
+  300162 (WEAPON line=1 tier III): "Haunting Blade of the Reaper" / "Клинок проклятия Жнеца"
+  300201 (WEAPON line=2 tier I):   "Battle Axe of Ferocity" / "Боевой топор Лютости"
+  300203 (WEAPON line=2 tier III): "Battle Axe of Ruin" / "Боевой топор Рока"
+  300181 (LEATHER line=0 tier I):  "Cured Leather Armor of the Hunter" / "Доспех из обработанной кожи Ловчего"
+  300241 (METAL line=0 tier I):    "Augmented Chain Helm of Tempering" / "Упрочненный плетеный шлем Закалки"
+  300253 (METAL line=1 tier III):  "Brigandine Helm of Runesteel" / "Панцирный шлем Рунической Стали"
+- **Proto enUS-only bases:** 0 of 18 (all had ruRU). White enUS-only bases: 0 of 10.
+  Fallback logic ready for full classic scale-up (most items lack ruRU rows).
 
 ## 3. "Upgradeable" marker on items  (OPEN; design later — it's an addon)
 - Show on an item that it CAN be upgraded (tooltip indicator), so players know
