@@ -117,16 +117,32 @@ and **obtainable** (loot/vendor/container source).
 - 6641 Haunting Blade (Q2,ilvl26): dmg 53-80 -> 59-88 -> 64-96, Q2->3->4.
 - 4446 Blackvenom Blade (Q3): dmg1 21-39->24-43, dmg2 1-7->2-8 (+1 floor), Q3->4.
 
-## Item names (DECIDED 2026-06-19)
-- Generated tier copies have VERBATIM base item names -- NO " +N" suffix.
-- Tiers are distinguished by Quality color (green/blue/purple) + stats.
-- RP tier names (task #2) remain deferred.
-- Both generators updated: gear-ascension-gen-sql.ps1 + gear-ascension-gen-white.ps1.
+## Item names (DECIDED + IMPLEMENTED 2026-06-19)
+- Material-themed genitive SUFFIX scheme indexed by to_quality (2/3/4).
+- Composition: item_template.name = "<base enUS name> <enUS suffix>";
+  item_template_locale(ruRU).Name = "<base ruRU name> <ruRU suffix>".
+- Suffix table (ruRU LOCKED by owner):
+  Category   | to_q=2 (I)  | to_q=3 (II)  | to_q=4 (III)
+  WEAPON     | Zatoчки     | Yarosti      | Pogibeli
+  METAL      | Zakalki     | Gornila      | Nesokrushimosti
+  LEATHER    | Vydelki     | Zverya       | Pervozданnosti
+  CLOTH      | Pleteniуa   | Чarodeystva  | Arkhimagii
+  ACCESSORY  | Samoтsvetа  | Ogranki      | Ventsa
+  enUS: WEAPON of the Edge/of Fury/of Doom;
+        METAL of Tempering/of the Forge/of the Unbroken;
+        LEATHER of Curing/of the Beast/of the Wild;
+        CLOTH of Weaving/of Sorcery/of the Archmagi;
+        ACCESSORY of the Gem/of the Jewel/of the Crown.
+- Category mapping: WEAPON=class2; CLOTH=sub1; LEATHER=sub2;
+  METAL=sub3/4/6; ACCESSORY=sub0.
+- Both generators updated and regenerated: gear-ascension-gen-sql.ps1 + gear-ascension-gen-white.ps1.
+- Both SQL files re-applied to acore_world_ptr (snapshot 2026-06-19_171311 taken before).
 
 ## PTR snapshots
 - `2026-06-18_175509` (taken before gear_ascension_kits.sql apply).
 - `2026-06-18_183418_before-id-block-300k-migration` (taken before 1M->300k ID migration).
 - `2026-06-19_165747` (taken before names+whitestats-v2 regen, 2026-06-19).
+- `2026-06-19_171311` (taken before suffix-names+weapon-injection regen, 2026-06-19).
 
 ## ID blocks (VERIFIED -- no collision before insert)
 - tier-copy item_template: 300,000-399,999 (moved from 1M block, owner decision 2026-06-18)
@@ -188,47 +204,48 @@ in block range) would false-positive on re-runs.
 - SQL: `data/sql/updates/pending_db_world/gear_ascension_polish_a.sql` (applied PTR).
 - Rebuild: docker compose --profile ptr build ac-worldserver-ptr (started 2026-06-18).
 
-## Phase 2 -- White bases (REGENERATED 2026-06-19 with v2 stat routing + no-suffix names)
+## Phase 2 -- White bases (REGENERATED 2026-06-19 with v2 stat routing + suffix names + weapon injection)
 - Generator: `modules/mod-gear-ascension/scripts/gear-ascension-gen-white.ps1`
 - SQL: `data/sql/updates/pending_db_world/gear_ascension_white_bases.sql` (applied PTR)
-- **White stat-gen formula v2 (FINAL, 2026-06-19):**
-  - points = round(ilvl * 0.4) -- k=0.4 kept (calibrated 2026-06-19; exact at ilvl30+)
-  - k calibration data (real green acore_world_ptr Quality=2 class 4 sub 1-4):
-    ilvl10-19 avg_k=0.220, ilvl20-29=0.321, ilvl30-39=0.392, ilvl40-49=0.399,
-    ilvl50-59=0.418, ilvl60+=0.419. k=0.4 correct for ilvl30+ (most white bases).
-  - Stamina  = ceil(points * 0.6), stat_type=7
-  - Primary = points - Stamina; stat_type by ROLE (v2):
-    * cloth (sub1) -> Int(5)   [cloth is always caster]
-    * plate (sub4) -> Str(4)   [plate is always melee]
-    * leather/mail, AllowableClass=-1 or 0 -> leather=Agi(3), mail=Agi(3)
-    * leather/mail, casterMask>0 AND physMask==0 -> Int(5)  [Druid/Shaman-only etc]
-    * leather/mail, physMask>0 AND casterMask==0 -> Str(4) if Warrior/DK-only,
-      else Agi(3) (Hunter/Rogue)
-    * mixed -> armor-type default (Agility)
-    * weapons (class 2) -> no stat injection (dmg scales only)
-    * misc (sub0) -> Spi(6)
-  - casterMask = AllowableClass & (Paladin|Priest|Shaman|Mage|Warlock|Druid) = &0x4C2
-  - physMask   = AllowableClass & (Warrior|Hunter|Rogue|DK)                  = &0x02D
-  - Stats pre-scaled per step at gen time (not DB CASE)
-  - Armor/dmg still scale with CASE WHEN x>0... same as Phase 1
-  - All stats pinned to ORIGINAL ilvl (anti-abuse)
+- **ARMOR White stat-gen formula v2 (FINAL, 2026-06-19):** k=0.4
+  - points = round(ilvl * 0.4); Sta=ceil(pts*0.6); Pri=pts-Sta
+  - Primary by ROLE: cloth->Int, plate->Str, leather/mail by AllowableClass bitmask
+  - misc(sub0)->Spi; casterMask=&0x4C2; physMask=&0x02D
+- **WEAPON White stat injection v1 (FINALIZED 2026-06-19): weaponK=0.30**
+  - points = round(ilvl * 0.30); Sta=ceil(pts*0.6); Pri=pts-Sta
+  - stat_type1/value1=Stamina; stat_type2/value2=primary stat
+  - Primary by ROLE via weapon subclass + AllowableClass:
+    wand(19)->Int; bow/gun/xbow/thrown->Agi; staff(10) unrestricted->Int;
+    dagger/fist->Agi; melee unrestricted->Str; melee caster-only->Int;
+    melee Hunter/Rogue->Agi; melee Warrior/DK->Str
+  - Damage (dmg_min/max) scaling continues IN ADDITION to stat injection
+  - Calibration (real green weapons acore_world_ptr Quality=2 class=2, meaningful stats):
+    ilvl10-19 avg_k=0.312, ilvl20-29=0.372, ilvl30-59~0.29;
+    weaponK=0.30 conservative (lower median; damage is the primary weapon value)
+    ilvl16 example: pts=5, Sta=3, Pri=2 (matches real green weapon budget)
+    ilvl25 example: pts=8, Sta=5, Pri=3 (real greens 9-11; k=0.30 intentionally modest)
 - **10 white bases (baseIndex 18..27), ID range 300181-300273:**
   - 18: 236  Cured Leather Armor   ilvl22 leather  Sta6 Agi3  armor77
   - 19: 837  Heavy Weave Armor     ilvl17 cloth    Sta5 Int3  armor29
-  - 20: 926  Battle Axe            ilvl25 weapon   dmg46-70 only
-  - 21: 928  Long Staff            ilvl25 weapon   dmg36-55 only
+  - 20: 926  Battle Axe            ilvl25 weapon   dmg46-70 + Sta6 Str4 (at step+1)
+  - 21: 928  Long Staff            ilvl25 weapon   dmg36-55 + Sta6 Int4 (at step+1)
   - 22: 2141 Cuirboulli Vest       ilvl27 leather  Sta7 Agi4  armor84
-  - 23: 2507 Laminated Recurve Bow ilvl16 weapon   dmg10-20 only
+  - 23: 2507 Laminated Recurve Bow ilvl16 weapon   dmg10-20 + Sta4 Agi3 (at step+1)
   - 24: 3891 Augmented Chain Helm  ilvl37 mail     Sta9 Str6  armor169
   - 25: 3894 Brigandine Helm       ilvl50 mail     Sta12 Str8 armor211
   - 26: 6526 Battle Harness        ilvl37 leather  Sta9 Agi6  armor100
-  - 27: 15810 Short Spear          ilvl25 weapon   dmg40-60 only
-- **Sample ladder (Cured Leather Armor, ilvl22, leather):**
+  - 27: 15810 Short Spear          ilvl25 weapon   dmg40-60 + Sta6 Str4 (at step+1)
+- **Sample weapon ladder (Battle Axe, ilvl25, axe2h, AllowableClass=-1 -> Str):**
+  - Base (white): dmg46-70, no stats
+  - +1 (green): dmg51-77, Sta6, Str4
+  - +2 (blue):  dmg56-84, Sta6, Str4
+  - +3 (purple): dmg60-91, Sta7, Str4
+- **Sample armor ladder (Cured Leather Armor, ilvl22, leather -> Agi):**
   - Base (white): armor77, 0 stats
   - +1 (green): armor85, Sta7, Agi4
-  - +2 (blue):  armor93, Sta8, Agi4
+  - +2 (blue):  armor93, Sta8, Agi4  [NOTE: step+2 stat same as +1 at low ilvl due to CEIL]
   - +3 (purple): armor101, Sta8, Agi4
-- **Item.dbc:** 30 new rows added to .claude/dbc/Item_custom.csv.
+- **Item.dbc:** 30 rows in .claude/dbc/Item_custom.csv (regenerated).
 - **Chain:** nemesis_rank 1/3/5 by to_quality 2/3/4; success 95/75/50; fail_downgrade=1 at Q4.
 
 ## BUG FIXES APPLIED (2026-06-19)
@@ -258,13 +275,13 @@ in block range) would false-positive on re-runs.
 
 ## Open / TODO
 - PTR rebuild (started 2026-06-18): confirm 0 compile errors.
-- Owner test: 2s cast bar + upgrade + white items in chain.
+- Owner test: 2s cast bar + upgrade + white items in chain + new suffix names.
 - MPQ/DBC build: 28+30 copy + 12 kit Item.dbc rows + updated Spell.dbc row for 105000.
   All in .claude/dbc/Item_custom.csv and .claude/dbc/Spell_custom.csv.
   Spell.dbc MUST include EquippedItemClass=-1 and SpellVisualID_1=3182 for 105000
   (both already correct in Spell_custom.csv col 67 and col 130 respectively).
 - Vendor for kits (creature_template + npc_vendor) -- NOT built yet.
-- testing-feedback #2 (RP tier names) -- OPEN (owner: "decide later").
+- testing-feedback #2 (RP tier names) -- DONE (suffix scheme live, 2026-06-19).
 - testing-feedback #3 (addon "upgradeable" marker) -- OPEN (design later).
 - testing-feedback #5 (remove 'Восхождение' tag from RP messages) -- OPEN (next rebuild batch).
 - Scale generator to full Classic Phase-1 scope after prototype tests pass.

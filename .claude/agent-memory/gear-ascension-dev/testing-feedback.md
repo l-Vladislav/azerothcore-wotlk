@@ -14,15 +14,19 @@ changes so they share ONE worldserver rebuild). Status: OPEN unless marked done.
   (validate template + create new BEFORE destroying the original) so one rebuild
   covers both.
 
-## 2. RP item names per tier  (PARTIALLY DONE 2026-06-19 / LATER for RP names)
-- **DONE:** "+N" suffix removed from all generated names. Both generators now emit
-  VERBATIM base names (no suffix). Regenerated + applied to PTR 2026-06-19.
-  Tiers distinguished by Quality color (green/blue/purple) + stats.
-- **STILL DEFERRED:** Proper RP tier names (e.g. "Зачарованный" prefix or per-tier
-  flavored names). Owner said "подумать об этом позже". Design the naming scheme
-  first; defer until after mechanic is validated.
-- Touches when done: generator name composition + item_template.name +
-  item_template_locale ruRU + Item.dbc regen.
+## 2. RP item names per tier  (DONE 2026-06-19 -- suffix scheme live)
+- **Material-themed genitive suffix scheme IMPLEMENTED and applied to PTR.**
+  Suffix indexed by to_quality (2/3/4), 5 material categories.
+  ruRU locked by owner; enUS parallel added.
+  Full table in DESIGN.md section 10 and state.md.
+- **Composition:** `item_template.name` = "<base enUS name> <enUS suffix>";
+  `item_template_locale(ruRU).Name` = "<base ruRU name> <ruRU suffix>".
+- Both generators regenerated and applied to acore_world_ptr (2026-06-19).
+  Snapshot 2026-06-19_171311 taken before.
+- **Examples verified in PTR DB:**
+  300001: "Sea King's Crown of Sorcery" / "Корона короля морей Чародейства"
+  300071: "Chestplate of the Northern Lights of the Unbroken" / "Бригантина северного сияния Несокрушимости"
+  300201: "Battle Axe of the Edge" / "Боевой топор Заточки"
 
 ## 3. "Upgradeable" marker on items  (OPEN; design later — it's an addon)
 - Show on an item that it CAN be upgraded (tooltip indicator), so players know
@@ -65,6 +69,21 @@ changes so they share ONE worldserver rebuild). Status: OPEN unless marked done.
 - **Client-side note:** SpellVisualID is read by the client from its own Spell.dbc.
   The animation will only appear after the owner rebuilds the MPQ. No server restart
   needed for this specific change.
+
+## 9. White weapon stat injection  (DONE 2026-06-19)
+- **Added Stamina + primary stat injection to white WEAPONS (class=2, Phase 2).**
+  weaponK=0.30 (calibrated against real green weapons in acore_world_ptr).
+  stat_type1/value1=Stamina, stat_type2/value2=primary.
+  Damage scaling (dmg_min/max) continues IN ADDITION.
+- **Weapon primary stat routing by subclass + AllowableClass:**
+  wand->Int; bow/gun/xbow/thrown->Agi; staff(unrestricted)->Int;
+  dagger/fist->Agi; melee unrestricted->Str; caster-only melee->Int;
+  Hunter/Rogue melee->Agi; Warrior/DK melee->Str.
+- **Calibration:** real green weapons ilvl10-60 meaningful-stat items avg_k=0.28-0.37;
+  k=0.30 conservative lower-median. ilvl16: pts=5,Sta=3,Pri=2 = real green match.
+- **Verified in PTR DB (entry 300201 Battle Axe step+1):**
+  dmg 46-70 -> 51-77, stat_type1=7(Sta) stat_value1=6, stat_type2=4(Str) stat_value2=4.
+- Implemented in gear-ascension-gen-white.ps1 (PROTO gen remains pure-scaling, no injection).
 
 ## 8. White stat routing v2 + k calibration  (DONE 2026-06-19)
 - **Problem (v1):** primary stat routed by armor subclass only. Leather->Agi,
