@@ -84,7 +84,7 @@ and **obtainable** (loot/vendor/container source).
   - metal kits (200000-200002): custom 70001/70002/70003 (gladiator achievement icons)
   - leather (200003-200005): 55479/56642/56641
   - cloth (200006-200008): 39462/57460/39454
-  - jewel (200009-200011): 31204/31205/31205
+  - jewel (200009-200011): 31204/31205/31203
   - weapon_melee (200012-200014): 24678/24680/24681
   - weapon_magic (200015-200017): 1501/38758/38760
   - weapon_ranged (200018-200020): 20624/40549/52196
@@ -95,7 +95,8 @@ and **obtainable** (loot/vendor/container source).
   - 70003: Achievement_FeatsOfStrength_Gladiator_09 (tier III)
   - Rows in `.claude/dbc/ItemDisplayInfo_custom.csv`
 - **Descriptions:** item_template.description (enUS) + ruRU in item_template_locale
-  stating what item types the kit upgrades and the target quality color.
+  stating what item types the kit upgrades and the target RARITY NAME (not color).
+  enUS: "Uncommon" / "Rare" / "Epic". ruRU: "необычного" / "редкого" / "эпического".
 - **Item.dbc rows:** updated in `.claude/dbc/Item_custom.csv` (200000-200020, 21 rows).
 
 ## Use-spell -- BUILT & APPLIED (2026-06-18)
@@ -104,7 +105,8 @@ and **obtainable** (loot/vendor/container source).
   Effect_1=77 (SPELL_EFFECT_SCRIPT_EFFECT), CastingTimeIndex=5 (2000ms),
   RangeIndex=1, ProcChance=101, EquippedItemClass=-1, EquippedItemSubclass=0,
   EquippedItemInvTypes=0, **ImplicitTargetA_1=26** (TARGET_GAMEOBJECT_ITEM_TARGET),
-  ImplicitTargetB_1=0, **SpellVisualID_1=3182** (enchant-item visual; caster anim +
+  ImplicitTargetB_1=0, **InterruptFlags=1** (SPELL_INTERRUPT_FLAG_MOVEMENT = 0x01;
+  movement cancels the cast), **SpellVisualID_1=3182** (enchant-item visual; caster anim +
   sparkles + arcane sound during 2s cast), SpellVisualID_2=0.
 - **ImplicitTargetA_1=26 is CRITICAL:** without it the item-target from
   TARGET_FLAG_ITEM never resolves to the effect and OnEffectHitTarget is never
@@ -117,7 +119,7 @@ and **obtainable** (loot/vendor/container source).
 - **Gear Ascension spell ID range: 105000-105099** (reserved; 105001-105099 available
   for future needs). Do not use 100000-104099 (occupied by StatBooster + familiars).
 
-## C++ ItemScript -- UPDATED (2026-06-19, 7-category kit restructure)
+## C++ ItemScript -- UPDATED (2026-06-19, 7-category kit restructure; 2026-06-19 per-category messages)
 - **Files:**
   - `modules/mod-gear-ascension/src/GearAscensionScript.cpp` -- ItemScript
     'gear_ascension_kit', handles OnUse for all 21 kit items (200000-200020).
@@ -128,6 +130,12 @@ and **obtainable** (loot/vendor/container source).
   weapon_magic/weapon_ranged for 200000-200020 (3-entry blocks, offset 0=I/1=II/2=III).
 - **KitTier() updated:** uses `(kitEntry - 200000) % 3 + 2` for any entry in 200000-200020.
 - **[Восхождение] tag removed** from all RP chat messages (testing-feedback #5 DONE).
+- **Per-category outcome messages (2026-06-19):** replaced single generic pools
+  MSG_SUCCESS/MSG_FAIL_SAFE/MSG_FAIL_DOWNGRADE with 7 per-category pool sets
+  (metal/leather/cloth/jewel/weapon_melee/weapon_magic/weapon_ranged), 2 variants each,
+  plus a generic fallback. Added enum Outcome + RandOutcomeMsg(cat, o) dispatcher.
+  All 3 call sites in HandleEffect updated to RandOutcomeMsg(chain.kitProf, OUTCOME_*).
+  MSG_WRONG_PROF + MSG_WRONG_TIER left unchanged (ItemScript validation path, neutral).
 - **NEEDS RECOMPILE:** these C++ changes are file-only; PTR worldserver must be
   rebuilt for them to take effect.
 
@@ -141,7 +149,7 @@ and **obtainable** (loot/vendor/container source).
 - 6641 Haunting Blade (Q2,ilvl26): dmg 53-80 -> 59-88 -> 64-96, Q2->3->4.
 - 4446 Blackvenom Blade (Q3): dmg1 21-39->24-43, dmg2 1-7->2-8 (+1 floor), Q3->4.
 
-## Item names (FINALIZED 2026-06-19, combined PREFIX+SUFFIX + ruRU declension DONE 2026-06-19; Cap-First fixed 2026-06-19; collision-guard added 2026-06-19; Lower-First PREFIX fix 2026-06-19)
+## Item names (FINALIZED 2026-06-19; WEAPON split 2026-06-19: weapon_melee/ranged/magic; Decline-Prefix forward-scan fix 2026-06-19; velar-ий Decline-Adj fix 2026-06-19)
 - **6-position rotation:** line = baseIndex mod 6 (same for all tiers of one chain).
   tierIndex = to_quality - 2 (0/1/2).
   line 0/1/2 = SUFFIX variant (= line); line 3/4/5 = PREFIX variant (= line - 3).
@@ -149,30 +157,35 @@ and **obtainable** (loot/vendor/container source).
 - **ruRU:** same with full gender/number declension.
   - Gender detected from first word of ruRU base name (adj endings / noun endings /
     exception list for plural nouns).
-  - PREFIX: decline last adj/participle token (-ый/-ій/-ой) to item gender; adverbs
-    and trailing modifiers are static.
+  - PREFIX: decline FIRST adj/participle token (-ый/-ій/-ой) scanning LEFT TO RIGHT
+    to item gender; adverbs and trailing modifiers are static.
+    FORWARD scan (not backward) prevents postfix nouns like Скверной/бездной (which
+    end in -ой) from being mistakenly treated as the declining token.
   - SUFFIX: if starts with preposition (с/со/из/в/без/...) = fully static; else
     decline first token (participle) only.
-  - Declension: -ый/-ой (hard): F=-ая, N=-ое, PL=-ые (velar stem = -ие); -ий (soft):
-    F=-яя, N=-ее, PL=-ие.
+  - Declension: -ый/-ой (hard): F=-ая, N=-ое, PL=-ые (velar stem = -ие); -ий:
+    soft (синий/stem does NOT end in velar): F=-яя, N=-ее, PL=-ие;
+    velar-stem -ий (рунический/stem ends in к/г/х/ж/ч/ш/щ): F=-ая, N=-ое, PL=-ие.
 - ruRU FALLBACK RULE: if base has NO ruRU locale row, NO ruRU locale row is emitted.
 - DESIGN.md section 10 = canonical pool + algorithm. Both generators carry identical
   engine block in UTF-8 BOM .ps1 files.
-- Both generators regenerated; SQL re-imported to acore_world_ptr (snapshot
-  2026-06-19_192108 taken before).
-- PTR counts verified: 28 proto + 30 white = 58 copies; 58 ruRU rows; 58 chain rows.
-- **Sample verified in PTR (grammar check, 2026-06-19):**
-  WEAPON M suffix : Клинок проклятия со стальным лезвием (line=5=prefix but see below)
-  WEAPON M prefix : хорошо заострённый Клинок проклятия (Q3->Q4, line=5, variant=2)
-  WEAPON M prefix : закалённый в крови Клинок проклятия (ceiling)
-  METAL  F suffix : Бригантина северного сияния усиленная торием (F, suffix with declining participle)
-  CLOTH  F suffix : Корона короля морей из магической ткани (F, preposition-led = static)
-  LEATHER F suffix: Боевая портупея отороченная мехом (F, participle declined to F)
-  ACCESSORY N prefix: зачарованное Ледяное ожерелье Зимней Спячки (N, adj declined to N)
-  WEAPON N prefix: наточенное Короткое копье (N, Q1->Q2)
-  WEAPON N prefix: хорошо наточенное Короткое копье (N, adverb static + token N)
-  LEATHER PL prefix: выдубленные Цельношитые кожаные брюки (PL, adj declined to PL)
-  METAL PL suffix: Наголенники лавохода усиленные чёрной сталью (PL, participle PL)
+- **WEAPON naming split (2026-06-19):** WEAPON single category split into
+  WEAPON_MELEE / WEAPON_RANGED / WEAPON_MAGIC (mirrors kit_profession subclass logic).
+  Both generators updated (Get-MaterialCategory, all 4 pool dicts).
+- **PTR counts after weapon split (2026-06-19):** 1516 copies / 1516 locale / 1516 chain.
+  weapon_melee: 253 / weapon_ranged: 73 / weapon_magic: 67 (match kit_profession counts).
+- **Sample verified (weapon split, 2026-06-19):**
+  WEAPON_RANGED M suffix: Иссеченный короткий лук с роговой накладкой (static с)
+  WEAPON_RANGED M suffix: Иссеченный короткий лук с мифриловым воротом (static с)
+  WEAPON_RANGED M prefix: Выверенный многослойный изогнутый лук (M adj, T1 v0)
+  WEAPON_RANGED M prefix: Хорошо выверенный многослойный изогнутый лук (adverb static + M token, T2 v0)
+  WEAPON_RANGED M prefix: Туго натянутый изысканный мушкетон (adverb static + M token, T2 v2)
+  WEAPON_RANGED M prefix: Усиленный воротом массивный короткий лук (FIRST token M, воротом static, T3 v2)
+  WEAPON_MAGIC F suffix: Большая палка усиленная Скверной (F participle, Скверной static; Большая палка = F)
+  WEAPON_MAGIC M suffix: Охранный посох с сердцевиной из звёздного рубина (static с)
+  WEAPON_MAGIC M prefix: Зачарованный кривой посох (M adj, T1 v0)
+  WEAPON_MAGIC F prefix: Наговорённая трость (F adj from наговорённый, трость = F, T1 v2)
+  WEAPON_MELEE M suffix: Полуночный топор с лезвием из чёрной стали (static с, unchanged style)
 
 ## PTR snapshots
 - `2026-06-18_175509` (taken before gear_ascension_kits.sql apply).
@@ -187,9 +200,12 @@ and **obtainable** (loot/vendor/container source).
 
 ## ID blocks (VERIFIED -- no collision before insert)
 - tier-copy item_template: 300,000-399,999 (moved from 1M block, owner decision 2026-06-18)
-  - Prototype proto range: 300001-300171 (18 bases / 28 copies)
-- kits: 200000-200011 (USED, 12 kits)
-- kit block reserved: 200012-200099 (available for future kits)
+  - Vendor LOCKED range: 300001-306933 (694 vendor bases / 1516 copies; bi 0-693)
+  - Non-vendor Q2+Q3 range: 306941-340222 (3329 bases / 4952 copies; bi 694-4022)
+  - Non-vendor Q1 range: 340231-345833 (561 bases / 1683 copies; bi 4023-4583)
+  - Full used block: 300001-345,833
+- kits: 200000-200020 (USED, 21 kits, 7 categories x 3 tiers)
+- kit block reserved: 200021-200099 (available for future kits)
 - vendor NPC: 200100 (or reuse tavern vendor 190xxx) -- NOT YET BUILT
 - gear-ascension spells: 105000-105099 (105000 USED for use-spell)
 Existing in project: items 100001-100016, 110000-110120; creatures 191000-191099;
@@ -314,6 +330,18 @@ Scan of all 58 ruRU names: ZERO remaining collisions.
 - **Item.dbc:** 30 rows in .claude/dbc/Item_custom.csv (regenerated).
 - **Chain:** nemesis_rank 1/3/5 by to_quality 2/3/4; success 95/75/50; fail_downgrade=1 at Q4.
 
+## BUG FIXES APPLIED (2026-06-19, updated)
+- **spell 105000 InterruptFlags=0 bug (FIXED 2026-06-19):**
+  Root cause: REPLACE INTO in gear_ascension_kits.sql omitted InterruptFlags,
+  so it defaulted to 0. With SPELL_INTERRUPT_FLAG_MOVEMENT (0x01) not set,
+  the server never cancelled the 2s cast when the player moved.
+  Fix: UPDATE spell_dbc SET InterruptFlags=1 WHERE ID=105000 applied to
+  acore_world_ptr (snapshot 2026-06-19_223828 taken before). Verified: SELECT
+  returns 1. SQL idempotency: gear_ascension_kits.sql REPLACE INTO now includes
+  InterruptFlags=1. Spell_custom.csv row 288 col29 updated from "0" to "1".
+  Client note: server-side fix (after PTR restart) cancels the cast on movement;
+  client Spell.dbc needs MPQ rebuild for fully clean client-side cancel.
+
 ## BUG FIXES APPLIED (2026-06-19)
 - **Prefix-line names start lowercase (FIXED 2026-06-19, pass 1 Cap-First):**
   Root cause: ruRU prefix lemmas stored as lowercase ("зачарованное", "хорошо простёганный",
@@ -359,50 +387,61 @@ Scan of all 58 ruRU names: ZERO remaining collisions.
   **OWNER ACTION REQUIRED:** rebuild client Spell.dbc into MPQ so the client
   enforces -1 (no equipped-item gate). Then main will restart PTR to reload.
 
-## MASS GENERATION -- DONE (2026-06-19)
+## MASS GENERATION PHASE 2 ALL-OBTAINABLE -- DONE (2026-06-19)
 
-Full vendor-sold Classic set (RequiredLevel<=60, entry<24000) generated and applied to PTR.
+Expanded from vendor-only (694 bases) to ALL OBTAINABLE Classic items.
+Vendor entries LOCKED (bi 0-693, entries 300001-306933, 1516 copies).
+New non-vendor entries start at bi=694, entry 306941.
 
-### Counts (verified in acore_world_ptr):
-- Proto bases (Q2 green + Q3 blue): 315 (Q2=64, Q3=251)
-- White bases (Q1 white): 379
-- Total bases: 694
-- Total tier copies: 1516 (proto=379 + white=1137)
-- Chain rows: 1516 (exact match; proto truncates the whole table before insert)
-- ruRU locale rows: 1516 (all 694 bases have ruRU locale)
-- enUS-only fallbacks: 0 (both generators confirmed 0)
+### Counts (verified in acore_world_ptr after import):
+- Proto (Q2+Q3) bases: 3644 (vendor=315: Q2=64 Q3=251; non-vendor=3329: Q2=1952 Q3=1377)
+- White (Q1) bases: 940 (vendor=379, non-vendor=561)
+- Total bases: 4584
+- Total tier copies: 8480 (proto=5660 + white=2820)
+- Chain rows: 8480 (TRUNCATE+INSERT in proto; DELETE+INSERT in white)
+- ruRU locale rows: 8472 (8480 - 8 = enUS-only copies: 1 proto Q2 base×2 + 2 white bases×3 = 8)
+- enUS-only bases: proto=1, white=2 (total 3 bases, 8 copies without ruRU locale)
 
-### ID ranges:
-- Proto: 300001..303142 (baseIndex 0..314)
-- White: 303151..306933 (baseIndex 315..693, BaseIndexStart=P dynamically)
-- Gap 303143-303150 intentional (unused step slots for Q2 blue bases at edge)
-- Full reserved block: 300001-306933 (owned, no foreign entries)
+### ID ranges (locked 2026-06-19):
+- bi 0-314:    vendor Q2+Q3   → entries 300001-303142 (LOCKED, UNCHANGED)
+- bi 315-693:  vendor Q1      → entries 303151-306933 (LOCKED, UNCHANGED)
+- bi 694-4022: non-vendor Q2+Q3 → entries 306941-340222 (NEW)
+- bi 4023-4583: non-vendor Q1  → entries 340231-345833 (NEW)
+- Full block used: 300001-345,833 (within 399,999 ceiling)
+- Gap 303143-303150: intentional unused step slots at vendor Q2+Q3 edge (bi 314 max step)
+- Gap 306934-306940: similarly between vendor Q1 and non-vendor Q2+Q3
 
-### CSV (Item_custom.csv) -- UPDATED 2026-06-19 (7-category kits):
-- File: 1670 lines = 1 header + 1669 data rows
-  Breakdown: 144 pre-existing non-kit rows + 21 kit rows (200000-200020) + 1516 tier-copy rows
-  (was 1660 data rows before this task; +9 from new kit entries 200012-200020)
+### CSV (Item_custom.csv) -- UPDATED 2026-06-19 (all-obtainable regen):
+- File: 8634 lines = 1 header + 8633 data rows
+  Breakdown: 132 pre-existing non-kit rows + 21 kit rows + 1516 vendor-locked rows + 6964 new rows
 - Duplicate IDs: 0
 
-### Generator notes (gotchas fixed 2026-06-19 mass-gen):
-- PS5.1: single-row COUNT(*) result unwraps to scalar string, not array.
-  Fix: use `"$varname".Trim()` not `$varname[0].Trim()` for single-value queries.
-- Proto generator uses `TRUNCATE TABLE item_upgrade_chain` (not range DELETE) to
-  also clean old base-entry chain rows (entry < 300001) from prior prototype runs.
-- White generator derives BaseIndexStart dynamically via single-line COUNT query.
-- Both generators use single-line SQL strings for COUNT/scalar queries (not here-strings).
+### Generator architecture (mass-gen-all, 2026-06-19):
+- gear-ascension-gen-sql.ps1: two-group approach
+  Group 1 (bi 0-314): vendor Q2+Q3 (LOCKED)
+  Group 2 (bi 694+): non-vendor obtainable Q2+Q3 (NEW)
+  Both groups processed in Process-BaseGroup(bases, biStart).
+  Fetch-Meta batches 1000 entries per mysql call.
+  Cleanup: TRUNCATE chain + DELETE 300001-399999 (expanded range).
+- gear-ascension-gen-white.ps1: two-group approach
+  Group 1 (bi 315-693): vendor Q1 (LOCKED)
+  Group 2 (bi 4023+): non-vendor obtainable Q1 (NEW)
+  NONVENDOR_Q1_BI_START = 694 + count(non-vendor Q2+Q3) = 694+3329=4023 (dynamic query).
+  Both groups processed in Process-WhiteGroup(bases, biStart).
+  Fetch-WhiteMeta batches 1000 entries per mysql call.
 
-### Anomaly scans (2026-06-19):
-- Soft-sign gender defaults (-ь → F by default rule): 11 items total
-  Proto (6): Ремень горца/Осквернителя (entries 20103-20105, 20172, 20173) -- "Ремень" is M not F.
-  White (5): Трость (2495), Камень (7337), Перстень (7340), Коготь (15903, 15907) -- various.
-  Impact: these items get feminine agreement in ruRU names. Minor cosmetic issue.
-  Correct fix would require adding to $softSignOverrides; can be done later as polish.
-- Collision-rotates: 8 (proto) + 26 (white) = 34 total -- all resolved.
-- enUS-only bases: 0 -- all 694 bases have ruRU locale in PTR DB.
+### Anomaly scans (2026-06-19 all-obtainable):
+- Soft-sign gender defaults (-ь → F by default rule): 141 (proto) + 8 (white) = 149 total
+  Most are words like -шитель/-губитель/-крушитель (compound nouns ending in -ь), which
+  the engine defaults to F (correct default for many), but some may be M (cosmetic issue only).
+  The 5 $softSignOverrides entries (камен/перстен/когот/ремен/трост) are handled correctly.
+  New soft-sign anomalies from non-vendor set: not systematically reviewed (too many).
+  Impact: incorrect grammatical gender agreement in some ruRU names. Minor cosmetic.
+- Collision-rotates: 58 (proto) + 44 (white) = 102 total -- all resolved by Get-EffectiveLine.
+- enUS-only bases: 3 total.
 
-### PTR snapshots for this task:
-- `2026-06-19_201941_before-mass-gen-694` (taken before mass gen).
+### PTR snapshots:
+- `2026-06-19_233659` (taken before all-obtainable mass gen).
 
 ## Soft-sign overrides (ADDED 2026-06-19)
 Full scan of all 694 base ruRU head-words confirmed 5 words ending in -ь:
@@ -436,15 +475,21 @@ Trosts (305151-305153): трость is F, adjectives correctly declined to F --
 
 ## PTR snapshots (continued)
 - `2026-06-19_212233` (taken before 7-category kit restructure, 2026-06-19).
+- `2026-06-19_220940` (taken before accessory T3 icon fix + rarity-word descriptions, 2026-06-19).
+- `2026-06-19_223828` (taken before InterruptFlags=1 fix for spell 105000, 2026-06-19).
+- `2026-06-19_224708` (taken before weapon naming split: WEAPON->WEAPON_MELEE/RANGED/MAGIC, 2026-06-19).
 
 ## Open / TODO
 - **PTR REBUILD REQUIRED**: KitProfession/KitTier C++ updated + [Восхождение] removed.
   Main must rebuild worldserver PTR (ptr-build.ps1) for C++ changes to take effect.
-- **MPQ/DBC build** (main's job):
-  - Item.dbc: **1516 copies + 21 kits = 1537 custom Item.dbc rows** (plus 144 pre-existing = 1661 rows; total data rows in Item_custom.csv = 1669).
+- **MPQ/DBC build** (main's job) -- EXPANDED after all-obtainable mass gen:
+  - Item.dbc: **8480 copies + 21 kits = 8501 custom Item.dbc rows** (plus 132 pre-existing = 8633 rows; total data rows in Item_custom.csv = 8633).
+    This is a LARGE DBC patch. The MPQ builder must include ALL 8633 rows.
   - ItemDisplayInfo.dbc: add 3 custom rows (70001-70003 from ItemDisplayInfo_custom.csv).
     Without this, metal kits will show a blank icon on the client.
   - Spell.dbc: MUST include EquippedItemClass=-1 and SpellVisualID_1=3182 for 105000
     (both already correct in Spell_custom.csv col 67 and col 130 respectively).
 - Vendor for kits (creature_template + npc_vendor) -- NOT built yet.
 - testing-feedback #3 (addon "upgradeable" marker) -- OPEN (design later).
+- Soft-sign gender anomalies: 149 new-set entries with potentially wrong gender agreement.
+  Not systematically reviewed. Can be addressed as a polish pass post-validation.
