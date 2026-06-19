@@ -11,7 +11,8 @@ Main-repo branch for SQL/conf/core: `feat/wow-ak-1-gear-ascension` (off `custom`
 - Mechanic = kit-on-item (ItemScript OnUse + use-spell TARGET_ITEM), NO upgrade NPC.
 - Success: green 95% / blue 75% / purple 50%; fail downgrades only on the purple
   step; NO protection charm.
-- Materials = profession kits (blacksmith/leather/tailor/jewel) by item category;
+- Materials = profession kits (7 categories: metal/leather/cloth/jewel/weapon_melee/
+  weapon_magic/weapon_ranged) by item category; 21 kits (200000-200020);
   kit tier = target quality; sold by vendor for tavern coin (item 110150); tier
   gated by Nemesis rank.
 - On upgrade: copy SOCK slots (gems kept), drop PERM slot (player enchant), keep bind.
@@ -66,18 +67,36 @@ and **obtainable** (loot/vendor/container source).
   6-digit ID preference. Old 1M block fully cleaned from acore_world_ptr.)
 - **Prototype bases (18):** 15 owner armor + 3 weapons I added for dmg scaling.
 
-## Kits -- BUILT & APPLIED to acore_world_ptr (2026-06-18)
+## Kits -- REBUILT 7 categories (2026-06-19)
 - **SQL:** `data/sql/updates/pending_db_world/gear_ascension_kits.sql`
-- **Kit entries:** 200000-200011 (12 kits)
-  - blacksmith: 200000 (I), 200001 (II), 200002 (III)
-  - leather:    200003 (I), 200004 (II), 200005 (III)
-  - tailor:     200006 (I), 200007 (II), 200008 (III)
-  - jewel:      200009 (I), 200010 (II), 200011 (III)
-- **Properties:** class=15 subclass=0, Quality=1 (white), stackable=200, bonding=0
-  (tradeable), spellid_1=105000 (On Use, -1 charge = consumed), displayid=7450
-  (Light Armor Kit placeholder), ScriptName='gear_ascension_kit'.
-- **Item.dbc rows:** added to `.claude/dbc/Item_custom.csv` (200000-200011,
-  class=15 subclass=0 SoundOverrideSubclass=-1 Material=4 displayid=7450 invtype=0).
+- **Kit entries:** 200000-200020 (21 kits, 7 categories x 3 tiers)
+  - metal:         200000 (I), 200001 (II), 200002 (III)
+  - leather:       200003 (I), 200004 (II), 200005 (III)
+  - cloth:         200006 (I), 200007 (II), 200008 (III)
+  - jewel:         200009 (I), 200010 (II), 200011 (III)
+  - weapon_melee:  200012 (I), 200013 (II), 200014 (III)
+  - weapon_magic:  200015 (I), 200016 (II), 200017 (III)
+  - weapon_ranged: 200018 (I), 200019 (II), 200020 (III)
+- **Quality per tier:** tier I = Quality 1 (white), II = Quality 2 (green), III = Quality 3 (blue).
+- **Properties:** class=15 subclass=0, stackable=200, bonding=0 (tradeable),
+  spellid_1=105000, ScriptName='gear_ascension_kit'.
+- **DisplayIDs:**
+  - metal kits (200000-200002): custom 70001/70002/70003 (gladiator achievement icons)
+  - leather (200003-200005): 55479/56642/56641
+  - cloth (200006-200008): 39462/57460/39454
+  - jewel (200009-200011): 31204/31205/31205
+  - weapon_melee (200012-200014): 24678/24680/24681
+  - weapon_magic (200015-200017): 1501/38758/38760
+  - weapon_ranged (200018-200020): 20624/40549/52196
+- **Custom ItemDisplayInfo IDs (metal): 70001/70002/70003**
+  - Max vanilla ID: 68742; custom band: 70001-70003 (below StatBooster 100xxx)
+  - 70001: Achievement_FeatsOfStrength_Gladiator_05 (tier I)
+  - 70002: Achievement_FeatsOfStrength_Gladiator_01 (tier II)
+  - 70003: Achievement_FeatsOfStrength_Gladiator_09 (tier III)
+  - Rows in `.claude/dbc/ItemDisplayInfo_custom.csv`
+- **Descriptions:** item_template.description (enUS) + ruRU in item_template_locale
+  stating what item types the kit upgrades and the target quality color.
+- **Item.dbc rows:** updated in `.claude/dbc/Item_custom.csv` (200000-200020, 21 rows).
 
 ## Use-spell -- BUILT & APPLIED (2026-06-18)
 - **Spell ID: 105000** ("Gear Ascension: Apply Kit")
@@ -98,14 +117,19 @@ and **obtainable** (loot/vendor/container source).
 - **Gear Ascension spell ID range: 105000-105099** (reserved; 105001-105099 available
   for future needs). Do not use 100000-104099 (occupied by StatBooster + familiars).
 
-## C++ ItemScript -- BUILT (2026-06-18)
+## C++ ItemScript -- UPDATED (2026-06-19, 7-category kit restructure)
 - **Files:**
   - `modules/mod-gear-ascension/src/GearAscensionScript.cpp` -- ItemScript
-    'gear_ascension_kit', handles OnUse for all 12 kit items.
+    'gear_ascension_kit', handles OnUse for all 21 kit items (200000-200020).
   - `modules/mod-gear-ascension/src/gear_ascension_loader.cpp` -- module loader.
   - `modules/mod-gear-ascension/CMakeLists.txt` -- AC_ADD_SCRIPT both files.
   - `modules/mod-gear-ascension/conf/mod_gear_ascension.conf.dist`
-- **PTR build:** initiated 2026-06-18 via ptr-build.ps1. Result pending.
+- **KitProfession() updated:** returns metal/leather/cloth/jewel/weapon_melee/
+  weapon_magic/weapon_ranged for 200000-200020 (3-entry blocks, offset 0=I/1=II/2=III).
+- **KitTier() updated:** uses `(kitEntry - 200000) % 3 + 2` for any entry in 200000-200020.
+- **[Восхождение] tag removed** from all RP chat messages (testing-feedback #5 DONE).
+- **NEEDS RECOMPILE:** these C++ changes are file-only; PTR worldserver must be
+  rebuilt for them to take effect.
 
 ## Scaling impl (DB-side)
 - Each scalable field: `CASE WHEN x>0 THEN GREATEST(CEIL(x*(1+0.10*step)), x+1)
@@ -117,7 +141,7 @@ and **obtainable** (loot/vendor/container source).
 - 6641 Haunting Blade (Q2,ilvl26): dmg 53-80 -> 59-88 -> 64-96, Q2->3->4.
 - 4446 Blackvenom Blade (Q3): dmg1 21-39->24-43, dmg2 1-7->2-8 (+1 floor), Q3->4.
 
-## Item names (FINALIZED 2026-06-19, combined PREFIX+SUFFIX + ruRU declension DONE 2026-06-19; Cap-First fixed 2026-06-19; collision-guard added 2026-06-19)
+## Item names (FINALIZED 2026-06-19, combined PREFIX+SUFFIX + ruRU declension DONE 2026-06-19; Cap-First fixed 2026-06-19; collision-guard added 2026-06-19; Lower-First PREFIX fix 2026-06-19)
 - **6-position rotation:** line = baseIndex mod 6 (same for all tiers of one chain).
   tierIndex = to_quality - 2 (0/1/2).
   line 0/1/2 = SUFFIX variant (= line); line 3/4/5 = PREFIX variant (= line - 3).
@@ -159,6 +183,7 @@ and **obtainable** (loot/vendor/container source).
 - `2026-06-19_192108` (taken before combined PREFIX+SUFFIX + declension engine regen, 2026-06-19).
 - `2026-06-19_193853_before-capitalization-fix` (taken before Cap-First fix, 2026-06-19).
 - `2026-06-19_195640_before-collision-guard-regen` (taken before collision-guard regen, 2026-06-19).
+- `2026-06-19_200533` (taken before Lower-First PREFIX fix, 2026-06-19).
 
 ## ID blocks (VERIFIED -- no collision before insert)
 - tier-copy item_template: 300,000-399,999 (moved from 1M block, owner decision 2026-06-18)
@@ -170,13 +195,16 @@ and **obtainable** (loot/vendor/container source).
 Existing in project: items 100001-100016, 110000-110120; creatures 191000-191099;
 spells 100000-104099; enchants 90001-91241.
 
-## kit_profession derivation (in generator)
-- class 2 weapon -> blacksmith
-- class 4 armor subclass 4/3 (plate/mail) -> blacksmith
-- class 4 armor subclass 2 (leather) -> leather
-- class 4 armor subclass 1 (cloth) -> tailor
-- class 4 armor subclass 0 misc -> jewel for InventoryType 2/11/12 (neck/ring/trinket)
-  and 16 (cloak) -> tailor, else -> jewel
+## kit_profession derivation (in generator -- UPDATED 2026-06-19 to 7 categories)
+- class 2 weapon by subclass:
+  - subclass 10 (staff) or 19 (wand) -> weapon_magic
+  - subclass 2 (bow) / 3 (gun) / 16 (thrown) / 18 (crossbow) -> weapon_ranged
+  - all other weapon subclasses -> weapon_melee
+- class 4 armor by subclass:
+  - subclass 1 -> cloth
+  - subclass 2 -> leather
+  - subclass 3 (mail) / 4 (plate) / 6 (shield) -> metal
+  - subclass 0 misc (and any other) -> jewel
 
 ## Generator collision guard (UPDATED 2026-06-19)
 The guard now only blocks on FOREIGN entries (entries in our block NOT in the planned
@@ -287,7 +315,7 @@ Scan of all 58 ruRU names: ZERO remaining collisions.
 - **Chain:** nemesis_rank 1/3/5 by to_quality 2/3/4; success 95/75/50; fail_downgrade=1 at Q4.
 
 ## BUG FIXES APPLIED (2026-06-19)
-- **Prefix-line names start lowercase (FIXED 2026-06-19):**
+- **Prefix-line names start lowercase (FIXED 2026-06-19, pass 1 Cap-First):**
   Root cause: ruRU prefix lemmas stored as lowercase ("зачарованное", "хорошо простёганный",
   etc.); composed prefix-line string therefore began lowercase. enUS prefixes were uppercase
   already but the fix is applied universally for safety.
@@ -296,6 +324,17 @@ Scan of all 58 ruRU names: ZERO remaining collisions.
   .NET `ToUpper()` is Unicode-aware and handles Cyrillic correctly.
   SQL regenerated + reimported to acore_world_ptr (snapshot taken before).
   Verified: 58 ruRU locale rows, 0 lowercase-starting names in DB.
+- **Prefix-line ruRU names have TWO leading capitals (FIXED 2026-06-19, pass 2 Lower-First):**
+  Root cause: PREFIX composition was "<prefix> <baseRuName>" where baseRuName retains
+  its own leading capital from DB. Cap-First then uppercases the prefix's first letter too,
+  giving two capitals: "Продублённый Доспех...", "Хорошо простёганный Элунский наплеч", etc.
+  Russian sentence-case requires exactly ONE leading capital; the base name's first letter
+  must be lowercased before prepending the prefix.
+  Fix: added `Lower-First` helper (`$s[0].ToString().ToLower() + $s.Substring(1)`) to
+  BOTH generators. In PREFIX branch of Build-RuName: `"$pre $(Lower-First $baseRuName)"`.
+  Only [0] is changed; mid-name proper nouns (e.g. "Зимней Спячки", "Черного яда") untouched.
+  enUS Build-EnName: NOT changed (enUS is title-case; all-caps-each-word is correct English).
+  SQL regenerated + reimported (snapshot 2026-06-19_200533 taken before).
 - **spell 105000 ImplicitTargetA_1=0 bug (FIXED 2026-06-19):**
   Root cause: REPLACE INTO in gear_ascension_kits.sql omitted ImplicitTargetA_1,
   so it defaulted to 0. With no implicit target, TARGET_FLAG_ITEM (Targets=16)
@@ -320,15 +359,92 @@ Scan of all 58 ruRU names: ZERO remaining collisions.
   **OWNER ACTION REQUIRED:** rebuild client Spell.dbc into MPQ so the client
   enforces -1 (no equipped-item gate). Then main will restart PTR to reload.
 
+## MASS GENERATION -- DONE (2026-06-19)
+
+Full vendor-sold Classic set (RequiredLevel<=60, entry<24000) generated and applied to PTR.
+
+### Counts (verified in acore_world_ptr):
+- Proto bases (Q2 green + Q3 blue): 315 (Q2=64, Q3=251)
+- White bases (Q1 white): 379
+- Total bases: 694
+- Total tier copies: 1516 (proto=379 + white=1137)
+- Chain rows: 1516 (exact match; proto truncates the whole table before insert)
+- ruRU locale rows: 1516 (all 694 bases have ruRU locale)
+- enUS-only fallbacks: 0 (both generators confirmed 0)
+
+### ID ranges:
+- Proto: 300001..303142 (baseIndex 0..314)
+- White: 303151..306933 (baseIndex 315..693, BaseIndexStart=P dynamically)
+- Gap 303143-303150 intentional (unused step slots for Q2 blue bases at edge)
+- Full reserved block: 300001-306933 (owned, no foreign entries)
+
+### CSV (Item_custom.csv) -- UPDATED 2026-06-19 (7-category kits):
+- File: 1670 lines = 1 header + 1669 data rows
+  Breakdown: 144 pre-existing non-kit rows + 21 kit rows (200000-200020) + 1516 tier-copy rows
+  (was 1660 data rows before this task; +9 from new kit entries 200012-200020)
+- Duplicate IDs: 0
+
+### Generator notes (gotchas fixed 2026-06-19 mass-gen):
+- PS5.1: single-row COUNT(*) result unwraps to scalar string, not array.
+  Fix: use `"$varname".Trim()` not `$varname[0].Trim()` for single-value queries.
+- Proto generator uses `TRUNCATE TABLE item_upgrade_chain` (not range DELETE) to
+  also clean old base-entry chain rows (entry < 300001) from prior prototype runs.
+- White generator derives BaseIndexStart dynamically via single-line COUNT query.
+- Both generators use single-line SQL strings for COUNT/scalar queries (not here-strings).
+
+### Anomaly scans (2026-06-19):
+- Soft-sign gender defaults (-ь → F by default rule): 11 items total
+  Proto (6): Ремень горца/Осквернителя (entries 20103-20105, 20172, 20173) -- "Ремень" is M not F.
+  White (5): Трость (2495), Камень (7337), Перстень (7340), Коготь (15903, 15907) -- various.
+  Impact: these items get feminine agreement in ruRU names. Minor cosmetic issue.
+  Correct fix would require adding to $softSignOverrides; can be done later as polish.
+- Collision-rotates: 8 (proto) + 26 (white) = 34 total -- all resolved.
+- enUS-only bases: 0 -- all 694 bases have ruRU locale in PTR DB.
+
+### PTR snapshots for this task:
+- `2026-06-19_201941_before-mass-gen-694` (taken before mass gen).
+
+## Soft-sign overrides (ADDED 2026-06-19)
+Full scan of all 694 base ruRU head-words confirmed 5 words ending in -ь:
+- трость (F) -- correct by default, NOT in override table
+- камень (M) -- added: stem 'камен'
+- перстень (M) -- added: stem 'перстен'
+- коготь (M) -- added: stem 'когот'
+- ремень (M) -- added: stem 'ремен'
+
+Both generators ($softSignOverrides hashtable) updated.
+SQL regenerated + reimported to acore_world_ptr (snapshot 2026-06-19_204423).
+Counts unchanged: 1516 copies / 1516 locale / 1516 chain.
+DESIGN.md sec 10 gender table updated with masculine -ь override table.
+
+BEFORE/AFTER summary (gender-affected copies):
+- 302121: усиленная -> усиленный (ремень горца, LEATHER suffix)
+- 302131: Прошитая жилами -> Прошитый жилами (ремень горца, LEATHER prefix)
+- 302541: усиленная -> усиленный (ремень Осквернителя, LEATHER suffix)
+- 302551: Прошитая жилами -> Прошитый жилами (ремень Осквернителя, LEATHER prefix)
+- 306051: Начищенная -> Начищенный (камень, ACCESSORY prefix)
+- 306052: Искусно огранённая -> Искусно огранённый (камень, ACCESSORY prefix)
+- 306053: Проклятая -> Проклятый (камень, ACCESSORY prefix)
+- 306401: Заострённая -> Заострённый (коготь левой руки, WEAPON prefix)
+- 306402: Хорошо заострённая -> Хорошо заострённый (коготь, WEAPON prefix)
+- 306403: Закалённая в крови -> Закалённый в крови (коготь, WEAPON prefix)
+Not changed (suffix preposition-led = static gender-invariant):
+- 302111/302531: 'с чешуёй...' = starts with 'с', static -- unchanged
+- 306081/306082/306083: 'в оправе/с кристаллом' = static -- unchanged
+- 306361/306362/306363: 'с навершием/лезвием' = starts with 'с', static -- unchanged
+Trosts (305151-305153): трость is F, adjectives correctly declined to F -- not changed.
+
+## PTR snapshots (continued)
+- `2026-06-19_212233` (taken before 7-category kit restructure, 2026-06-19).
+
 ## Open / TODO
-- PTR rebuild (started 2026-06-18): confirm 0 compile errors.
-- Owner test: 2s cast bar + upgrade + white items in chain + NEW combined prefix/suffix names with declension.
-- MPQ/DBC build: 28+30 copy + 12 kit Item.dbc rows + updated Spell.dbc row for 105000.
-  All in .claude/dbc/Item_custom.csv and .claude/dbc/Spell_custom.csv.
-  Spell.dbc MUST include EquippedItemClass=-1 and SpellVisualID_1=3182 for 105000
-  (both already correct in Spell_custom.csv col 67 and col 130 respectively).
+- **PTR REBUILD REQUIRED**: KitProfession/KitTier C++ updated + [Восхождение] removed.
+  Main must rebuild worldserver PTR (ptr-build.ps1) for C++ changes to take effect.
+- **MPQ/DBC build** (main's job):
+  - Item.dbc: **1516 copies + 21 kits = 1537 custom Item.dbc rows** (plus 144 pre-existing = 1661 rows; total data rows in Item_custom.csv = 1669).
+  - ItemDisplayInfo.dbc: add 3 custom rows (70001-70003 from ItemDisplayInfo_custom.csv).
+    Without this, metal kits will show a blank icon on the client.
+  - Spell.dbc: MUST include EquippedItemClass=-1 and SpellVisualID_1=3182 for 105000
+    (both already correct in Spell_custom.csv col 67 and col 130 respectively).
 - Vendor for kits (creature_template + npc_vendor) -- NOT built yet.
-- testing-feedback #2 (RP tier names) -- DONE (combined prefix/suffix + declension LIVE, 2026-06-19).
 - testing-feedback #3 (addon "upgradeable" marker) -- OPEN (design later).
-- testing-feedback #5 (remove 'Восхождение' tag from RP messages) -- OPEN (next rebuild batch).
-- Scale generator to full Classic Phase-1 scope after prototype tests pass.

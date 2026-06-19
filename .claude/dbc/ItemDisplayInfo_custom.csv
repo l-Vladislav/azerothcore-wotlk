@@ -1,4 +1,7 @@
 "ID","ModelName_1","ModelName_2","ModelTexture_1","ModelTexture_2","InventoryIcon_1","InventoryIcon_2","GeosetGroup_1","GeosetGroup_2","GeosetGroup_3","Flags","SpellVisualID","GroupSoundIndex","HelmetGeosetVis_1","HelmetGeosetVis_2","Texture_1","Texture_2","Texture_3","Texture_4","Texture_5","Texture_6","Texture_7","Texture_8","ItemVisual","ParticleColorID"
+"70001","","","","","Achievement_FeatsOfStrength_Gladiator_05","","0","0","0","0","0","18","0","0","","","","","","","","","0","0"
+"70002","","","","","Achievement_FeatsOfStrength_Gladiator_01","","0","0","0","0","0","18","0","0","","","","","","","","","0","0"
+"70003","","","","","Achievement_FeatsOfStrength_Gladiator_09","","0","0","0","0","0","18","0","0","","","","","","","","","0","0"
 "100001","","","","","INV_Stone_SharpeningStone_01","","0","0","0","0","0","0","0","0","","","","","","","","","0","0"
 "100002","","","","","INV_Stone_SharpeningStone_03","","0","0","0","0","0","0","0","0","","","","","","","","","0","0"
 "100003","","","","","INV_Stone_SharpeningStone_04","","0","0","0","0","0","0","0","0","","","","","","","","","0","0"

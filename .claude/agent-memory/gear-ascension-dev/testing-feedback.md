@@ -14,33 +14,31 @@ changes so they share ONE worldserver rebuild). Status: OPEN unless marked done.
   (validate template + create new BEFORE destroying the original) so one rebuild
   covers both.
 
-## 2. RP item names per tier  (DONE 2026-06-19 -- 3-variant pool + rotation LIVE)
-- **3-variant rotation pool IMPLEMENTED and applied to PTR (2026-06-19).**
-  line = baseIndex mod 3 (same line across all tiers of one base's chain).
-  tierIndex = to_quality - 2 (0/1/2). Suffix = POOL[material][tierIndex][line].
-  5 material categories x 3 tiers x 3 variants = 45 ruRU + 45 enUS suffixes.
-- **ruRU FALLBACK RULE:** if base has NO ruRU locale row, NO ruRU locale row is
-  emitted for copies -- client falls back to full enUS name. Mixed-language rows
-  like "Battle Axe Лютости" are prevented. Both generators enforce this rule.
-- **Canonical suffix pool:** DESIGN.md section 10 (editable by owner; generator
-  $enSuffix/$ruSuffix tables must be kept in sync with DESIGN.md).
-- **Composition:** `item_template.name` = "<base enUS name> <enUS suffix[mat][ti][line]>";
-  `item_template_locale(ruRU).Name` = "<base ruRU name> <ruRU suffix[mat][ti][line]>" (only if base has ruRU).
+## 2. RP item names per tier  (DONE 2026-06-19 -- combined PREFIX+SUFFIX + ruRU declension LIVE)
+- **Combined PREFIX+SUFFIX naming ENGINE implemented and applied to PTR (2026-06-19).**
+  6-position rotation: line = baseIndex mod 6.
+  line 0/1/2 = SUFFIX variant; line 3/4/5 = PREFIX variant (= line - 3).
+  tierIndex = to_quality - 2 (0/1/2).
+  5 material categories x 3 tiers x 3 variants x 2 modes (prefix+suffix) = 90 pool entries.
+- **ruRU DECLENSION ENGINE:** detects gender/number of base item from first word of ruRU name;
+  declines agreeing token (last adj in prefix phrase; first participle in suffix phrase if not
+  preposition-led). Full M/F/N/PL coverage. Exceptions lexicon for plural item nouns.
+- **CANONICAL SPEC:** DESIGN.md section 10 (both generators carry identical UTF-8 BOM engine block).
 - Both generators regenerated and applied to acore_world_ptr (2026-06-19).
-  Snapshot 2026-06-19_173854 taken before.
-- **Examples verified in PTR DB (all ruRU-clean, D0/D1 bytes confirmed):**
-  300001 (CLOTH line=0 tier II):   "Sea King's Crown of Sorcery" / "Корона короля морей Чародейства"
-  300002 (CLOTH line=0 tier III):  "Sea King's Crown of the Warlock" / "Корона короля морей Чернокнижия"
-  300071 (METAL line=1 tier III):  "Chestplate of the Northern Lights of Runesteel" / "Бригантина северного сияния Рунической Стали"
-  300161 (WEAPON line=1 tier II):  "Haunting Blade of Blood" / "Клинок проклятия Крови"
-  300162 (WEAPON line=1 tier III): "Haunting Blade of the Reaper" / "Клинок проклятия Жнеца"
-  300201 (WEAPON line=2 tier I):   "Battle Axe of Ferocity" / "Боевой топор Лютости"
-  300203 (WEAPON line=2 tier III): "Battle Axe of Ruin" / "Боевой топор Рока"
-  300181 (LEATHER line=0 tier I):  "Cured Leather Armor of the Hunter" / "Доспех из обработанной кожи Ловчего"
-  300241 (METAL line=0 tier I):    "Augmented Chain Helm of Tempering" / "Упрочненный плетеный шлем Закалки"
-  300253 (METAL line=1 tier III):  "Brigandine Helm of Runesteel" / "Панцирный шлем Рунической Стали"
-- **Proto enUS-only bases:** 0 of 18 (all had ruRU). White enUS-only bases: 0 of 10.
-  Fallback logic ready for full classic scale-up (most items lack ruRU rows).
+  Snapshot 2026-06-19_192108 taken before.
+- **Grammar verified in PTR DB (sample, 2026-06-19):**
+  CLOTH  F suffix (static prep):  "Корона короля морей из магической ткани" ✓
+  METAL  F suffix (declining):    "Бригантина северного сияния усиленная торием" ✓
+  LEATHER F suffix (declining):   "Боевая портупея отороченная мехом" ✓
+  ACCESS N prefix (adj declined): "зачарованное Ледяное ожерелье Зимней Спячки" ✓
+  WEAPON N prefix (simple):       "наточенное Короткое копье" ✓
+  WEAPON N prefix (adverb+adj):   "хорошо наточенное Короткое копье" ✓
+  LEATHER PL prefix (adj PL):     "выдубленные Цельношитые кожаные брюки" ✓
+  METAL PL suffix (participle PL):"Наголенники лавохода усиленные чёрной сталью" ✓
+  WEAPON M prefix (trailing mod): "закалённый в крови Клинок проклятия" ✓
+  WEAPON M prefix (adverb+adj):   "хорошо заострённый Клинок проклятия" ✓
+- **enUS-only bases:** 0 of 18 proto + 0 of 10 white. Fallback rule ready for scale-up.
+- **Override table:** empty (no overrides needed so far; extend as needed).
 
 ## 3. "Upgradeable" marker on items  (OPEN; design later — it's an addon)
 - Show on an item that it CAN be upgraded (tooltip indicator), so players know
@@ -111,11 +109,12 @@ changes so they share ONE worldserver rebuild). Status: OPEN unless marked done.
   acceptable. k kept at 0.4.
 - **No-suffix names:** same pass removed " +N" suffix from white gen.
 
-## 5. Remove 'Восхождение' tag from RP chat messages  (OPEN)
-- Remove the word "Восхождение" / the [Восхождение] tag from the RP chat messages
-  in `GearAscensionScript.cpp` (owner request).
-- Keep messages RP + varied + Russian, just drop that tag/prefix.
-- C++ change -> bundle into next worldserver rebuild batch. DO NOT implement now.
+## 5. Remove 'Восхождение' tag from RP chat messages  (DONE 2026-06-19)
+- Removed [Восхождение] prefix from all RP message pools in `GearAscensionScript.cpp`.
+- All message pools (MSG_SUCCESS, MSG_FAIL_SAFE, MSG_FAIL_DOWNGRADE, MSG_WRONG_PROF,
+  MSG_WRONG_TIER) and all inline hardcoded chat messages updated.
+- Messages remain RP + Russian + varied; color codes preserved.
+- NEEDS worldserver recompile (bundled with KitProfession/KitTier 7-category update).
 
 ## 4. 2-second cast on kit use  (DONE 2026-06-18)
 - Make using a kit a 2s cast (cast bar, interruptible) instead of instant.
