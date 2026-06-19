@@ -117,30 +117,38 @@ and **obtainable** (loot/vendor/container source).
 - 6641 Haunting Blade (Q2,ilvl26): dmg 53-80 -> 59-88 -> 64-96, Q2->3->4.
 - 4446 Blackvenom Blade (Q3): dmg1 21-39->24-43, dmg2 1-7->2-8 (+1 floor), Q3->4.
 
-## Item names (FINALIZED 2026-06-19, 3-variant pool + rotation DONE 2026-06-19)
-- 3-variant rotation pool. line = baseIndex mod 3 (same for all tiers of one chain).
-  tierIndex = to_quality - 2 (0/1/2). Suffix = POOL[material][tierIndex][line].
-- Composition: item_template.name = "<base enUS name> <enUS suffix>";
-  item_template_locale(ruRU).Name = "<base ruRU name> <ruRU suffix>".
-- ruRU FALLBACK RULE (NEW 2026-06-19): if base has NO ruRU locale row, NO ruRU
-  locale row is emitted for its copies. Client falls back to full enUS name.
-  Do NOT emit mixed "<enUS base> <ruRU suffix>" rows. Both generators enforce this.
-- ruRU pool (LOCKED verbatim by owner, 3 variants per tier per material):
-  WEAPON  I : Жажды|Натиска|Лютости   II: Ярости|Крови|Резни     III: Погибели|Жнеца|Рока
-  METAL   I : Закалки|Ковки|Горна     II: Горнила|Булата|Черной Стали  III: Несокрушимости|Рунической Стали|Цитадели
-  LEATHER I : Ловчего|Чащи|Логова     II: Хищника|Клыка|Зверя     III: Первозданности|Дикой Охоты|Владыки Зверей
-  CLOTH   I : Ворожбы|Наговора|Тени   II: Чародейства|Колдовства|Порчи  III: Чернокнижия|Скверны|Бездны
-  ACCESSORY I: Самоцвета|Кристалла|Талисмана II: Огранки|Оберега|Сияния III: Венца|Реликвии|Проклятия
-- enUS pool (3 variants per tier per material):
-  WEAPON  I : of Bloodthirst|of Onslaught|of Ferocity  II: of Fury|of Blood|of Slaughter  III: of Doom|of the Reaper|of Ruin
-  METAL   I : of Tempering|of Forging|of Embers        II: of the Forge|of Damascus|of Black Steel  III: of the Unbroken|of Runesteel|of the Citadel
-  LEATHER I : of the Hunter|of the Thicket|of the Lair II: of the Predator|of the Fang|of the Beast III: of the Primal|of the Wild Hunt|of the Beastlord
-  CLOTH   I : of Witchery|of the Hex|of Shadow         II: of Sorcery|of Witchcraft|of Corruption   III: of the Warlock|of the Fel|of the Void
-  ACCESSORY I: of the Gem|of the Crystal|of the Talisman II: of the Facet|of the Ward|of Radiance   III: of the Crown|of the Relic|of the Curse
-- Category mapping: WEAPON=class2; CLOTH=sub1; LEATHER=sub2; METAL=sub3/4/6; ACCESSORY=sub0.
-- Both generators regenerated: gear-ascension-gen-sql.ps1 + gear-ascension-gen-white.ps1.
-- Both SQL files re-imported to acore_world_ptr (snapshot 2026-06-19_173854 taken before).
-- PTR counts verified: 28 proto copies + 30 white copies = 58 total; 58 ruRU rows; 58 chain rows.
+## Item names (FINALIZED 2026-06-19, combined PREFIX+SUFFIX + ruRU declension DONE 2026-06-19; Cap-First fixed 2026-06-19; collision-guard added 2026-06-19)
+- **6-position rotation:** line = baseIndex mod 6 (same for all tiers of one chain).
+  tierIndex = to_quality - 2 (0/1/2).
+  line 0/1/2 = SUFFIX variant (= line); line 3/4/5 = PREFIX variant (= line - 3).
+- **enUS:** prefix = "<pre> <base name>"; suffix = "<base name> <suf>".
+- **ruRU:** same with full gender/number declension.
+  - Gender detected from first word of ruRU base name (adj endings / noun endings /
+    exception list for plural nouns).
+  - PREFIX: decline last adj/participle token (-ый/-ій/-ой) to item gender; adverbs
+    and trailing modifiers are static.
+  - SUFFIX: if starts with preposition (с/со/из/в/без/...) = fully static; else
+    decline first token (participle) only.
+  - Declension: -ый/-ой (hard): F=-ая, N=-ое, PL=-ые (velar stem = -ие); -ий (soft):
+    F=-яя, N=-ее, PL=-ие.
+- ruRU FALLBACK RULE: if base has NO ruRU locale row, NO ruRU locale row is emitted.
+- DESIGN.md section 10 = canonical pool + algorithm. Both generators carry identical
+  engine block in UTF-8 BOM .ps1 files.
+- Both generators regenerated; SQL re-imported to acore_world_ptr (snapshot
+  2026-06-19_192108 taken before).
+- PTR counts verified: 28 proto + 30 white = 58 copies; 58 ruRU rows; 58 chain rows.
+- **Sample verified in PTR (grammar check, 2026-06-19):**
+  WEAPON M suffix : Клинок проклятия со стальным лезвием (line=5=prefix but see below)
+  WEAPON M prefix : хорошо заострённый Клинок проклятия (Q3->Q4, line=5, variant=2)
+  WEAPON M prefix : закалённый в крови Клинок проклятия (ceiling)
+  METAL  F suffix : Бригантина северного сияния усиленная торием (F, suffix with declining participle)
+  CLOTH  F suffix : Корона короля морей из магической ткани (F, preposition-led = static)
+  LEATHER F suffix: Боевая портупея отороченная мехом (F, participle declined to F)
+  ACCESSORY N prefix: зачарованное Ледяное ожерелье Зимней Спячки (N, adj declined to N)
+  WEAPON N prefix: наточенное Короткое копье (N, Q1->Q2)
+  WEAPON N prefix: хорошо наточенное Короткое копье (N, adverb static + token N)
+  LEATHER PL prefix: выдубленные Цельношитые кожаные брюки (PL, adj declined to PL)
+  METAL PL suffix: Наголенники лавохода усиленные чёрной сталью (PL, participle PL)
 
 ## PTR snapshots
 - `2026-06-18_175509` (taken before gear_ascension_kits.sql apply).
@@ -148,6 +156,9 @@ and **obtainable** (loot/vendor/container source).
 - `2026-06-19_165747` (taken before names+whitestats-v2 regen, 2026-06-19).
 - `2026-06-19_171311` (taken before suffix-names+weapon-injection regen, 2026-06-19).
 - `2026-06-19_173854` (taken before 3-variant pool + ruRU fallback regen, 2026-06-19).
+- `2026-06-19_192108` (taken before combined PREFIX+SUFFIX + declension engine regen, 2026-06-19).
+- `2026-06-19_193853_before-capitalization-fix` (taken before Cap-First fix, 2026-06-19).
+- `2026-06-19_195640_before-collision-guard-regen` (taken before collision-guard regen, 2026-06-19).
 
 ## ID blocks (VERIFIED -- no collision before insert)
 - tier-copy item_template: 300,000-399,999 (moved from 1M block, owner decision 2026-06-18)
@@ -173,6 +184,20 @@ entry list). Our own prior-gen orphaned entries (item_template rows whose chain 
 were already cleaned) are in the planned list and will be cleaned by the idempotency
 DELETE at import time, so they are not true collisions. Old guard (check all entries
 in block range) would false-positive on re-runs.
+
+## Naming collision guard -- stem-repeat prevention (ADDED 2026-06-19)
+Functions `Test-StemCollision` + `Get-EffectiveLine` in BOTH generators.
+Prevents suffix/prefix phrases from repeating a material root already in the base name
+(e.g. "Доспех из обработанной кожи" + "из кожи дьявозавра" = two "кожи").
+Algorithm: tokenise to lowercase content words (skip stopwords); resolve each word to
+its root via $materialRootForms lookup (exact inflection match) or 4-char prefix
+heuristic; if any phrase-root shares a 3+-char prefix with any base-name-root -> collision.
+Get-EffectiveLine rotates naturalLine (bi%6) by offset 0..5 until finding a clean position
+across ALL tiers of the chain. Prefix-mode (lines 3-5 = treatment verbs) is guaranteed safe.
+Result (2026-06-19): 1 collision detected and fixed (bi=18, entry 236 "Доспех из обработанной
+кожи", naturalLine=0->effectiveLine=3): green/blue/purple copies now use LEATHER prefix
+"продублённый"/"хорошо продублённый"/"прошитый жилами" instead of "кожей" suffixes.
+Scan of all 58 ruRU names: ZERO remaining collisions.
 
 ## GOTCHAS (PS5.1)
 - A single-row mysql result, when filtered with `| Where-Object`, gets unwrapped
@@ -262,6 +287,15 @@ in block range) would false-positive on re-runs.
 - **Chain:** nemesis_rank 1/3/5 by to_quality 2/3/4; success 95/75/50; fail_downgrade=1 at Q4.
 
 ## BUG FIXES APPLIED (2026-06-19)
+- **Prefix-line names start lowercase (FIXED 2026-06-19):**
+  Root cause: ruRU prefix lemmas stored as lowercase ("зачарованное", "хорошо простёганный",
+  etc.); composed prefix-line string therefore began lowercase. enUS prefixes were uppercase
+  already but the fix is applied universally for safety.
+  Fix: added `Cap-First` helper function to BOTH generators: `$s[0].ToString().ToUpper() + $s.Substring(1)`.
+  Called at the return point of both `Build-RuName` and `Build-EnName`.
+  .NET `ToUpper()` is Unicode-aware and handles Cyrillic correctly.
+  SQL regenerated + reimported to acore_world_ptr (snapshot taken before).
+  Verified: 58 ruRU locale rows, 0 lowercase-starting names in DB.
 - **spell 105000 ImplicitTargetA_1=0 bug (FIXED 2026-06-19):**
   Root cause: REPLACE INTO in gear_ascension_kits.sql omitted ImplicitTargetA_1,
   so it defaulted to 0. With no implicit target, TARGET_FLAG_ITEM (Targets=16)
@@ -288,13 +322,13 @@ in block range) would false-positive on re-runs.
 
 ## Open / TODO
 - PTR rebuild (started 2026-06-18): confirm 0 compile errors.
-- Owner test: 2s cast bar + upgrade + white items in chain + new suffix names.
+- Owner test: 2s cast bar + upgrade + white items in chain + NEW combined prefix/suffix names with declension.
 - MPQ/DBC build: 28+30 copy + 12 kit Item.dbc rows + updated Spell.dbc row for 105000.
   All in .claude/dbc/Item_custom.csv and .claude/dbc/Spell_custom.csv.
   Spell.dbc MUST include EquippedItemClass=-1 and SpellVisualID_1=3182 for 105000
   (both already correct in Spell_custom.csv col 67 and col 130 respectively).
 - Vendor for kits (creature_template + npc_vendor) -- NOT built yet.
-- testing-feedback #2 (RP tier names) -- DONE (suffix scheme live, 2026-06-19).
+- testing-feedback #2 (RP tier names) -- DONE (combined prefix/suffix + declension LIVE, 2026-06-19).
 - testing-feedback #3 (addon "upgradeable" marker) -- OPEN (design later).
 - testing-feedback #5 (remove 'Восхождение' tag from RP messages) -- OPEN (next rebuild batch).
 - Scale generator to full Classic Phase-1 scope after prototype tests pass.
