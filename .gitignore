@@ -115,3 +115,7 @@ local.properties
 compile_commands.json
 /backups/
 /.claude/scheduled_tasks.lock
+
+# Local-only deploy/backup artifacts (never commit — large/transient)
+*.prebak
+*.sql.gz
