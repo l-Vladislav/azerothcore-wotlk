@@ -112,11 +112,15 @@ INSERT INTO item_template SELECT 200019 AS entry, class, subclass, SoundOverride
 INSERT INTO item_template SELECT 200020 AS entry, class, subclass, SoundOverrideSubclass, name, displayid, Quality, Flags, FlagsExtra, BuyCount, BuyPrice, SellPrice, InventoryType, AllowableClass, AllowableRace, ItemLevel, RequiredLevel, RequiredSkill, RequiredSkillRank, requiredspell, requiredhonorrank, RequiredCityRank, RequiredReputationFaction, RequiredReputationRank, maxcount, stackable, ContainerSlots, stat_type1, stat_value1, stat_type2, stat_value2, stat_type3, stat_value3, stat_type4, stat_value4, stat_type5, stat_value5, stat_type6, stat_value6, stat_type7, stat_value7, stat_type8, stat_value8, stat_type9, stat_value9, stat_type10, stat_value10, ScalingStatDistribution, ScalingStatValue, dmg_min1, dmg_max1, dmg_type1, dmg_min2, dmg_max2, dmg_type2, armor, holy_res, fire_res, nature_res, frost_res, shadow_res, arcane_res, delay, ammo_type, RangedModRange, spellid_1, spelltrigger_1, spellcharges_1, spellppmRate_1, spellcooldown_1, spellcategory_1, spellcategorycooldown_1, spellid_2, spelltrigger_2, spellcharges_2, spellppmRate_2, spellcooldown_2, spellcategory_2, spellcategorycooldown_2, spellid_3, spelltrigger_3, spellcharges_3, spellppmRate_3, spellcooldown_3, spellcategory_3, spellcategorycooldown_3, spellid_4, spelltrigger_4, spellcharges_4, spellppmRate_4, spellcooldown_4, spellcategory_4, spellcategorycooldown_4, spellid_5, spelltrigger_5, spellcharges_5, spellppmRate_5, spellcooldown_5, spellcategory_5, spellcategorycooldown_5, bonding, description, PageText, LanguageID, PageMaterial, startquest, lockid, Material, sheath, RandomProperty, RandomSuffix, block, itemset, MaxDurability, area, Map, BagFamily, TotemCategory, socketColor_1, socketContent_1, socketColor_2, socketContent_2, socketColor_3, socketContent_3, socketBonus, GemProperties, RequiredDisenchantSkill, ArmorDamageModifier, duration, ItemLimitCategory, HolidayId, ScriptName, DisenchantID, FoodType, minMoneyLoot, maxMoneyLoot, flagsCustom, VerifiedBuild FROM item_template WHERE entry = 110150;
 
 -- -- 3. Update kit-specific columns for all 21 kits ---------------------------
+-- NOTE: spellcharges_1 = 0 (NOT -1) is intentional. With -1 the core treats the
+-- kit as an expendable consumable and removes 1 on cast (Spell::TakeCastItem),
+-- while the GearAscensionScript ALSO removes 1 -> 2 kits per use. Consumption is
+-- owned solely by the C++ script (DestroyItemCount), so keep this 0.
 -- metal kits (plate/mail/shield) -- custom gladiator display IDs 70001/70002/70003
 UPDATE item_template SET
     name='Crude Blacksmith''s Kit', displayid=70001, Quality=1, BuyPrice=1000, bonding=0,
     description='Upgrades plate, mail and shields to Uncommon quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -124,7 +128,7 @@ WHERE entry=200000;
 UPDATE item_template SET
     name='Sturdy Blacksmith''s Kit', displayid=70002, Quality=2, BuyPrice=2000, bonding=0,
     description='Upgrades plate, mail and shields to Rare quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -132,7 +136,7 @@ WHERE entry=200001;
 UPDATE item_template SET
     name='Master Blacksmith''s Kit', displayid=70003, Quality=3, BuyPrice=4000, bonding=0,
     description='Upgrades plate, mail and shields to Epic quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -141,7 +145,7 @@ WHERE entry=200002;
 UPDATE item_template SET
     name='Crude Leatherworker''s Kit', displayid=55479, Quality=1, BuyPrice=1000, bonding=0,
     description='Upgrades leather armor to Uncommon quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -149,7 +153,7 @@ WHERE entry=200003;
 UPDATE item_template SET
     name='Sturdy Leatherworker''s Kit', displayid=56642, Quality=2, BuyPrice=2000, bonding=0,
     description='Upgrades leather armor to Rare quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -157,7 +161,7 @@ WHERE entry=200004;
 UPDATE item_template SET
     name='Master Leatherworker''s Kit', displayid=56641, Quality=3, BuyPrice=4000, bonding=0,
     description='Upgrades leather armor to Epic quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -166,7 +170,7 @@ WHERE entry=200005;
 UPDATE item_template SET
     name='Crude Tailor''s Kit', displayid=39462, Quality=1, BuyPrice=1000, bonding=0,
     description='Upgrades cloth armor to Uncommon quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -174,7 +178,7 @@ WHERE entry=200006;
 UPDATE item_template SET
     name='Sturdy Tailor''s Kit', displayid=57460, Quality=2, BuyPrice=2000, bonding=0,
     description='Upgrades cloth armor to Rare quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -182,7 +186,7 @@ WHERE entry=200007;
 UPDATE item_template SET
     name='Master Tailor''s Kit', displayid=39454, Quality=3, BuyPrice=4000, bonding=0,
     description='Upgrades cloth armor to Epic quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -191,7 +195,7 @@ WHERE entry=200008;
 UPDATE item_template SET
     name='Crude Jeweler''s Kit', displayid=31204, Quality=1, BuyPrice=1000, bonding=0,
     description='Upgrades rings, amulets and trinkets to Uncommon quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -199,7 +203,7 @@ WHERE entry=200009;
 UPDATE item_template SET
     name='Sturdy Jeweler''s Kit', displayid=31205, Quality=2, BuyPrice=2000, bonding=0,
     description='Upgrades rings, amulets and trinkets to Rare quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -207,7 +211,7 @@ WHERE entry=200010;
 UPDATE item_template SET
     name='Master Jeweler''s Kit', displayid=31203, Quality=3, BuyPrice=4000, bonding=0,
     description='Upgrades rings, amulets and trinkets to Epic quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -216,7 +220,7 @@ WHERE entry=200011;
 UPDATE item_template SET
     name='Crude Sharpener''s Kit', displayid=24678, Quality=1, BuyPrice=1000, bonding=0,
     description='Upgrades melee weapons to Uncommon quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -224,7 +228,7 @@ WHERE entry=200012;
 UPDATE item_template SET
     name='Sturdy Sharpener''s Kit', displayid=24680, Quality=2, BuyPrice=2000, bonding=0,
     description='Upgrades melee weapons to Rare quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -232,7 +236,7 @@ WHERE entry=200013;
 UPDATE item_template SET
     name='Master Sharpener''s Kit', displayid=24681, Quality=3, BuyPrice=4000, bonding=0,
     description='Upgrades melee weapons to Epic quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -241,7 +245,7 @@ WHERE entry=200014;
 UPDATE item_template SET
     name='Crude Sorcerer''s Kit', displayid=1501, Quality=1, BuyPrice=1000, bonding=0,
     description='Upgrades wands and staves to Uncommon quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -249,7 +253,7 @@ WHERE entry=200015;
 UPDATE item_template SET
     name='Sturdy Sorcerer''s Kit', displayid=38758, Quality=2, BuyPrice=2000, bonding=0,
     description='Upgrades wands and staves to Rare quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -257,7 +261,7 @@ WHERE entry=200016;
 UPDATE item_template SET
     name='Master Sorcerer''s Kit', displayid=38760, Quality=3, BuyPrice=4000, bonding=0,
     description='Upgrades wands and staves to Epic quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -266,7 +270,7 @@ WHERE entry=200017;
 UPDATE item_template SET
     name='Crude Engineer''s Kit', displayid=20624, Quality=1, BuyPrice=1000, bonding=0,
     description='Upgrades bows, guns, crossbows and thrown to Uncommon quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -274,7 +278,7 @@ WHERE entry=200018;
 UPDATE item_template SET
     name='Sturdy Engineer''s Kit', displayid=40549, Quality=2, BuyPrice=2000, bonding=0,
     description='Upgrades bows, guns, crossbows and thrown to Rare quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
@@ -282,7 +286,7 @@ WHERE entry=200019;
 UPDATE item_template SET
     name='Master Engineer''s Kit', displayid=52196, Quality=3, BuyPrice=4000, bonding=0,
     description='Upgrades bows, guns, crossbows and thrown to Epic quality.',
-    spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
+    spellid_1=105000, spelltrigger_1=0, spellcharges_1=0, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
