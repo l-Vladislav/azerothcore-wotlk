@@ -1,5 +1,14 @@
 ARG UBUNTU_VERSION=22.04 # lts
 
+# Pin libmysqlclient to ONE version shared by the build and runtime stages.
+# Otherwise the two stages run independent `apt-get update`s whose layers can
+# cache different libmysqlclient minor versions -> the worldserver binary links
+# 8.0.X but loads 8.0.Y at runtime -> fatal client/server version error and a
+# crash-loop (the "ACE00046" mismatch). If a future Ubuntu security update
+# supersedes this version, the build fails loudly with "Version not found";
+# bump this to the new `apt-cache policy libmysqlclient21` candidate and rebuild.
+ARG MYSQL_CLIENT_VERSION=8.0.46-0ubuntu0.22.04.2
+
 # This target lays out the general directory skeleton for AzerothCore,
 # This target isn't intended to be directly used
 FROM ubuntu:$UBUNTU_VERSION AS skeleton
@@ -54,6 +63,9 @@ ARG CWITH_WARNINGS="ON"
 ARG CMAKE_EXTRA_OPTIONS=""
 ARG GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 
+# Inherit the global libmysqlclient pin (see top of file).
+ARG MYSQL_CLIENT_VERSION
+
 ARG CCACHE_DIR="/ccache"
 ARG CCACHE_MAXSIZE="1000MB"
 ARG CCACHE_SLOPPINESS="pch_defines,time_macros,include_file_mtime"
@@ -66,7 +78,7 @@ RUN apt-get update                                                     \
     && apt-get install -y --no-install-recommends                         \
         build-essential ccache libtool cmake-data make cmake clang    \
         git lsb-base curl unzip default-mysql-client openssl                  \
-        default-libmysqlclient-dev libboost-all-dev libssl-dev libmysql++-dev \
+        libmysqlclient-dev=${MYSQL_CLIENT_VERSION} libboost-all-dev libssl-dev libmysql++-dev \
         libreadline-dev zlib1g-dev libbz2-dev libncurses5-dev         \
         libcurl4-openssl-dev nlohmann-json3-dev                       \
     && rm -rf /var/lib/apt/lists/*
@@ -115,12 +127,16 @@ ARG USER_ID=1000
 ARG GROUP_ID=1000
 ARG DOCKER_USER=acore
 
+# Inherit the global libmysqlclient pin (see top of file) so the runtime lib
+# version always matches what the build stage linked against.
+ARG MYSQL_CLIENT_VERSION
+
 ENV ACORE_COMPONENT=undefined
 
 # Install base dependencies for azerothcore
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      libmysqlclient21 libreadline8 libcurl4 \
+      libmysqlclient21=${MYSQL_CLIENT_VERSION} libreadline8 libcurl4 \
       gettext-base default-mysql-client && \
     rm -rf /var/lib/apt/lists/*
 
