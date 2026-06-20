@@ -40,6 +40,21 @@ changes so they share ONE worldserver rebuild). Status: OPEN unless marked done.
 - **enUS-only bases:** 0 of 18 proto + 0 of 10 white. Fallback rule ready for scale-up.
 - **Override table:** empty (no overrides needed so far; extend as needed).
 
+## 10. Accessory T3 icon fix + rarity-word descriptions  (DONE 2026-06-19)
+- **200011 displayid:** changed from 31205 (Inv_misc_enggizmos_08, same as tier II) to
+  31203 (Inv_misc_enggizmos_11). No custom DBC needed — 31203 is a stock ItemDisplayInfo
+  entry. Updated in gear_ascension_kits.sql + Item_custom.csv.
+  Confirmed in acore_world_ptr: entry 200011 displayid = 31203.
+  Full jewel progression: T1=31204 enggizmos_09, T2=31205 enggizmos_08, T3=31203 enggizmos_11.
+- **Kit descriptions — rarity names, not colors:** replaced color words with WoW rarity names
+  in both item_template.description (enUS) and item_template_locale ruRU for all 21 kits.
+  enUS mapping: "green quality"->"Uncommon quality", "blue quality"->"Rare quality",
+  "epic quality"->"Epic quality" (capitalized for consistency).
+  ruRU mapping: "зелёного"->"необычного", "синего"->"редкого", "фиолетового"->"эпического".
+  Reimported to acore_world_ptr clean. Snapshot 2026-06-19_220940 taken before.
+  NOTE: requires PTR restart (main does it) for item_template reload; no MPQ rebuild
+  needed for icon 31203 (stock display ID).
+
 ## 3. "Upgradeable" marker on items  (OPEN; design later — it's an addon)
 - Show on an item that it CAN be upgraded (tooltip indicator), so players know
   without trying a kit.
@@ -115,6 +130,21 @@ changes so they share ONE worldserver rebuild). Status: OPEN unless marked done.
   MSG_WRONG_TIER) and all inline hardcoded chat messages updated.
 - Messages remain RP + Russian + varied; color codes preserved.
 - NEEDS worldserver recompile (bundled with KitProfession/KitTier 7-category update).
+
+## 11. Movement does NOT cancel the 2s cast  (FIXED 2026-06-19)
+- **Symptom:** spell 105000 cast bar (2s) does not cancel when the player moves.
+- **Root cause:** `InterruptFlags = 0` for spell 105000; `SPELL_INTERRUPT_FLAG_MOVEMENT = 0x01`
+  was not set, so the engine never registered movement as a cast-cancel trigger.
+- **Fix:** `UPDATE spell_dbc SET InterruptFlags = 1 WHERE ID = 105000;`
+  Applied to acore_world_ptr (snapshot 2026-06-19_223828 taken before).
+  Verified: SELECT returns InterruptFlags=1; all other canonical fields unchanged
+  (CastingTimeIndex=5, Effect_1=77, ImplicitTargetA_1=26, SpellVisualID_1=3182, EquippedItemClass=-1).
+- **SQL (gear_ascension_kits.sql):** REPLACE INTO now includes `InterruptFlags = 1`
+  so DB rebuilds won't regress it.
+- **Spell_custom.csv:** col 29 (InterruptFlags, 0-based) set from "0" to "1" for row 105000.
+- **Client-side note:** `InterruptFlags` is read by the client from its own Spell.dbc;
+  for fully clean client-side cast-cancel the owner must rebuild the MPQ. The server-side
+  change (after PTR restart) is sufficient to cancel the cast server-side.
 
 ## 4. 2-second cast on kit use  (DONE 2026-06-18)
 - Make using a kit a 2s cast (cast bar, interruptible) instead of instant.

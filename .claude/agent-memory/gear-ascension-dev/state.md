@@ -13,14 +13,19 @@ Main-repo branch for SQL/conf/core: `feat/wow-ak-1-gear-ascension` (off `custom`
   step; NO protection charm.
 - Materials = profession kits (7 categories: metal/leather/cloth/jewel/weapon_melee/
   weapon_magic/weapon_ranged) by item category; 21 kits (200000-200020);
-  kit tier = target quality; sold by vendor for tavern coin (item 110150); tier
-  gated by Nemesis rank.
+  kit tier = target quality; sold by vendor for Nemesis token (item 100017,
+  "Жетон немезиды"); prices 10/20/30 tokens for tier I/II/III; tier gated by
+  Nemesis rank. Vendor = innkeeper rank-gated submenus 190101/190102/190103
+  (rank 2/3/4, IEC 100001/100003/100008), gossip-gated automatically, no C++.
+  Built 2026-06-20.
 - On upgrade: copy SOCK slots (gems kept), drop PERM slot (player enchant), keep bind.
 - Bind on upgrade = same as the item (no new binding).
-- **Nemesis rank thresholds (confirmed 2026-06-18):**
-  - to_quality=2 (kit tier I, -> green): rank 1
+- **Nemesis rank thresholds (UPDATED 2026-06-20 -- DB corrected, generators fixed):**
+  - to_quality=2 (kit tier I, -> green): rank 2
   - to_quality=3 (kit tier II, -> blue): rank 3
-  - to_quality=4 (kit tier III, -> purple): rank 5
+  - to_quality=4 (kit tier III, -> purple): rank 4
+  - nemesis_rank = to_quality (simple identity). DB updated via direct UPDATE 2026-06-20.
+  - Generators (gen-sql.ps1 + gen-white.ps1) now emit 2/3/4. Fixed 2026-06-20.
 
 ## Full Phase-1 scope decision (2026-06-18, REFINED -> Classic-only)
 - **Classic ONLY** (vanilla, pre-TBC) -- exclude BOTH TBC and WotLK. Owner refined
@@ -206,21 +211,22 @@ and **obtainable** (loot/vendor/container source).
   - Full used block: 300001-345,833
 - kits: 200000-200020 (USED, 21 kits, 7 categories x 3 tiers)
 - kit block reserved: 200021-200099 (available for future kits)
-- vendor NPC: 200100 (or reuse tavern vendor 190xxx) -- NOT YET BUILT
+- vendor NPC: reuses tavern rank-gated submenus (190101/190102/190103) -- BUILT 2026-06-20
 - gear-ascension spells: 105000-105099 (105000 USED for use-spell)
 Existing in project: items 100001-100016, 110000-110120; creatures 191000-191099;
 spells 100000-104099; enchants 90001-91241.
 
-## kit_profession derivation (in generator -- UPDATED 2026-06-19 to 7 categories)
+## kit_profession derivation (in generator -- UPDATED 2026-06-19 to 7 categories; FIX #7 2026-06-20)
 - class 2 weapon by subclass:
   - subclass 10 (staff) or 19 (wand) -> weapon_magic
   - subclass 2 (bow) / 3 (gun) / 16 (thrown) / 18 (crossbow) -> weapon_ranged
   - all other weapon subclasses -> weapon_melee
-- class 4 armor by subclass:
+- class 4 armor by subclass (FIX #7: InventoryType=23 checked FIRST):
+  - InventoryType=23 (HELD_IN_OFFHAND: orbs, tomes, caster off-hands) -> weapon_magic
   - subclass 1 -> cloth
   - subclass 2 -> leather
   - subclass 3 (mail) / 4 (plate) / 6 (shield) -> metal
-  - subclass 0 misc (and any other) -> jewel
+  - subclass 0 misc (and any other) -> jewel (neck/ring/trinket only after type-23 exclusion)
 
 ## Generator collision guard (UPDATED 2026-06-19)
 The guard now only blocks on FOREIGN entries (entries in our block NOT in the planned
@@ -443,18 +449,21 @@ New non-vendor entries start at bi=694, entry 306941.
 ### PTR snapshots:
 - `2026-06-19_233659` (taken before all-obtainable mass gen).
 
-## Soft-sign overrides (ADDED 2026-06-19)
-Full scan of all 694 base ruRU head-words confirmed 5 words ending in -ь:
-- трость (F) -- correct by default, NOT in override table
-- камень (M) -- added: stem 'камен'
-- перстень (M) -- added: stem 'перстен'
-- коготь (M) -- added: stem 'когот'
-- ремень (M) -- added: stem 'ремен'
+## Soft-sign overrides (ADDED 2026-06-19; EXPANDED FIX #8 2026-06-20)
 
-Both generators ($softSignOverrides hashtable) updated.
-SQL regenerated + reimported to acore_world_ptr (snapshot 2026-06-19_204423).
-Counts unchanged: 1516 copies / 1516 locale / 1516 chain.
-DESIGN.md sec 10 gender table updated with masculine -ь override table.
+### FIX #8 gender heuristic improvements (2026-06-20):
+1. **Agent-noun rule**: word ending in -тель (including -итель/-атель) -> MASCULINE.
+   Applied FIRST in Get-RuGender before stem lookup.
+   Covers: Сокрушитель, Разрушитель, Хранитель, Носитель, Метатель, Потрошитель,
+   Тигрогубитель, Головокрушитель, Мордокрушитель, Огнеметатель, Душедробитель, etc.
+2. **Compound-ending rule**: if word ENDS IN a known masc stem + 'ь' -> MASCULINE.
+   Covers: Жуткокоготь (ends in 'когот'+'ь' -> M), etc.
+3. **Explicit masc list expanded** ($softSignOverrides):
+   камен/перстен/когот/ногот/ремен/панцир/шпил/монокл/скалпел/словар/рыцар/огон/румпел/янтар
+4. **Feminine words unaffected**: Трость/Печать/Мощь/Кровь/Цепь/Кость/Тень/Месть/Ярость/
+   Погибель/Медаль/Перевязь/Ветвь/Клеть/Решимость -- none end in -тель or a masc stem.
+
+Both generators updated. SQL regenerated + reimported to acore_world_ptr (2026-06-20).
 
 BEFORE/AFTER summary (gender-affected copies):
 - 302121: усиленная -> усиленный (ремень горца, LEATHER suffix)
@@ -473,11 +482,54 @@ Not changed (suffix preposition-led = static gender-invariant):
 - 306361/306362/306363: 'с навершием/лезвием' = starts with 'с', static -- unchanged
 Trosts (305151-305153): трость is F, adjectives correctly declined to F -- not changed.
 
+- `2026-06-20_000512_before-gear-ascension-kit-vendor` (taken before kit vendor SQL, 2026-06-20).
+- `2026-06-20_114657_before-fix7-fix8-regen` (taken before FIX #7 offhand->weapon_magic + FIX #8 gender heuristic regen, 2026-06-20).
+
 ## PTR snapshots (continued)
 - `2026-06-19_212233` (taken before 7-category kit restructure, 2026-06-19).
 - `2026-06-19_220940` (taken before accessory T3 icon fix + rarity-word descriptions, 2026-06-19).
 - `2026-06-19_223828` (taken before InterruptFlags=1 fix for spell 105000, 2026-06-19).
 - `2026-06-19_224708` (taken before weapon naming split: WEAPON->WEAPON_MELEE/RANGED/MAGIC, 2026-06-19).
+
+## Phase-2 ALL-OBTAINABLE mass-gen + vendor sync (2026-06-20)
+
+### Deploy state
+- **acore_world_ptr: APPLIED.** 4,584 bases -> 8,480 tier copies; entries 300001-345833.
+- **Deploy-pending** (not yet on live): all gear-ascension SQL + DBC.
+
+### Scope (final, 2026-06-20)
+- All Classic-obtainable (loot/vendor/container sources), not vendor-only.
+- 4,584 bases: 3,644 Q2+Q3 + 940 Q1.
+- 8,480 tier copies: 5,660 (Q2+Q3) + 2,820 (Q1).
+- Vendor LOCKED range preserved byte-identical: bi 0-693, entries 300001-306933 (1516 copies).
+- New non-vendor copies: 306941-345833.
+- Item_custom.csv: 8,633 data rows (1 header + 8,633 rows total).
+
+### Kit vendor (DONE 2026-06-20, nemesis-dev)
+- kits sold on innkeeper rank-gated submenus
+- 190101 (rank 2, tier I, IEC 100001 = 10 tokens): entries 200000/03/06/09/12/15/18
+- 190102 (rank 3, tier II, IEC 100003 = 20 tokens): entries 200001/04/07/10/13/16/19
+- 190103 (rank 4, tier III, IEC 100008 = 30 tokens): entries 200002/05/08/11/14/17/20
+- IEC 100008 = 30 x item 100017 (new, added to itemextendedcost_dbc + ItemExtendedCost_custom.csv)
+- Currency = item 100017 "Жетон немезиды" (NOT item 110150 "Монета авантюриста")
+- SQL: data/sql/updates/pending_db_world/gear_ascension_kit_vendor.sql (applied PTR 2026-06-20)
+
+### nemesis_rank = to_quality (DONE 2026-06-20)
+- Old mapping: {2->1, 3->3, 4->5}. New mapping: {2->2, 3->3, 4->4} (nemesis_rank = to_quality).
+- DB corrected via direct UPDATE on acore_world_ptr.
+- Generators fixed: Get-NemesisRank in gear-ascension-gen-sql.ps1 + gear-ascension-gen-white.ps1 (2026-06-20).
+
+### KNOWN DIVERGENCE (RESOLVED 2026-06-20 -- regen with FIX #7/#8)
+The old divergence (nemesis_rank 1/3/5 in pending SQL vs 2/3/4 in DB) is now
+RESOLVED: the FIX #7/#8 regen on 2026-06-20 regenerated both pending SQL files
+with generators that already emit nemesis_rank=2/3/4. The pending SQL files
+now contain the correct values and are idempotent on re-import.
+
+### AHBot exclusion (DONE 2026-06-20)
+- ListedItemIDRestrict.Enabled=true, MaxItemID=199999 set in etc-ptr conf.
+- Effect: all custom entries >=200000 (kits 200000-200020, tier copies 300001-345833)
+  excluded from auction house bot. Prevents bot from listing upgrade materials
+  and tier copies.
 
 ## Open / TODO
 - **PTR REBUILD REQUIRED**: KitProfession/KitTier C++ updated + [Восхождение] removed.
@@ -489,7 +541,14 @@ Trosts (305151-305153): трость is F, adjectives correctly declined to F --
     Without this, metal kits will show a blank icon on the client.
   - Spell.dbc: MUST include EquippedItemClass=-1 and SpellVisualID_1=3182 for 105000
     (both already correct in Spell_custom.csv col 67 and col 130 respectively).
-- Vendor for kits (creature_template + npc_vendor) -- NOT built yet.
+- Kit vendor BUILT (2026-06-20): kits on tavern rank-gated submenus 190101/190102/190103.
+  Tier I (slots 5-11 of 190101, IEC 100001 = 10 tokens): 200000/03/06/09/12/15/18.
+  Tier II (slots 15-21 of 190102, IEC 100003 = 20 tokens): 200001/04/07/10/13/16/19.
+  Tier III (slots 5-11 of 190103, IEC 100008 = 30 tokens): 200002/05/08/11/14/17/20.
+  IEC 100008 = 30 x item 100017 (new, added to itemextendedcost_dbc + ItemExtendedCost_custom.csv).
+  SQL: data/sql/updates/pending_db_world/gear_ascension_kit_vendor.sql (applied PTR 2026-06-20).
+  PTR snapshot before: 2026-06-20_000512_before-gear-ascension-kit-vendor.
+  CLIENT ACTION REQUIRED: rebuild ItemExtendedCost.dbc with IEC 100008 in MPQ.
 - testing-feedback #3 (addon "upgradeable" marker) -- OPEN (design later).
 - Soft-sign gender anomalies: 149 new-set entries with potentially wrong gender agreement.
   Not systematically reviewed. Can be addressed as a polish pass post-validation.

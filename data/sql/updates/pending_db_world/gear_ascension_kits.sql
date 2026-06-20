@@ -36,12 +36,14 @@ REPLACE INTO spell_dbc
   (ID, Targets, Effect_1, CastingTimeIndex, RangeIndex, ProcChance,
    EquippedItemClass, EquippedItemSubclass, EquippedItemInvTypes,
    ImplicitTargetA_1, ImplicitTargetB_1,
+   InterruptFlags,
    SpellVisualID_1, SpellVisualID_2,
    SpellIconID, Name_Lang_enUS)
 VALUES
   (105000, 16, 77, 5, 1, 101,
    -1, 0, 0,
    26, 0,
+   1,
    3182, 0,
    1, 'Gear Ascension: Apply Kit');
 
@@ -113,7 +115,7 @@ INSERT INTO item_template SELECT 200020 AS entry, class, subclass, SoundOverride
 -- metal kits (plate/mail/shield) -- custom gladiator display IDs 70001/70002/70003
 UPDATE item_template SET
     name='Crude Blacksmith''s Kit', displayid=70001, Quality=1, BuyPrice=1000, bonding=0,
-    description='Upgrades plate, mail and shields to green quality.',
+    description='Upgrades plate, mail and shields to Uncommon quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -121,7 +123,7 @@ UPDATE item_template SET
 WHERE entry=200000;
 UPDATE item_template SET
     name='Sturdy Blacksmith''s Kit', displayid=70002, Quality=2, BuyPrice=2000, bonding=0,
-    description='Upgrades plate, mail and shields to blue quality.',
+    description='Upgrades plate, mail and shields to Rare quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -129,7 +131,7 @@ UPDATE item_template SET
 WHERE entry=200001;
 UPDATE item_template SET
     name='Master Blacksmith''s Kit', displayid=70003, Quality=3, BuyPrice=4000, bonding=0,
-    description='Upgrades plate, mail and shields to epic quality.',
+    description='Upgrades plate, mail and shields to Epic quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -138,7 +140,7 @@ WHERE entry=200002;
 -- leather kits
 UPDATE item_template SET
     name='Crude Leatherworker''s Kit', displayid=55479, Quality=1, BuyPrice=1000, bonding=0,
-    description='Upgrades leather armor to green quality.',
+    description='Upgrades leather armor to Uncommon quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -146,7 +148,7 @@ UPDATE item_template SET
 WHERE entry=200003;
 UPDATE item_template SET
     name='Sturdy Leatherworker''s Kit', displayid=56642, Quality=2, BuyPrice=2000, bonding=0,
-    description='Upgrades leather armor to blue quality.',
+    description='Upgrades leather armor to Rare quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -154,7 +156,7 @@ UPDATE item_template SET
 WHERE entry=200004;
 UPDATE item_template SET
     name='Master Leatherworker''s Kit', displayid=56641, Quality=3, BuyPrice=4000, bonding=0,
-    description='Upgrades leather armor to epic quality.',
+    description='Upgrades leather armor to Epic quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -163,7 +165,7 @@ WHERE entry=200005;
 -- cloth kits
 UPDATE item_template SET
     name='Crude Tailor''s Kit', displayid=39462, Quality=1, BuyPrice=1000, bonding=0,
-    description='Upgrades cloth armor to green quality.',
+    description='Upgrades cloth armor to Uncommon quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -171,7 +173,7 @@ UPDATE item_template SET
 WHERE entry=200006;
 UPDATE item_template SET
     name='Sturdy Tailor''s Kit', displayid=57460, Quality=2, BuyPrice=2000, bonding=0,
-    description='Upgrades cloth armor to blue quality.',
+    description='Upgrades cloth armor to Rare quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -179,7 +181,7 @@ UPDATE item_template SET
 WHERE entry=200007;
 UPDATE item_template SET
     name='Master Tailor''s Kit', displayid=39454, Quality=3, BuyPrice=4000, bonding=0,
-    description='Upgrades cloth armor to epic quality.',
+    description='Upgrades cloth armor to Epic quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -188,7 +190,7 @@ WHERE entry=200008;
 -- jewel kits
 UPDATE item_template SET
     name='Crude Jeweler''s Kit', displayid=31204, Quality=1, BuyPrice=1000, bonding=0,
-    description='Upgrades rings, amulets and trinkets to green quality.',
+    description='Upgrades rings, amulets and trinkets to Uncommon quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -196,15 +198,15 @@ UPDATE item_template SET
 WHERE entry=200009;
 UPDATE item_template SET
     name='Sturdy Jeweler''s Kit', displayid=31205, Quality=2, BuyPrice=2000, bonding=0,
-    description='Upgrades rings, amulets and trinkets to blue quality.',
+    description='Upgrades rings, amulets and trinkets to Rare quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
     ScriptName='gear_ascension_kit', VerifiedBuild=12340
 WHERE entry=200010;
 UPDATE item_template SET
-    name='Master Jeweler''s Kit', displayid=31205, Quality=3, BuyPrice=4000, bonding=0,
-    description='Upgrades rings, amulets and trinkets to epic quality.',
+    name='Master Jeweler''s Kit', displayid=31203, Quality=3, BuyPrice=4000, bonding=0,
+    description='Upgrades rings, amulets and trinkets to Epic quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -213,7 +215,7 @@ WHERE entry=200011;
 -- weapon_melee kits
 UPDATE item_template SET
     name='Crude Sharpener''s Kit', displayid=24678, Quality=1, BuyPrice=1000, bonding=0,
-    description='Upgrades melee weapons to green quality.',
+    description='Upgrades melee weapons to Uncommon quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -221,7 +223,7 @@ UPDATE item_template SET
 WHERE entry=200012;
 UPDATE item_template SET
     name='Sturdy Sharpener''s Kit', displayid=24680, Quality=2, BuyPrice=2000, bonding=0,
-    description='Upgrades melee weapons to blue quality.',
+    description='Upgrades melee weapons to Rare quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -229,7 +231,7 @@ UPDATE item_template SET
 WHERE entry=200013;
 UPDATE item_template SET
     name='Master Sharpener''s Kit', displayid=24681, Quality=3, BuyPrice=4000, bonding=0,
-    description='Upgrades melee weapons to epic quality.',
+    description='Upgrades melee weapons to Epic quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -238,7 +240,7 @@ WHERE entry=200014;
 -- weapon_magic kits
 UPDATE item_template SET
     name='Crude Sorcerer''s Kit', displayid=1501, Quality=1, BuyPrice=1000, bonding=0,
-    description='Upgrades wands and staves to green quality.',
+    description='Upgrades wands and staves to Uncommon quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -246,7 +248,7 @@ UPDATE item_template SET
 WHERE entry=200015;
 UPDATE item_template SET
     name='Sturdy Sorcerer''s Kit', displayid=38758, Quality=2, BuyPrice=2000, bonding=0,
-    description='Upgrades wands and staves to blue quality.',
+    description='Upgrades wands and staves to Rare quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -254,7 +256,7 @@ UPDATE item_template SET
 WHERE entry=200016;
 UPDATE item_template SET
     name='Master Sorcerer''s Kit', displayid=38760, Quality=3, BuyPrice=4000, bonding=0,
-    description='Upgrades wands and staves to epic quality.',
+    description='Upgrades wands and staves to Epic quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -263,7 +265,7 @@ WHERE entry=200017;
 -- weapon_ranged kits
 UPDATE item_template SET
     name='Crude Engineer''s Kit', displayid=20624, Quality=1, BuyPrice=1000, bonding=0,
-    description='Upgrades bows, guns, crossbows and thrown to green quality.',
+    description='Upgrades bows, guns, crossbows and thrown to Uncommon quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -271,7 +273,7 @@ UPDATE item_template SET
 WHERE entry=200018;
 UPDATE item_template SET
     name='Sturdy Engineer''s Kit', displayid=40549, Quality=2, BuyPrice=2000, bonding=0,
-    description='Upgrades bows, guns, crossbows and thrown to blue quality.',
+    description='Upgrades bows, guns, crossbows and thrown to Rare quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -279,7 +281,7 @@ UPDATE item_template SET
 WHERE entry=200019;
 UPDATE item_template SET
     name='Master Engineer''s Kit', displayid=52196, Quality=3, BuyPrice=4000, bonding=0,
-    description='Upgrades bows, guns, crossbows and thrown to epic quality.',
+    description='Upgrades bows, guns, crossbows and thrown to Epic quality.',
     spellid_1=105000, spelltrigger_1=0, spellcharges_1=-1, spellppmRate_1=0,
     spellcooldown_1=-1, spellcategory_1=0, spellcategorycooldown_1=-1,
     spellid_2=0, spelltrigger_2=0, spellcharges_2=0,
@@ -288,27 +290,27 @@ WHERE entry=200020;
 
 -- -- 4. ruRU locale for all 21 kits ------------------------------------------
 INSERT INTO item_template_locale (ID, locale, Name, Description) VALUES
-(200000,'ruRU','Грубый набор кузнеца',       'Улучшает латы, кольчугу и щиты до зелёного качества.'),
-(200001,'ruRU','Добротный набор кузнеца',    'Улучшает латы, кольчугу и щиты до синего качества.'),
-(200002,'ruRU','Мастерский набор кузнеца',   'Улучшает латы, кольчугу и щиты до фиолетового качества.'),
-(200003,'ruRU','Грубый набор кожевника',      'Улучшает кожаные доспехи до зелёного качества.'),
-(200004,'ruRU','Добротный набор кожевника',  'Улучшает кожаные доспехи до синего качества.'),
-(200005,'ruRU','Мастерский набор кожевника', 'Улучшает кожаные доспехи до фиолетового качества.'),
-(200006,'ruRU','Грубый набор портного',       'Улучшает тканевые доспехи до зелёного качества.'),
-(200007,'ruRU','Добротный набор портного',   'Улучшает тканевые доспехи до синего качества.'),
-(200008,'ruRU','Мастерский набор портного',  'Улучшает тканевые доспехи до фиолетового качества.'),
-(200009,'ruRU','Грубый набор ювелира',        'Улучшает кольца, амулеты и безделушки до зелёного качества.'),
-(200010,'ruRU','Добротный набор ювелира',    'Улучшает кольца, амулеты и безделушки до синего качества.'),
-(200011,'ruRU','Мастерский набор ювелира',   'Улучшает кольца, амулеты и безделушки до фиолетового качества.'),
-(200012,'ruRU','Грубый набор точильщика',     'Улучшает оружие ближнего боя до зелёного качества.'),
-(200013,'ruRU','Добротный набор точильщика', 'Улучшает оружие ближнего боя до синего качества.'),
-(200014,'ruRU','Мастерский набор точильщика','Улучшает оружие ближнего боя до фиолетового качества.'),
-(200015,'ruRU','Грубый набор чародея',        'Улучшает жезлы и посохи до зелёного качества.'),
-(200016,'ruRU','Добротный набор чародея',    'Улучшает жезлы и посохи до синего качества.'),
-(200017,'ruRU','Мастерский набор чародея',   'Улучшает жезлы и посохи до фиолетового качества.'),
-(200018,'ruRU','Грубый набор инженера',       'Улучшает луки, ружья и арбалеты до зелёного качества.'),
-(200019,'ruRU','Добротный набор инженера',   'Улучшает луки, ружья и арбалеты до синего качества.'),
-(200020,'ruRU','Мастерский набор инженера',  'Улучшает луки, ружья и арбалеты до фиолетового качества.');
+(200000,'ruRU','Грубый набор кузнеца',       'Улучшает латы, кольчугу и щиты до необычного качества.'),
+(200001,'ruRU','Добротный набор кузнеца',    'Улучшает латы, кольчугу и щиты до редкого качества.'),
+(200002,'ruRU','Мастерский набор кузнеца',   'Улучшает латы, кольчугу и щиты до эпического качества.'),
+(200003,'ruRU','Грубый набор кожевника',      'Улучшает кожаные доспехи до необычного качества.'),
+(200004,'ruRU','Добротный набор кожевника',  'Улучшает кожаные доспехи до редкого качества.'),
+(200005,'ruRU','Мастерский набор кожевника', 'Улучшает кожаные доспехи до эпического качества.'),
+(200006,'ruRU','Грубый набор портного',       'Улучшает тканевые доспехи до необычного качества.'),
+(200007,'ruRU','Добротный набор портного',   'Улучшает тканевые доспехи до редкого качества.'),
+(200008,'ruRU','Мастерский набор портного',  'Улучшает тканевые доспехи до эпического качества.'),
+(200009,'ruRU','Грубый набор ювелира',        'Улучшает кольца, амулеты и безделушки до необычного качества.'),
+(200010,'ruRU','Добротный набор ювелира',    'Улучшает кольца, амулеты и безделушки до редкого качества.'),
+(200011,'ruRU','Мастерский набор ювелира',   'Улучшает кольца, амулеты и безделушки до эпического качества.'),
+(200012,'ruRU','Грубый набор точильщика',     'Улучшает оружие ближнего боя до необычного качества.'),
+(200013,'ruRU','Добротный набор точильщика', 'Улучшает оружие ближнего боя до редкого качества.'),
+(200014,'ruRU','Мастерский набор точильщика','Улучшает оружие ближнего боя до эпического качества.'),
+(200015,'ruRU','Грубый набор чародея',        'Улучшает жезлы и посохи до необычного качества.'),
+(200016,'ruRU','Добротный набор чародея',    'Улучшает жезлы и посохи до редкого качества.'),
+(200017,'ruRU','Мастерский набор чародея',   'Улучшает жезлы и посохи до эпического качества.'),
+(200018,'ruRU','Грубый набор инженера',       'Улучшает луки, ружья и арбалеты до необычного качества.'),
+(200019,'ruRU','Добротный набор инженера',   'Улучшает луки, ружья и арбалеты до редкого качества.'),
+(200020,'ruRU','Мастерский набор инженера',  'Улучшает луки, ружья и арбалеты до эпического качества.');
 
 -- -- 5. Update nemesis_rank in item_upgrade_chain --------------------------
 -- Owner decision 2026-06-18:

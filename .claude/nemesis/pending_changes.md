@@ -177,6 +177,17 @@ See `nemesis_system.md` or `ticket_bounty_board.md` for full list. Notable tuned
 - `NemesisRep.BountyCompletionPerRank = 15`
 - `NemesisRep.Threshold.Rank2/3/4/5 = 1000/5000/16000/40000`
 
+## Gear Ascension kit vendor (PTR-only, 2026-06-20)
+
+Kits placed on tavern rank-gated submenus (no new NPC, no C++):
+- Tier I kits (200000/03/06/09/12/15/18): vendor 190101, IEC 100001 (10 tokens), slots 5-11.
+- Tier II kits (200001/04/07/10/13/16/19): vendor 190102, IEC 100003 (20 tokens), slots 15-21.
+- Tier III kits (200002/05/08/11/14/17/20): vendor 190103, IEC 100008 (30 tokens), slots 5-11.
+New IEC 100008 = 30 x item 100017 added to itemextendedcost_dbc + ItemExtendedCost_custom.csv.
+SQL: data/sql/updates/pending_db_world/gear_ascension_kit_vendor.sql (applied PTR 2026-06-20).
+CLIENT: ItemExtendedCost.dbc needs MPQ rebuild to include IEC 100008.
+Rank-gating is automatic via existing gossip (no C++ change needed).
+
 ## Pending
 
 - **Phase 4 (server-wide red announces)**: when a player accepts / completes a bounty, broadcast `|cffff0000[Немезида]: {player} принял(а)/выполнил(а) контракт на {title}!|r` server-wide. Config flags `AnnounceAccept` / `AnnounceCompletion` already reserved but don't fire yet.
