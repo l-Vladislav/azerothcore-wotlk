@@ -10,6 +10,8 @@ Read this file at the start of every task. Then load only the sub-docs whose hoo
 - [script-registration.md](script-registration.md) — How to register a new spell script (AddSC_*, script_loader.cpp). Load when adding a C++ spell file.
 - [custom-id-range.md](custom-id-range.md) — Reserved ID ranges to avoid collisions. Load before assigning any new spell/item/enchant ID.
 
+- [mod-environmental-effects.md](mod-environmental-effects.md) — spell IDs 107000-107016, aura definitions, placeholder icon note. Load for any task touching this module.
+
 ## How to grow this memory
 
 When you learn a durable fact during a task (new path, new convention, a gotcha that bit you), either:
