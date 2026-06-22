@@ -78,9 +78,10 @@ public:
     /// For which zone is this weather?
     [[nodiscard]] uint32 GetZone() const { return m_zone; };
     [[nodiscard]] uint32 GetScriptId() const { return m_weatherChances->ScriptId; }
+    // Public so modules can read the current weather state (mod-environmental-effects).
+    [[nodiscard]] WeatherState GetWeatherState() const;
 
 private:
-    [[nodiscard]] WeatherState GetWeatherState() const;
     Map* m_map;
     uint32 m_zone;
     WeatherType m_type;
