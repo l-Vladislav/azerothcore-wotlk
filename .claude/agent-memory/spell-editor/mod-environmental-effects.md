@@ -1,31 +1,57 @@
 # mod-environmental-effects spell memory
 
-## Spell ID range: 107000-107016
+## v2 Spell ID ranges (current)
 
-Reserved for `mod-environmental-effects` environmental aura spells.
-These are NOT in the 1,000,000+ custom range — they were assigned before
-that convention was established. The range is confirmed clear in Spell.csv,
-Spell_custom.csv, and spell_dbc SQL base.
+- Buffs: 107000-107146 (147 spells) — positive auras
+- Debuffs: 107500-107528 (29 spells) + 108500 (1 spell) — negative auras
+- Total: 177 DBC rows in `Spell_custom.csv`
+
+These are NOT in the 1,000,000+ custom range — assigned before that convention.
+All confirmed clear in Spell.csv base. v1 range (107000-107016) replaced in v2.
 
 ## Key files
 
 - SQL migration: `data/sql/updates/pending_db_world/mod_environmental_effects_spells.sql`
-- DBC CSV rows: appended to `.claude/dbc/Spell_custom.csv` (lines 288-304 = IDs 107000-107016)
+- DBC CSV rows: `.claude/dbc/Spell_custom.csv` (last 177 rows)
+- SpellIcon additions: `.claude/dbc/SpellIcon_custom.csv` (IDs 50000, 50001)
+- Manifest (authoritative per-spell client data): `modules/mod-environmental-effects/docs/client_manifest.csv`
+- SpellIcon additions source: `modules/mod-environmental-effects/docs/spellicon_additions.csv`
 - Rule table seed: `data/sql/updates/pending_db_world/mod_environmental_effects_base.sql`
 
-## PLACEHOLDER icon
+## Verified column positions in Spell_custom.csv (232 columns)
 
-All 17 spells use `SpellIconID = 1` as a placeholder. The user must supply
-real icon IDs and update:
-1. `spell_dbc` rows: run a new SQL `UPDATE spell_dbc SET SpellIconID=X WHERE ID=Y`
-2. `Spell_custom.csv` rows: the placeholder `"1"` appears at the SpellIconID
-   column position (field 133 in the 250-field row, right after SpellVisualID_2).
+| Index | Field             | Notes                          |
+|-------|-------------------|--------------------------------|
+| 0     | ID                |                                |
+| 4     | Attributes        | BUFF=2147483648, DEBUFF=2214592512 |
+| 26    | CastingTimeIndex  | =1 (instant)                   |
+| 33    | ProcChance        | =101                           |
+| 38    | DurationIndex     | =21 (permanent)                |
+| 44    | RangeIndex        | =1 (self)                      |
+| 66    | EquippedItemClass | =-1                            |
+| 69    | Effect_1          | =6 (APPLY_AURA)                |
+| 72    | EffectDieSides_1  | =1                             |
+| 78    | EffectBasePoints_1|                                |
+| 84    | ImplicitTargetA_1 | =1 (caster)                    |
+| 93    | EffectAura_1      |                                |
+| 108   | EffectMiscValue_1 |                                |
+| 131   | SpellIconID       |                                |
+| 134   | Name_Lang_enUS    | RU text fills this too         |
+| 145   | Name_Lang_ruRU    |                                |
+| 150   | Name_Lang_Mask    | =16712190                      |
+| 167   | NameSubtext_Mask  | =16712188                      |
+| 168   | Desc_Lang_enUS    | RU text fills this too         |
+| 179   | Desc_Lang_ruRU    |                                |
+| 184   | Desc_Lang_Mask    | =16712190                      |
+| 185   | AuraDesc_enUS     | RU text fills this too         |
+| 196   | AuraDesc_ruRU     |                                |
+| 201   | AuraDesc_Mask     | =16712190                      |
+| 223   | SchoolMask        | =1 (physical placeholder)      |
 
-Search for SpellIconID replacements: `grep -n '"107[01][0-9][0-9]"' Spell_custom.csv`
-or look for `"1","0","0","NAME_RU"` pattern — the SpellIconID is the `"1"` in
-`"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","1","0","0","NAME"`.
+NOTE: The grep-based column index tool (counting header tokens) gives WRONG results
+for this CSV. Always verify column positions by parsing actual data rows.
 
-## Common spell fields (all 17)
+## v2 Common spell fields
 
 - Effect_1 = 6 (APPLY_AURA)
 - DurationIndex = 21 (permanent)
@@ -34,48 +60,27 @@ or look for `"1","0","0","NAME_RU"` pattern — the SpellIconID is the `"1"` in
 - RangeIndex = 1 (self-only)
 - ImplicitTargetA_1 = 1 (caster)
 - EquippedItemClass = -1
+- SchoolMask = 1 (placeholder; server overrides)
+
+## v2 Aura template (display-only; server spell_dbc has real effects)
+
+- BUFF (107000-107146): Aura=137 (MOD_TOTAL_STAT_PERCENTAGE), MiscVal=-1, BP=1
+- DEBUFF (107500-107528, 108500): Aura=87 (MOD_DAMAGE_PERCENT_TAKEN), MiscVal=32 (shadow), BP=4
 
 ## Attributes
 
 - BUFF: 2147483648 = 0x80000000 (NO_AURA_CANCEL only)
 - DEBUFF: 2214592512 = 0x84000000 (NO_AURA_CANCEL + AURA_IS_DEBUFF)
 
-## Per-ID summary
+## SpellIcon_custom.csv
 
-| ID     | Type   | Aura | School MiscVal | BasePoints |
-|--------|--------|------|----------------|------------|
-| 107000 | DEBUFF | 87   | 4 (Fire)       | 4 (+5%)    |
-| 107001 | DEBUFF | 87   | 8 (Nature)     | 4 (+5%)    |
-| 107002 | DEBUFF | 79   | 64 (Arcane)    | -6 (-5%)   |
-| 107003 | DEBUFF | 87   | 32 (Shadow)    | 4 (+5%)    |
-| 107004 | DEBUFF | 33   | 0 (speed)      | -4 (-3%)   |
-| 107005 | DEBUFF | 87   | 16 (Frost)     | 4 (+5%)    |
-| 107006 | DEBUFF | 33   | 0 (speed)      | -4 (-3%)   |
-| 107007 | BUFF   | 79   | 4 (Fire)       | 4 (+5%)    |
-| 107008 | BUFF   | 79   | 64 (Arcane)    | 4 (+5%)    |
-| 107009 | BUFF   | 79   | 32 (Shadow)    | 4 (+5%)    |
-| 107010 | BUFF   | 79   | 8 (Nature)     | 4 (+5%)    |
-| 107011 | BUFF   | 79   | 16 (Frost)     | 4 (+5%)    |
-| 107012 | BUFF   | 133  | 0              | 2 (+3% HP) |
-| 107013 | BUFF   | 31   | 0              | 4 (+5% spd)|
-| 107014 | BUFF   | 88+110 | 0+0          | 9+9 (+10%) |
-| 107015 | BUFF   | 137  | -1 (all stats) | 1 (+2%)    |
-| 107016 | DEBUFF | 87   | 32 (Shadow)    | 4 (+5%)    |
+Created at `.claude/dbc/SpellIcon_custom.csv` with 2 rows:
+- ID 50000 → Interface\Icons\achievement_ladydeathwhisper
+- ID 50001 → Interface\Icons\achievement_zone_dragonblight_05
 
-## AURA constants used
+Used by spells 107517 (Воля Плети) and 107525 (Тлен Драконьего Погоста).
 
-- 31 = MOD_INCREASE_SPEED
-- 33 = MOD_DECREASE_SPEED
-- 79 = MOD_DAMAGE_PERCENT_DONE
-- 87 = MOD_DAMAGE_PERCENT_TAKEN
-- 88 = MOD_HEALTH_REGEN_PERCENT
-- 110 = MOD_POWER_REGEN_PERCENT
-- 133 = MOD_INCREASE_HEALTH_PERCENT
-- 137 = MOD_TOTAL_STAT_PERCENTAGE
+## AURA constants used (v2 template)
 
-## MOD_DECREASE_SPEED debuff note
-
-By default, MOD_DECREASE_SPEED cast on self is treated as positive by AC's
-`_IsPositiveEffect`. The `SPELL_ATTR0_AURA_IS_DEBUFF` flag (0x04000000) in
-Attributes=0x84000000 forces debuff display. This is already included in all
-debuff spells (107000-107006, 107016).
+- 87 = MOD_DAMAGE_PERCENT_TAKEN (debuff display)
+- 137 = MOD_TOTAL_STAT_PERCENTAGE (buff display)
