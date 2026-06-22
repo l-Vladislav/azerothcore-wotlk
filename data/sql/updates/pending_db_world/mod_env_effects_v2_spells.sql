@@ -7,7 +7,7 @@ DELETE FROM `spell_dbc` WHERE `ID` BETWEEN 107000 AND 107199;
 DELETE FROM `spell_dbc` WHERE `ID` BETWEEN 107500 AND 107599;
 DELETE FROM `spell_dbc` WHERE `ID` = 108500;
 
--- buffs (147)
+-- buffs (177)
 REPLACE INTO `spell_dbc` (
     `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
 ) VALUES (
@@ -742,6 +742,156 @@ REPLACE INTO `spell_dbc` (
     `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
 ) VALUES (
     107146, 2147483648, 1, 21, 101, 1, -1, 6, 31, 4, 1, 0, 1, 1, 1, 'Свежий ветер', 'Свежий ветер', '+5% скорости перемещения', '+5% скорости перемещения'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107147, 2147483648, 1, 21, 101, 1, -1, 6, 79, 4, 1, 8, 1, 1, 1, 'Обволакивающая влажность', 'Обволакивающая влажность', '+5% урона природой', '+5% урона природой'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107148, 2147483648, 1, 21, 101, 1, -1, 6, 137, 2, 1, -1, 1, 1, 1, 'Болотный дурман', 'Болотный дурман', '+3% ко всем хар-кам', '+3% ко всем хар-кам'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107149, 2147483648, 1, 21, 101, 1, -1, 6, 31, 4, 1, 0, 1, 1, 1, 'Свежий ветер', 'Свежий ветер', '+5% скорости перемещения', '+5% скорости перемещения'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107150, 2147483648, 1, 21, 101, 1, -1, 6, 137, 4, 1, 2, 1, 1, 1, 'Солнечная погода', 'Солнечная погода', '+5% выносливости', '+5% выносливости'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107151, 2147483648, 1, 21, 101, 1, -1, 6, 137, 2, 1, -1, 1, 1, 1, 'Морской бриз', 'Морской бриз', '+3% ко всем хар-кам', '+3% ко всем хар-кам'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107152, 2147483648, 1, 21, 101, 1, -1, 6, 31, 4, 1, 0, 1, 1, 1, 'Свежий ветер', 'Свежий ветер', '+5% скорости перемещения', '+5% скорости перемещения'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107153, 2147483648, 1, 21, 101, 1, -1, 6, 79, 4, 1, 32, 1, 1, 1, 'Слабое присутствие порчи', 'Слабое присутствие порчи', '+5% урона тенью', '+5% урона тенью'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107154, 2147483648, 1, 21, 101, 1, -1, 6, 137, 1, 1, -1, 1, 1, 1, 'Прохладный ветер', 'Прохладный ветер', '+2% ко всем хар-кам', '+2% ко всем хар-кам'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107155, 2147483648, 1, 21, 101, 1, -1, 6, 31, 4, 1, 0, 1, 1, 1, 'Свежий ветер', 'Свежий ветер', '+5% скорости перемещения', '+5% скорости перемещения'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107156, 2147483648, 1, 21, 101, 1, -1, 6, 22, 9, 1, 16, 1, 1, 1, 'Жар саванны', 'Жар саванны', 'защита от холода +10', 'защита от холода +10'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107157, 2147483648, 1, 21, 101, 1, -1, 6, 137, 2, 1, -1, 1, 1, 1, 'Эхо Оргриммара', 'Эхо Оргриммара', '+3% ко всем хар-кам', '+3% ко всем хар-кам'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107158, 2147483648, 1, 21, 101, 1, -1, 6, 31, 4, 1, 0, 1, 1, 1, 'Свежий ветер', 'Свежий ветер', '+5% скорости перемещения', '+5% скорости перемещения'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107159, 2147483648, 1, 21, 101, 1, -1, 6, 79, 4, 1, 8, 1, 1, 1, 'Благословение Кенария', 'Благословение Кенария', '+5% урона природой', '+5% урона природой'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107160, 2147483648, 1, 21, 101, 1, -1, 6, 137, 2, 1, -1, 1, 1, 1, 'Лесная прохлада', 'Лесная прохлада', '+3% ко всем хар-кам', '+3% ко всем хар-кам'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107161, 2147483648, 1, 21, 101, 1, -1, 6, 31, 4, 1, 0, 1, 1, 1, 'Свежий ветер', 'Свежий ветер', '+5% скорости перемещения', '+5% скорости перемещения'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107162, 2147483648, 1, 21, 101, 1, -1, 6, 137, 1, 1, -1, 1, 1, 1, 'Горный воздух', 'Горный воздух', '+2% ко всем хар-кам', '+2% ко всем хар-кам'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107163, 2147483648, 1, 21, 101, 1, -1, 6, 31, 4, 1, 0, 1, 1, 1, 'Попутный ветер', 'Попутный ветер', '+5% скорости перемещения', '+5% скорости перемещения'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107164, 2147483648, 1, 21, 101, 1, -1, 6, 137, 4, 1, 2, 1, 1, 1, 'Солнечная погода', 'Солнечная погода', '+5% выносливости', '+5% выносливости'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107165, 2147483648, 1, 21, 101, 1, -1, 6, 79, 4, 1, 64, 1, 1, 1, 'Эхо Солнечного Колодца', 'Эхо Солнечного Колодца', '+5% урона тайной магией', '+5% урона тайной магией'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107166, 2147483648, 1, 21, 101, 1, -1, 6, 137, 2, 1, -1, 1, 1, 1, 'Вечная весна', 'Вечная весна', '+3% ко всем хар-кам', '+3% ко всем хар-кам'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107167, 2147483648, 1, 21, 101, 1, -1, 6, 31, 4, 1, 0, 1, 1, 1, 'Свежий ветер', 'Свежий ветер', '+5% скорости перемещения', '+5% скорости перемещения'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107168, 2147483648, 1, 21, 101, 1, -1, 6, 137, 2, 1, -1, 1, 1, 1, 'Покой леса', 'Покой леса', '+3% ко всем хар-кам', '+3% ко всем хар-кам'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `Effect_2`, `EffectAura_2`, `EffectBasePoints_2`, `EffectDieSides_2`, `EffectMiscValue_2`, `ImplicitTargetA_2`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107169, 2147483648, 1, 21, 101, 1, -1, 6, 88, 9, 1, 0, 1, 6, 110, 9, 1, 0, 1, 1, 1, 'Лесное благословение', 'Лесное благословение', 'реген вне боя +10%', 'реген вне боя +10%'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107170, 2147483648, 1, 21, 101, 1, -1, 6, 31, 4, 1, 0, 1, 1, 1, 'Свежий ветер', 'Свежий ветер', '+5% скорости перемещения', '+5% скорости перемещения'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107171, 2147483648, 1, 21, 101, 1, -1, 6, 79, 4, 1, 4, 1, 1, 1, 'Драконье дыхание', 'Драконье дыхание', '+5% урона огнём', '+5% урона огнём'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107172, 2147483648, 1, 21, 101, 1, -1, 6, 137, 1, 1, -1, 1, 1, 1, 'Сила огров', 'Сила огров', '+2% ко всем хар-кам', '+2% ко всем хар-кам'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107173, 2147483648, 1, 21, 101, 1, -1, 6, 31, 4, 1, 0, 1, 1, 1, 'Свежий ветер', 'Свежий ветер', '+5% скорости перемещения', '+5% скорости перемещения'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107174, 2147483648, 1, 21, 101, 1, -1, 6, 133, 4, 1, 0, 1, 1, 1, 'Объятия вечной зимы', 'Объятия вечной зимы', '+5% урона морозом', '+5% урона морозом'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107175, 2147483648, 1, 21, 101, 1, -1, 6, 137, 2, 1, -1, 1, 1, 1, 'Эхо Утгарда', 'Эхо Утгарда', '+3% ко всем хар-кам', '+3% ко всем хар-кам'
+);
+REPLACE INTO `spell_dbc` (
+    `ID`, `Attributes`, `CastingTimeIndex`, `DurationIndex`, `ProcChance`, `RangeIndex`, `EquippedItemClass`, `Effect_1`, `EffectAura_1`, `EffectBasePoints_1`, `EffectDieSides_1`, `EffectMiscValue_1`, `ImplicitTargetA_1`, `SchoolMask`, `SpellIconID`, `Name_Lang_enUS`, `Name_Lang_ruRU`, `Description_Lang_enUS`, `Description_Lang_ruRU`
+) VALUES (
+    107176, 2147483648, 1, 21, 101, 1, -1, 6, 31, 4, 1, 0, 1, 1, 1, 'Свежий ветер', 'Свежий ветер', '+5% скорости перемещения', '+5% скорости перемещения'
 );
 
 -- debuffs (29)
