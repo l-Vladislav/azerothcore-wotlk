@@ -11,6 +11,7 @@ Read this file at the start of every task. Then load only the sub-docs whose hoo
 - [custom-id-range.md](custom-id-range.md) — Reserved ID ranges to avoid collisions. Load before assigning any new spell/item/enchant ID.
 
 - [mod-environmental-effects.md](mod-environmental-effects.md) — v2: 177 spells (buffs 107000-107146, debuffs 107500-107528+108500); verified column positions table; SpellIcon_custom.csv added (IDs 50000/50001). Load for any task touching this module.
+- [mod-item-talents.md](mod-item-talents.md) — row-5 "Пробуждение" legendary procs, IDs 108000-108099 (108000-042 hidden/server-only, 108050-092 visible client rows added 2026-07-06, 108900-914 aura ranks still client-pending). Load for any task touching this module.
 
 ## How to grow this memory
 
