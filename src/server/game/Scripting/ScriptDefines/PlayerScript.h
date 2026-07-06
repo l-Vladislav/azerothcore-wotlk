@@ -216,6 +216,8 @@ enum PlayerHook
     PLAYERHOOK_ON_SEND_LIST_INVENTORY,
     PLAYERHOOK_ON_GIVE_REPUTATION,
     PLAYERHOOK_ON_GET_REPUTATION_PRICE_DISCOUNT,
+    PLAYERHOOK_ON_APPLY_ITEM_MODS,
+    PLAYERHOOK_ON_DURABILITY_POINTS_LOSS,
     PLAYERHOOK_END
 };
 
@@ -411,6 +413,14 @@ public:
 
     // After an item has been unequipped
     virtual void OnPlayerUnequip(Player* /*player*/, Item* /*it*/) { }
+
+    // Called at the end of Player::_ApplyItemMods, symmetric for apply/remove
+    // (equip, unequip, login, durability break/repair)
+    virtual void OnPlayerApplyItemMods(Player* /*player*/, Item* /*item*/, uint8 /*slot*/, bool /*apply*/) { }
+
+    // Called at the start of Player::DurabilityPointsLoss, before the loss is
+    // applied; set points to 0 (or negative) to skip this wear event
+    virtual void OnPlayerDurabilityPointsLoss(Player* /*player*/, Item* /*item*/, int32& /*points*/) { }
 
     // After player enters queue for BG
     virtual void OnPlayerJoinBG(Player* /*player*/) { }

@@ -375,6 +375,8 @@ public: /* PlayerScript */
     void OnPlayerAfterMoveItemFromInventory(Player* player, Item* it, uint8 bag, uint8 slot, bool update);
     void OnPlayerEquip(Player* player, Item* it, uint8 bag, uint8 slot, bool update);
     void OnPlayerUnequip(Player* player, Item* it);
+    void OnPlayerApplyItemMods(Player* player, Item* item, uint8 slot, bool apply);
+    void OnPlayerDurabilityPointsLoss(Player* player, Item* item, int32& points);
     void OnPlayerJoinBG(Player* player);
     void OnPlayerJoinArena(Player* player);
     void OnPlayerGetMaxPersonalArenaRatingRequirement(Player const* player, uint32 minSlot, uint32& maxArenaRating) const;

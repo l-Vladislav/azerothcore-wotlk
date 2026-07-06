@@ -345,6 +345,16 @@ void ScriptMgr::OnPlayerUnequip(Player* player, Item* it)
     CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_UNEQUIP_ITEM, script->OnPlayerUnequip(player, it));
 }
 
+void ScriptMgr::OnPlayerApplyItemMods(Player* player, Item* item, uint8 slot, bool apply)
+{
+    CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_APPLY_ITEM_MODS, script->OnPlayerApplyItemMods(player, item, slot, apply));
+}
+
+void ScriptMgr::OnPlayerDurabilityPointsLoss(Player* player, Item* item, int32& points)
+{
+    CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_DURABILITY_POINTS_LOSS, script->OnPlayerDurabilityPointsLoss(player, item, points));
+}
+
 void ScriptMgr::OnPlayerJoinBG(Player* player)
 {
     CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_PLAYER_JOIN_BG, script->OnPlayerJoinBG(player));

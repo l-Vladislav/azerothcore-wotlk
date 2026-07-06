@@ -4694,6 +4694,10 @@ void Player::DurabilityPointsLoss(Item* item, int32 points)
     if (HasPreventDurabilityLossAura())
         return;
 
+    sScriptMgr->OnPlayerDurabilityPointsLoss(this, item, points);
+    if (points <= 0)
+        return;
+
     int32 pMaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
     int32 pOldDurability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
     int32 pNewDurability = pOldDurability - points;
@@ -6597,6 +6601,8 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
         UpdateWeaponDependentAuras(attackType);
 
     ApplyEnchantment(item, apply);
+
+    sScriptMgr->OnPlayerApplyItemMods(this, item, slot, apply);
 
     LOG_DEBUG("entities.player.items", "_ApplyItemMods complete.");
 }
