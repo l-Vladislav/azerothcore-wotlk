@@ -181,6 +181,124 @@ See `nemesis_system.md` or `ticket_bounty_board.md` for full list. Notable tuned
 
 - **Phase 4 (server-wide red announces)**: when a player accepts / completes a bounty, broadcast `|cffff0000[Немезида]: {player} принял(а)/выполнил(а) контракт на {title}!|r` server-wide. Config flags `AnnounceAccept` / `AnnounceCompletion` already reserved but don't fire yet.
 
+## Fixed (2026-07-05): map pins missing in Wetlands/Darkshore — two passes
+
+- **Symptom**: nemesis icons didn't render on the world map (or the
+  BountyBoard "Немезиды в этой зоне" tab) while standing in Wetlands or
+  Darkshore; all other zones worked.
+- **Root cause**: `WorldMap.lua`'s `isNemesisInCurrentZone` matched zones by
+  comparing `GetMapInfo()`'s internal map-folder name (lowercased) against
+  a hand-maintained `MapData.lua` `byZoneId` table of Blizzard folder names.
+  That table already had correct entries for zoneId 11 (`Wetlands`) and 148
+  (`Darkshore`) with no key collisions, so the most likely remaining
+  explanation is a Blizzard internal-map-folder-name quirk we haven't
+  pinned down precisely — the same *class* of bug already found once before
+  for Azshara (folder is actually `Aszhara`, s/z swapped; see commit
+  `a2280ef`).
+- **First attempted fix (SHIPPED A REGRESSION, reverted)**: made
+  `isNemesisInCurrentZone` / `isNemesisInPlayerZone` match primarily on
+  `GetCurrentMapAreaID()` vs `nemesis.zoneId`, on the assumption both are
+  AreaTable IDs. **That assumption was wrong** — `GetCurrentMapAreaID()`
+  returns a `WorldMapArea.dbc` row ID, a different numbering space than
+  AreaTable's zone ID. This wasn't caught before shipping (no live 3.3.5a
+  client available in-session to verify the API), and it broke the addon
+  more broadly per user report. See
+  `.claude/agent-memory/nemesis-dev/worldmap-zone-matching.md` for the full
+  writeup — **do not reintroduce `GetCurrentMapAreaID()` for zone matching.**
+- **Actual fix (current)**: `isNemesisInCurrentZone` (used for world-map pin
+  rendering) was reverted to the original file-name-only logic, unchanged
+  from before this bug was ever touched. A NEW, separate function/semantic,
+  `isNemesisInPlayerZone` / public `WM.IsNemesisInPlayerZone` (used by the
+  side-panel "This Zone" filter and by BountyBoard's zone tab, which was
+  previously wired to the wrong function), now additionally matches via
+  `GetRealZoneText()` (a basic, verified-safe, Vanilla-era API that always
+  reflects the player's own physical zone) compared against the server's
+  `nemesis.zoneName`, ё/Ё-normalized. This check can only ADD matches — a
+  miss always falls through to the original file-name check, so it cannot
+  regress anything. `isNemesisInCurrentZone` deliberately does NOT get this
+  treatment, since it means "zone the map is scrolled to" (can legitimately
+  differ from the player's own zone) rather than "zone I'm standing in".
+  **Net effect**: the BountyBoard journal's "Немезиды в этой зоне" tab and
+  the world-map side panel's "This Zone" filter are now fixed for
+  Wetlands/Darkshore. The raw world-map PIN rendering for those two zones
+  specifically may still be affected if the underlying Blizzard
+  folder-name quirk is real — needs a live-client check to confirm/fix
+  `byZoneId`, not attempted this session.
+- Also fixed independently: server-side `GetZoneName()` in
+  `NemesisSystem.cpp` had a `zoneNameOverrides` map added for known DBC
+  typos — the deployed ruRU `AreaTable.dbc` string for zone 148 is "Темные
+  берега" (missing ё); overridden to "Тёмные берега". This is primarily a
+  **display text** fix, but the addon's new `GetRealZoneText()` string
+  match (above) normalizes ё/Ё → е/Е on both sides specifically so this
+  override (server sends "Тёмные", client's own unpatched DBC via
+  `GetRealZoneText()` still says "Темные") can't cause a false-negative
+  zone mismatch. Add further zoneId entries there if more DBC typos
+  surface — don't hack around them in addon Lua.
+- Added the missing `["Darkshore"]` entry to `MapData.lua`'s `byZoneName`
+  for symmetry (Wetlands had one, Darkshore didn't) — this table is legacy
+  and only matters if the server ever sends an English zone name (chunked
+  payload edge case); it is **not** the mechanism that fixed the bug.
+- Files: `modules/mod-nemesis-system/ClientAddon/NemesisTracker/WorldMap.lua`,
+  `modules/mod-nemesis-system/ClientAddon/NemesisTracker/MapData.lua`,
+  `modules/mod-nemesis-system/ClientAddon/NemesisTracker/BountyBoard.lua`,
+  `modules/mod-nemesis-system/src/NemesisSystem.cpp`.
+- **Verify in-game**: requires both a worldserver rebuild+restart (C++
+  change) AND the player re-copying the WHOLE `ClientAddon/NemesisTracker`
+  folder into `Interface/AddOns` + `/reload` (Lua changes are not
+  hot-reloadable — this is also why the first, broken pass needed a
+  redistribution to reach the user, and why the fix does too). No DB
+  migration needed — this is not a DBC/SQL fix.
+- **Expected user-visible change after this fix**: the addon should no
+  longer be broadly "broken" (whatever the exact symptom of the bad
+  `GetCurrentMapAreaID()` pass was — false/missing pins in unrelated
+  zones, most likely). Additionally, opening the Journal (minimap button,
+  left-click) while standing in Wetlands or Darkshore should now correctly
+  list nemeses under the "Немезиды в этой зоне" tab, and the world map's
+  side-panel "This Zone" filter should include them too. The world-map PIN
+  icons specifically (the dots drawn directly on the zoomed zone map) may
+  still be missing for those two zones — that part of the original report
+  is not conclusively fixed (see above).
+- Unverified side note for whoever owns the DBC pipeline: `.claude/dbc/AreaTable.csv`'s
+  header is **misaligned** — the real ruRU zone-name string lands under the
+  column labeled `AreaName_zhTW`, not `AreaName_ruRU` (the header has 16
+  name-locale columns; the true 3.3.5a `AreaTable.dbc` LocalizedString block
+  only has 9 + a mask). Same bug class as the already-documented
+  `feedback_spell_csv_locale_offset` issue for `Spell_custom.csv`. Doesn't
+  affect the running server (which parses the real binary DBC via the
+  correct `DBCStructure.h` layout), only misleads anyone reading that CSV
+  by hand.
+
+## Fixed (2026-07-09): ~190ms main-thread block on `.nemesis addon bootstrap`
+
+- **Symptom**: the main thread measured a stable ~190ms block on every
+  `.nemesis addon bootstrap`/`.nemesis addon sync` invocation on live (1596
+  bots), independent of bot count. Root cause + full writeup:
+  `.claude/agent-memory/nemesis-dev/bootstrap-perf-pacing.md`.
+- **Server**: `SendNemesisBootstrap` (`includeAll=true` walks every active
+  nemesis world-wide by design — the world map/journal are meant to show
+  everything, this was NOT changed) now only computes the work list
+  synchronously; the expensive per-entry build+send is drained a bounded
+  number of entries per world tick (`NemesisSystem.AddonBootstrapEntriesPerTick`,
+  default 50, shared budget across all in-flight players that tick) by a new
+  `ProcessPendingBootstraps()`, called every tick from the existing
+  `NemesisAmbientWorldScript::OnUpdate`. Wire protocol unchanged.
+- **Addon**: `RequestBootstrap()` gained a 45s cooldown guard + in-flight
+  check (`force=true` bypass reserved for `PLAYER_ENTERING_WORLD` only, so
+  cold start/login/reload/loading-screens are unaffected). The chat-keyword
+  trigger in `CHAT_MSG_SYSTEM` — previously scheduling one independent,
+  non-cancelling 2s timer per matching chat line (the actual spam
+  mechanism, given how often bot-combat produces matching lines) — now
+  coalesces to at most one pending call via `ScheduleChatTriggeredBootstrap()`.
+  `NemesisTracker.toc` bumped 0.2.1 -> 0.2.2 (requires re-copy + `/reload`
+  to reach players, same as prior Lua-only fixes).
+- Files: `modules/mod-nemesis-system/src/NemesisSystem.cpp`,
+  `modules/mod-nemesis-system/conf/mod_nemesis_system.conf.dist`,
+  `modules/mod-nemesis-system/ClientAddon/NemesisTracker/Core.lua`,
+  `modules/mod-nemesis-system/ClientAddon/NemesisTracker/NemesisTracker.toc`.
+- Not yet built/deployed by this agent — worldserver rebuild, addon
+  redistribution via launcher CDN, and any live restart are owned by the
+  requesting/main thread per this task's constraints.
+
 ## Known limitations
 
 1. **Mail sender name must be ASCII** on Russian 3.3.5a client (cp1251/UTF-8 mismatch in MailFrame's creature-query rendering path). Mail sender stays "Innkeeper" in English; body/subject are Russian and render correctly.

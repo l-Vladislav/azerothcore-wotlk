@@ -115,3 +115,13 @@ local.properties
 compile_commands.json
 /backups/
 /.claude/scheduled_tasks.lock
+launcher/
+
+# DBC working exports / backups / foreign catalog (not versioned)
+.claude/dbc/Item_backup.csv
+.claude/dbc/Item.csv
+.claude/dbc/Item.stock-only.csv
+.claude/dbc/dbc-foreign/
+
+# Deploy rollback packages (DB snapshots etc.) - ephemeral, regenerated per deploy
+.claude/agent-memory/live-deployer/packages/

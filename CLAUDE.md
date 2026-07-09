@@ -133,6 +133,7 @@ Specialized subagents live in `.claude/agents/`. Prefer delegating to the matchi
 - **familiars-dev** — Familiars gacha system (10 elemental families). Reads `.claude/familiars/` (per-family JSONs + familiar_gacha_* docs).
 - **nemesis-dev** — Nemesis system, ticket bounty board, branch_private changes. Reads `.claude/nemesis/`.
 - **statbooster-dev** — Fortune Pool / Scrolls / custom enchants. Reads `.claude/statBoosterItems/`.
+- **item-talents-dev** — mod-item-talents (per-item 5-row awakening tree + ItemTalentUI addon). Owns `modules/mod-item-talents/`; reads `.claude/item-talents/DESIGN.md`.
 - **playerbots-dev** — Playerbots AI tuning (strategies, actions, triggers, class/dungeon/raid logic).
 - **ollama-chat-dev** — In-game LLM integration (`mod-ollama-chat` + the Ollama docker service).
 - **dbc-investigator** — Read-only DBC lookups against `.claude/dbc/*.csv` (spells/items/enchants/titles).
