@@ -40,6 +40,9 @@ Examples:
 
 ## Retired ranges (cleaned up in gacha migration SQL)
 
+> **ВЫПОЛНЕНО на PTR 2026-07-02** (`nemesis_t1_retire.sql` + `nemesis_t1_retire_characters.sql`, live — при промоуте).
+> ⚠️ Освобождённые creature entries **190010/190011 переиспользованы mod-transmog** (Warpweaver / Ethereal Warpweaver, апстримные ID модуля) — для фамильяров/немезиды НЕ трогать. 190100–190102 тоже заняты: виртуальные vendor-entry магазина таверны.
+
 | Range | Old purpose | Migration action |
 |---|---|---|
 | `100120–100134` | Old T1 summon spells (3 used: 100120/121/122) | DELETE; migrate `character_spell` rows → new 102000 / 102070 / 102050 |

@@ -128,9 +128,10 @@ Quality 3, иконка inv_misc_coin_17 (displayid 55217). Не больше 1/
 
 - **Особые задания** (Фаза 7): источник монеты, не больше 1/день.
   До этого монета GM-only (`.additem 110150`).
-- **Миграция T1**: `character_spell` 100120/121/122 → 102000/102070/102050,
-  retire старых ID (190010-12, 100120-22, 101100-02, 100030-32). План в
-  familiar_gacha_id_reservations.md «Retired ranges».
+- **Миграция T1**: ✓ ВЫПОЛНЕНО на PTR 2026-07-02 (`character_spell`
+  100120/121/122 → 102000/102070/102050, старые ID retired; live — при
+  промоуте). Детали в familiar_gacha_id_reservations.md «Retired ranges»;
+  190010/190011 теперь заняты mod-transmog.
 
 ## Ключевые правила (НЕ нарушать)
 

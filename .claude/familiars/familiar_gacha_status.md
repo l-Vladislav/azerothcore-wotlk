@@ -31,7 +31,7 @@ The previous **3 roles × 5 tiers** familiar system (`familiar_system_design.md`
 | 2 | DisplayID / SpellIconID verification (docker required) | ✓ done — все 100 проверены в процессе семейных циклов |
 | 3 | SQL migration: spells / creatures / items | ✓ done 2026-06-07 — все 100 петов живы на PTR, подтверждены владельцем |
 | 3b | Chests (110100–09 + 110120) — data-driven, БЕЗ C++ | ✓ на PTR 2026-06-07, верифицировано; ждёт WDBX Item.dbc + in-game тест — [familiar_gacha_chests_plan.md](familiar_gacha_chests_plan.md) |
-| 3c | T1 migrate (`character_spell` 100120–22 → 102000/102070/102050, retire old IDs) | pending |
+| 3c | T1 migrate (`character_spell` 100120–22 → 102000/102070/102050, retire old IDs) | ✓ на PTR 2026-07-02 (`pending_db_world/nemesis_t1_retire.sql` + `pending_db_characters/nemesis_t1_retire_characters.sql`); live remap (4 записи character_spell) — при промоуте, СТРОГО до mod_transmog_install.sql. Освобождённые 190010/190011 заняты mod-transmog (Warpweaver / Ethereal Warpweaver) — НЕ переиспользовать. C++ T1-fallback удалён из NemesisSystem.cpp |
 | 4 | ~~C++ chest `ItemScript`~~ | ОТМЕНЕНО 2026-06-07 — сундуки через `Flags=4` + `item_loot_template` (см. design.md); aura map уже работает по формуле |
 | 5 | Optional: `nemesis_familiar_pool` DB-driven weight table | не нужен — шансы живут в `item_loot_template.Chance` |
 | 6 | MPQ rebuild — only when explicit "prepare MPQ" per memory rule | владелец делает по циклу (WDBX → MPQ) |
