@@ -9352,7 +9352,12 @@ std::string const* ObjectMgr::GetModuleString(std::string module, uint32 id, Loc
 
     LOG_ERROR("sql.sql", "Module string module {} id {} not found in DB.", module, id);
 
-    return (std::string*)"error";
+    // Return a real std::string: the old `(std::string*)"error"` cast handed callers a fake
+    // object whose bytes were the char literal itself -- dereferencing it (fmt/StringFormat
+    // args) read garbage size/pointer fields and crashed with std::bad_alloc (seen live
+    // 2026-07-02 via mod-transmog's collect-on-loot message while its strings were missing).
+    static std::string const missingModuleString = "error";
+    return &missingModuleString;
 }
 
 bool ObjectMgr::LoadAcoreStrings()
