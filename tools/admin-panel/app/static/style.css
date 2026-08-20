@@ -406,6 +406,22 @@ a.chip:hover, button.chip:hover {
 .zone-item.global .name { color: var(--gold-bright); letter-spacing: .3px; }
 .zone-item .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .zone-item .counts { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+/* Континенты в списке погоды: зон под открытым небом около восьмидесяти, без
+   заголовков список нечитаем. Заголовок — сам себе кнопка сворачивания. */
+.zone-group {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 8px; padding: 4px 8px; cursor: pointer;
+  border-bottom: 1px solid var(--line-strong);
+  font-family: var(--serif); font-size: 12px; letter-spacing: .4px;
+  color: var(--gold-bright); text-transform: uppercase;
+  position: sticky; top: 0; z-index: 1;
+  background: linear-gradient(#171a21, #141821);
+}
+.zone-group:first-child { margin-top: 0; }
+.zone-group:hover { color: #fff; }
+.zone-group-mark { color: var(--muted); font-size: 10px; }
+.zone-group-name { flex: 1; }
+.zone-group-count { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .sidebar-foot { border-top: 1px solid var(--line-strong); padding-top: 10px; position: relative; }
 .add-results {
   position: absolute; bottom: 100%; left: 0; right: 0; margin-bottom: 6px;

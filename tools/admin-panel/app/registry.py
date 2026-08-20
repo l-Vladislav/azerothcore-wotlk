@@ -33,6 +33,13 @@ MODULES: list[ModuleInfo] = [
         tags=["зоны", "погода", "спеллы"],
     ),
     ModuleInfo(
+        id="advanced-weather",
+        name="Погода",
+        summary="Режиссёр погоды: состояние зоны, сила, закрепление, туман и гроза.",
+        status="ready", url="/weather.html", icon="weather",
+        tags=["зоны", "погода"],
+    ),
+    ModuleInfo(
         id="familiars",
         name="Фамильяры (гача)",
         summary="10 стихий x 10 питомцев: ауры владельца, сундуки, свитки.",
