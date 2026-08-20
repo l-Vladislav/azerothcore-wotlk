@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Доска задач — админ-панель</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark">AC</span> Панель</a>
+    <nav class="nav">
+      <a href="/">Модули</a>
+      <a class="active" href="/board.html">Доска</a>
+      <a href="/spells.html">Мастерская</a>
+      <a href="/dex.html">Каталог</a>
+      <a href="/api/docs">API</a>
+    </nav>
+    <div class="spacer"></div>
+    <input id="q" class="input filter-input" type="search" placeholder="Поиск…" autocomplete="off">
+    <select id="f-module" class="sel"></select>
+    <select id="f-kind" class="sel">
+      <option value="">Все типы</option>
+      <option value="bug">🐞 Баги</option>
+      <option value="feature">💡 Идеи</option>
+      <option value="task">🔧 Задачи</option>
+    </select>
+    <button id="btn-archive" class="btn ghost" title="Показать архив">Архив</button>
+    <button id="btn-new" class="btn primary">＋ Карточка</button>
+  </header>
+
+  <main class="board" id="board"></main>
+
+  <div id="card-modal" class="modal hidden">
+    <div class="modal-box wide">
+      <div class="modal-head">
+        <strong id="card-modal-title">Новая карточка</strong>
+        <div class="spacer"></div>
+        <button id="card-delete" class="btn danger ghost hidden">В архив</button>
+        <button id="card-close" class="btn ghost">Закрыть</button>
+      </div>
+      <div class="modal-body" id="card-form"></div>
+      <div class="modal-foot">
+        <span id="card-meta" class="muted"></span>
+        <div class="spacer"></div>
+        <button id="card-save" class="btn primary">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/board.js"></script>
+</body>
+</html>

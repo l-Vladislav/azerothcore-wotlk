@@ -12,3 +12,12 @@
 
 # do not ignore the ccache folder (used by the ci)
 !/var/docker/ccache
+
+# Large dirs never needed by the Docker build. The Dockerfile only COPYs
+# CMakeLists.txt/conf/deps/src/modules/apps/data and bind-mounts the top-level
+# .git; everything below is pure build-context bloat (was multi-GB, stalling
+# the context transfer before compilation even started).
+/backups/
+/launcher/
+/.claude/
+modules/**/.git/

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мастерская спеллов — админ-панель</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark">AC</span> Панель</a>
+    <nav class="nav">
+      <a href="/">Модули</a>
+      <a href="/board.html">Доска</a>
+      <a class="active" href="/spells.html">Мастерская</a>
+      <a href="/dex.html">Каталог</a>
+      <a href="/api/docs">API</a>
+    </nav>
+    <div id="restart" class="health"></div>
+    <div class="spacer"></div>
+    <button id="btn-export-sql" class="btn ghost" title="Выгрузить spell_dbc в pending_db_world/admin_panel_spells.sql">Экспорт в SQL</button>
+    <button id="btn-export-client" class="btn ghost" title="Записать строки в .claude/dbc/Spell_custom.csv для сборки MPQ">Экспорт в клиент</button>
+    <button id="btn-clone" class="btn ghost" title="Создать новый спелл на основе существующего: копируются все поля, кроме названия">⧉ Копия</button>
+    <button id="btn-new" class="btn primary">＋ Спелл</button>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <select id="f-block" class="sel"></select>
+      <input id="q" class="input" type="search" placeholder="Поиск: имя или ID…" autocomplete="off">
+      <div id="spell-list" class="zone-list"></div>
+      <div class="sidebar-foot">
+        <div id="block-usage" class="muted"></div>
+      </div>
+    </aside>
+
+    <section id="editor" class="editor">
+      <div class="empty">Выберите спелл слева или создайте новый.</div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/spells.js"></script>
+</body>
+</html>

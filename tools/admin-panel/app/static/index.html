@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Панель управления сервером</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark">AC</span> Панель</a>
+    <nav class="nav">
+      <a class="active" href="/">Модули</a>
+      <a href="/board.html">Доска</a>
+      <a href="/spells.html">Мастерская</a>
+      <a href="/dex.html">Каталог</a>
+      <a href="/api/docs">API</a>
+    </nav>
+    <div id="health" class="health">…</div>
+    <div class="spacer"></div>
+  </header>
+
+  <main class="home">
+    <section class="hero">
+      <h1>Управление сервером</h1>
+      <p>Контент модулей, задачи и баги — в одном месте. Правки уходят на PTR;
+         на live они попадают обычным deployment-package'ом.</p>
+    </section>
+
+    <section class="tiles" id="status-tiles"></section>
+
+    <h2 class="section-title">Модули</h2>
+    <div class="hint" id="modules-hint">Загрузка…</div>
+    <section class="cards" id="module-cards"></section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/home.js"></script>
+</body>
+</html>

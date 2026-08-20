@@ -183,7 +183,7 @@ The `AuraDescription` (buff tooltip when hovering the buff icon) should NOT have
 | | EQUIP_SPELL (3) | USE_SPELL (7) |
 |---|---|---|
 | Activation | Auto when equipped | Player clicks item |
-| Duration | Permanent (DurationIndex=21) | Timed (DurationIndex=9 = 5min) |
+| Duration | Permanent (DurationIndex=21) | Timed (DurationIndex=5 = 5min; 9 is 30s, not 5min — verified against SpellDuration.dbc 2026-08-18) |
 | Cancel | NO_AURA_CANCEL (0x80000000) | Allow cancel (Attributes=65536) |
 | Reapply | Auto on equip | Click again |
 | Tooltip source | Enchant name from SpellItemEnchantment | Spell Description from Spell.dbc |

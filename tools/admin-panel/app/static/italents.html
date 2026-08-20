@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Таланты предметов — админ-панель</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    /* Только то, чего нет в общей теме; переменные — из пересечения
+       style.css и style.hive.css, чтобы смена скина ничего не ломала. */
+    .tabs { display: flex; gap: 6px; padding: 10px 16px 0; flex-wrap: wrap; }
+    .it-main { padding: 12px 16px 40px; }
+
+    .grid { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .grid th, .grid td {
+      border-bottom: 1px solid var(--line);
+      padding: 5px 7px; text-align: left; vertical-align: middle;
+    }
+    .grid th {
+      color: var(--accent); font-weight: 600; white-space: nowrap;
+      position: sticky; top: 0; background: var(--panel); z-index: 1;
+    }
+    .grid tr:hover td { background: var(--panel-2); }
+    .grid input[type=text], .grid input[type=number], .grid select {
+      width: 100%; min-width: 54px; background: var(--bg-2);
+      color: var(--text); border: 1px solid var(--line);
+      border-radius: 3px; padding: 3px 5px; font: inherit;
+    }
+    .grid input[type=number] { text-align: right; }
+    .grid td.num { width: 84px; }
+    .grid td.tiny { width: 54px; }
+    .grid td.act { width: 34px; text-align: center; }
+    .grid td.calc { width: 92px; color: var(--muted); text-align: right; }
+    .grid-wrap {
+      max-height: 60vh; overflow: auto;
+      border: 1px solid var(--line); border-radius: 4px; background: var(--panel);
+    }
+
+    .toolbar { display: flex; gap: 8px; align-items: center;
+               margin: 10px 0; flex-wrap: wrap; }
+    .toolbar .grow { flex: 1; }
+
+    .row-card {
+      border: 1px solid var(--line); border-radius: 4px;
+      background: var(--panel); margin-bottom: 12px;
+    }
+    .row-card > header {
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      padding: 7px 10px; border-bottom: 1px solid var(--line);
+      background: var(--panel-2);
+    }
+    .row-card > header .title { font-weight: 600; color: var(--accent); }
+    .row-card > header .grow { flex: 1; }
+    .row-card .body { padding: 8px 10px; }
+    .row-card.inherited > header .title { color: var(--muted); }
+
+    .pill {
+      font-size: 11px; padding: 1px 7px; border-radius: 9px;
+      border: 1px solid var(--line); color: var(--muted);
+    }
+    .pill.own { color: var(--q-epic); border-color: var(--q-epic); }
+
+    .item-list { max-height: 62vh; overflow: auto; }
+    .item-row {
+      display: flex; gap: 10px; align-items: baseline; padding: 4px 7px;
+      border-bottom: 1px solid var(--line); cursor: pointer;
+    }
+    .item-row:hover { background: var(--panel-2); }
+    .item-row.active { background: var(--panel-3); }
+    .item-row .nm { flex: 1; }
+    .item-row .meta { font-size: 11px; color: var(--muted); }
+
+    .q4 { color: var(--q-epic); }
+    .q5 { color: var(--q-legendary); }
+    .q6, .q7 { color: var(--q-rare); }
+
+    .split { display: flex; gap: 14px; align-items: flex-start; }
+    .split > .left { width: 380px; flex: none; }
+    .split > .right { flex: 1; min-width: 0; }
+
+    .note { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+    .warn-box {
+      border: 1px solid var(--warn); border-radius: 4px;
+      padding: 8px 10px; margin: 10px 0; font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark">AC</span> Панель</a>
+    <nav class="nav">
+      <a href="/">Модули</a>
+      <a href="/board.html">Доска</a>
+      <a href="/spells.html">Мастерская</a>
+      <a href="/dex.html">Каталог</a>
+      <a href="/envfx.html">Окружение</a>
+      <a class="active" href="/italents.html">Таланты</a>
+      <a href="/api/docs">API</a>
+    </nav>
+    <div class="spacer"></div>
+    <button id="btn-reload" class="btn ghost"
+            title="Заставить модуль перечитать таблицы (.itemtalent reload по SOAP)">
+      Применить
+    </button>
+  </header>
+
+  <div class="tabs" id="tabs"></div>
+
+  <main class="it-main">
+    <div id="view"><div class="empty">Загрузка…</div></div>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/italents.js"></script>
+</body>
+</html>

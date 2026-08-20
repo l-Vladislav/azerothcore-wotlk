@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Каталог спеллов — админ-панель</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark">AC</span> Панель</a>
+    <nav class="nav">
+      <a href="/">Модули</a>
+      <a href="/board.html">Доска</a>
+      <a href="/spells.html">Мастерская</a>
+      <a class="active" href="/dex.html">Каталог</a>
+      <a href="/api/docs">API</a>
+    </nav>
+    <div id="dex-stats" class="health"></div>
+    <div class="spacer"></div>
+    <input id="q" class="input filter-input" type="search"
+           placeholder="Название или ID…" autocomplete="off" autofocus>
+  </header>
+
+  <main class="layout dex-layout">
+    <aside class="sidebar">
+      <label class="field">
+        <span class="field-label">Источник</span>
+        <select id="f-source" class="sel"></select>
+      </label>
+      <label class="field">
+        <span class="field-label">Модуль</span>
+        <select id="f-module" class="sel"></select>
+      </label>
+      <label class="field">
+        <span class="field-label">Пул ID</span>
+        <select id="f-block" class="sel"></select>
+        <span id="block-range" class="muted"></span>
+      </label>
+      <label class="field">
+        <span class="field-label">Школа</span>
+        <select id="f-school" class="sel"></select>
+      </label>
+      <label class="field">
+        <span class="field-label">Семейство / класс</span>
+        <select id="f-family" class="sel"></select>
+      </label>
+      <label class="field">
+        <span class="field-label">Эффект</span>
+        <select id="f-effect" class="sel"></select>
+      </label>
+      <label class="field">
+        <span class="field-label">Аура</span>
+        <select id="f-aura" class="sel"></select>
+      </label>
+      <div class="form-row">
+        <label class="field">
+          <span class="field-label">Уровень от</span>
+          <input id="f-lvl-min" class="input" type="number" min="0" max="83">
+        </label>
+        <label class="field">
+          <span class="field-label">до</span>
+          <input id="f-lvl-max" class="input" type="number" min="0" max="83">
+        </label>
+      </div>
+      <button id="btn-reset" class="btn ghost">Сбросить фильтры</button>
+      <div class="sidebar-foot">
+        <div id="dex-hint" class="muted"></div>
+      </div>
+    </aside>
+
+    <section class="dex-main">
+      <div id="results" class="dex-results"></div>
+      <div id="pager" class="dex-pager"></div>
+    </section>
+
+    <section id="detail" class="dex-detail">
+      <div class="empty">Выберите спелл, чтобы увидеть параметры.</div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/dex.js"></script>
+</body>
+</html>
