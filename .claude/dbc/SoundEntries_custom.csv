@@ -1,0 +1,2 @@
+"ID","SoundType","Name","File_1","File_2","File_3","File_4","File_5","File_6","File_7","File_8","File_9","File_10","Freq_1","Freq_2","Freq_3","Freq_4","Freq_5","Freq_6","Freq_7","Freq_8","Freq_9","Freq_10","DirectoryBase","Volumefloat","Flags","MinDistance","DistanceCutoff","EAXDef","SoundEntriesAdvancedID"
+"20001","50","Weather - StormCustom","RainHeavyLoopWithThunder.wav","","","","","","","","","","1","1","1","1","1","1","1","1","1","1","Sound\Ambience\Weather","0,69","0","7","30","0","0"

@@ -20,7 +20,9 @@ from . import dbc, soap
 from .db import query
 
 # WeatherState (src/server/game/Weather/Weather.h). Numbers are the client's,
-# not a dense enum — do not renumber.
+# not a dense enum — do not renumber. 91 is the exception: it is not in
+# Weather.h at all but a stock Weather.dbc row that our patch-MPQ re-points at
+# a rain-with-thunder loop, owned by AdvancedWeather::WEATHER_STATE_STORM.
 STATES: list[dict] = [
     {"id": 0,   "label": "Ясно",              "group": "clear"},
     {"id": 1,   "label": "Туман",             "group": "clear"},
@@ -33,7 +35,7 @@ STATES: list[dict] = [
     {"id": 22,  "label": "Слабая песчаная буря", "group": "storm"},
     {"id": 41,  "label": "Песчаная буря",     "group": "storm"},
     {"id": 42,  "label": "Сильная песчаная буря", "group": "storm"},
-    {"id": 86,  "label": "Гроза",             "group": "special"},
+    {"id": 91,  "label": "Гроза",             "group": "special"},
     {"id": 90,  "label": "Чёрный дождь",      "group": "special"},
     {"id": 106, "label": "Чёрный снег",       "group": "special"},
 ]
@@ -42,7 +44,7 @@ STATE_BY_ID = {s["id"]: s for s in STATES}
 
 # Состояния, которые ядро не генерирует само: они существуют только пока ими
 # распоряжается модуль. Совпадают с триггерами 4-7 mod-environmental-effects.
-MODULE_ONLY = {1, 86, 90, 106}
+MODULE_ONLY = {1, 90, 91, 106}
 
 SOURCES = {
     0: "режиссёр",
