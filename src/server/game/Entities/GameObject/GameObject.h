@@ -158,6 +158,7 @@ public:
     void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask, bool saveAddon = false);
     virtual bool LoadFromDB(ObjectGuid::LowType guid, Map* map) { return LoadGameObjectFromDB(guid, map, false); }
     virtual bool LoadGameObjectFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap = true);
+    [[nodiscard]] bool IsRespawnCompatibilityMode() const { return _respawnCompatibilityMode; }
     void DeleteFromDB();
 
     void SetOwnerGUID(ObjectGuid owner)
@@ -313,7 +314,7 @@ public:
     void GetRespawnPosition(float& x, float& y, float& z, float* ori = nullptr) const;
 
     void SetPosition(float x, float y, float z, float o);
-    void SetPosition(const Position& pos) { SetPosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()); }
+    void SetPosition(Position const& pos) { SetPosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()); }
 
     [[nodiscard]] bool IsStaticTransport() const { return GetGOInfo()->type == GAMEOBJECT_TYPE_TRANSPORT; }
     [[nodiscard]] bool IsMotionTransport() const { return GetGOInfo()->type == GAMEOBJECT_TYPE_MO_TRANSPORT; }
@@ -369,6 +370,7 @@ protected:
     bool AIM_Initialize();
     GameObjectModel* CreateModel();
     void UpdateModel();                                 // updates model in case displayId were changed
+    bool        _respawnCompatibilityMode{true};
     uint32      m_spellId;
     time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),
     uint32      m_respawnDelayTime;                     // (secs) if 0 then current GO state no dependent from timer

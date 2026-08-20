@@ -85,6 +85,9 @@ public:
     // Called for reaction at enter to combat if not in combat yet (enemy can be nullptr)
     void JustEngagedWith(Unit* enemy) override;
 
+    // Called when creature exits combat (all combat refs gone)
+    void JustExitedCombat() override;
+
     // Called for reaction at stopping attack at no attackers or targets
     void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;
 
@@ -181,12 +184,13 @@ public:
     void SetSwim(bool swim = true);
 
     void SetEvadeDisabled(bool disable = true);
+    void SetSuppressEvade(bool suppress) { mSuppressEvade = suppress; }
 
     void SetInvincibilityHpLevel(uint32 level) { mInvincibilityHpLevel = level; }
 
     void sGossipHello(Player* player) override;
     void sGossipSelect(Player* player, uint32 sender, uint32 action) override;
-    void sGossipSelectCode(Player* player, uint32 sender, uint32 action, const char* code) override;
+    void sGossipSelectCode(Player* player, uint32 sender, uint32 action, char const* code) override;
     void sQuestAccept(Player* player, Quest const* quest) override;
     //void sQuestSelect(Player* player, Quest const* quest);
     //void sQuestComplete(Player* player, Quest const* quest);
@@ -249,6 +253,7 @@ private:
     uint32 GetWPCount() { return mWayPoints ? mWayPoints->Nodes.size() : 0; }
     bool mCanRepeatPath;
     bool mEvadeDisabled;
+    bool mSuppressEvade;
     bool mCanAutoAttack;
     bool mForcedPaused;
     uint32 mInvincibilityHpLevel;
@@ -260,6 +265,7 @@ private:
     uint32 mDespawnState;
     void UpdateDespawn(const uint32 diff);
     void UpdateFollow(const uint32 diff);
+    void UpdateMeleeStance();
     uint32 mEscortInvokerCheckTimer;
     bool mJustReset;
 
@@ -293,12 +299,13 @@ public:
 
     bool GossipHello(Player* player, bool reportUse) override;
     bool GossipSelect(Player* player, uint32 sender, uint32 action) override;
-    bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) override;
+    bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/) override;
     bool QuestAccept(Player* player, Quest const* quest) override;
     bool QuestReward(Player* player, Quest const* quest, uint32 opt) override;
     void Destroyed(Player* player, uint32 eventId) override;
     void SetData(uint32 id, uint32 value) override { SetData(id, value, nullptr); }
     void SetData(uint32 id, uint32 value, WorldObject* invoker);
+    uint32 GetData(uint32 id) const override;
     void SetScript9(SmartScriptHolder& e, uint32 entry, WorldObject* invoker);
     void OnGameEvent(bool start, uint16 eventId) override;
     void OnStateChanged(uint32 state, Unit* unit) override;
@@ -319,6 +326,7 @@ public:
 
 protected:
     SmartScript mScript;
+    std::unordered_map<uint32, uint32> aiDataSet;
 };
 
 /// Registers scripts required by the SAI scripting system

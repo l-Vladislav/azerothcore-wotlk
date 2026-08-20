@@ -473,7 +473,7 @@ class spell_pri_mana_burn : public SpellScript
     void HandleAfterHit()
     {
         if (Unit* unitTarget = GetHitUnit())
-            unitTarget->RemoveAurasWithMechanic((1 << MECHANIC_FEAR) | (1 << MECHANIC_POLYMORPH));
+            unitTarget->RemoveAurasWithMechanic((1ULL << MECHANIC_FEAR) | (1ULL << MECHANIC_POLYMORPH));
     }
 
     void Register() override
@@ -631,7 +631,7 @@ class spell_pri_penance : public SpellScript
 };
 
 // -17 - Power Word: Shield
-static int32 CalculateSpellAmount(Unit* caster, int32 amount, SpellInfo const* spellInfo, const AuraEffect* aurEff)
+static int32 CalculateSpellAmount(Unit* caster, int32 amount, SpellInfo const* spellInfo, AuraEffect const* aurEff)
 {
     // +80.68% from sp bonus
     float bonus = 0.8068f;

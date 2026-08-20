@@ -27,6 +27,7 @@
 #include "GameObjectModel.h"
 #include "GridDefines.h"
 #include "GridRefMgr.h"
+#include "Timer.h"
 #include "MapCollisionData.h"
 #include "MapGridManager.h"
 #include "MapRefMgr.h"
@@ -35,11 +36,13 @@
 #include "PathGenerator.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include "SpawnData.h"
 #include "Timer.h"
 #include "GridTerrainData.h"
 #include <bitset>
 #include <list>
 #include <memory>
+#include <set>
 #include <shared_mutex>
 
 class Unit;
@@ -65,6 +68,7 @@ class StaticTransport;
 class MotionTransport;
 class PathGenerator;
 class WorldSession;
+class SpawnedPoolData;
 
 enum WeatherState : uint32;
 
@@ -204,7 +208,7 @@ public:
     void GameObjectRelocation(GameObject* go, float x, float y, float z, float o);
     void DynamicObjectRelocation(DynamicObject* go, float x, float y, float z, float o);
 
-    template<class T, class CONTAINER> void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER>& visitor);
+    template<class T, class CONTAINER> void Visit(Cell const& cell, TypeContainerVisitor<T, CONTAINER>& visitor);
 
     bool IsGridLoaded(GridCoord const& gridCoord) const;
     bool IsGridLoaded(float x, float y) const
@@ -284,7 +288,7 @@ public:
 
     virtual EnterState CannotEnter(Player* /*player*/, bool /*loginCheck = false*/) { return CAN_ENTER; }
 
-    [[nodiscard]] const char* GetMapName() const;
+    [[nodiscard]] char const* GetMapName() const;
 
     // have meaning only for instanced map (that have set real difficulty)
     [[nodiscard]] Difficulty GetDifficulty() const { return Difficulty(GetSpawnMode()); }
@@ -318,9 +322,14 @@ public:
     void markCell(uint32 pCellId) { marked_cells.set(pCellId); }
 
     [[nodiscard]] bool HavePlayers() const { return !m_mapRefMgr.IsEmpty(); }
-    [[nodiscard]] uint32 GetPlayersCountExceptGMs() const;
+    // When aliveOnly is true, counts only players that are alive and not in Spirit of Redemption form.
+    [[nodiscard]] uint32 GetPlayersCountExceptGMs(bool aliveOnly = false) const;
 
     void SendToPlayers(WorldPacket const* data) const;
+
+    void StartPlayersRedirectKickTimer();
+    void StopPlayersRedirectKickTimer();
+    bool IsPlayerRedirectKickTimerActive() { return !_redirectKickTimer.Passed(); }
 
     typedef MapRefMgr PlayerList;
     [[nodiscard]] PlayerList const& GetPlayers() const { return m_mapRefMgr; }
@@ -372,11 +381,14 @@ public:
         return nullptr;
     }
 
+    SpawnedPoolData& GetPoolData() { return *_poolData; }
+    [[nodiscard]] SpawnedPoolData const& GetPoolData() const { return *_poolData; }
+
     MapInstanced* ToMapInstanced() { if (Instanceable())  return reinterpret_cast<MapInstanced*>(this); else return nullptr;  }
-    [[nodiscard]] MapInstanced const* ToMapInstanced() const { if (Instanceable())  return (const MapInstanced*)((MapInstanced*)this); else return nullptr;  }
+    [[nodiscard]] MapInstanced const* ToMapInstanced() const { if (Instanceable())  return (MapInstanced const*)((MapInstanced*)this); else return nullptr;  }
 
     InstanceMap* ToInstanceMap() { if (IsDungeon())  return reinterpret_cast<InstanceMap*>(this); else return nullptr;  }
-    [[nodiscard]] InstanceMap const* ToInstanceMap() const { if (IsDungeon())  return (const InstanceMap*)((InstanceMap*)this); else return nullptr;  }
+    [[nodiscard]] InstanceMap const* ToInstanceMap() const { if (IsDungeon())  return (InstanceMap const*)((InstanceMap*)this); else return nullptr;  }
 
     BattlegroundMap* ToBattlegroundMap() { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap*>(this); else return nullptr;  }
     [[nodiscard]] BattlegroundMap const* ToBattlegroundMap() const { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap const*>(this); return nullptr; }
@@ -389,9 +401,9 @@ public:
     bool CanReachPositionAndGetValidCoords(WorldObject const* source, float startX, float startY, float startZ, float &destX, float &destY, float &destZ, bool failOnCollision = true, bool failOnSlopes = true) const;
     bool CheckCollisionAndGetValidCoords(WorldObject const* source, float startX, float startY, float startZ, float &destX, float &destY, float &destZ, bool failOnCollision = true) const;
     void Balance() { _mapCollisionData.GetDynamicTree().balance(); }
-    void RemoveGameObjectModel(const GameObjectModel& model) { _mapCollisionData.GetDynamicTree().remove(model); }
-    void InsertGameObjectModel(const GameObjectModel& model) { _mapCollisionData.GetDynamicTree().insert(model); }
-    [[nodiscard]] bool ContainsGameObjectModel(const GameObjectModel& model) const { return _mapCollisionData.GetDynamicTree().contains(model);}
+    void RemoveGameObjectModel(GameObjectModel const& model) { _mapCollisionData.GetDynamicTree().remove(model); }
+    void InsertGameObjectModel(GameObjectModel const& model) { _mapCollisionData.GetDynamicTree().insert(model); }
+    [[nodiscard]] bool ContainsGameObjectModel(GameObjectModel const& model) const { return _mapCollisionData.GetDynamicTree().contains(model);}
     [[nodiscard]] DynamicMapTree const& GetDynamicMapTree() const { return _mapCollisionData.GetDynamicTree(); }
     [[nodiscard]] float GetGameObjectFloor(uint32 phasemask, float x, float y, float z, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const
     {
@@ -423,12 +435,48 @@ public:
     void RemoveCreatureRespawnTime(ObjectGuid::LowType dbGuid);
     void SaveGORespawnTime(ObjectGuid::LowType dbGuid, time_t& respawnTime);
     void RemoveGORespawnTime(ObjectGuid::LowType dbGuid);
+    [[nodiscard]] std::unordered_map<ObjectGuid::LowType, time_t> const& GetCreatureRespawnTimes() const { return _creatureRespawnTimes; }
+    [[nodiscard]] std::unordered_map<ObjectGuid::LowType, time_t> const& GetGORespawnTimes() const { return _goRespawnTimes; }
     void LoadRespawnTimes();
     void DeleteRespawnTimes();
     [[nodiscard]] time_t GetInstanceResetPeriod() const { return _instanceResetPeriod; }
 
     void UpdatePlayerZoneStats(uint32 oldZone, uint32 newZone);
     [[nodiscard]] uint32 ApplyDynamicModeRespawnScaling(WorldObject const* obj, uint32 respawnDelay) const;
+
+    bool SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn = false, bool force = false);
+    bool SpawnGroupDespawn(uint32 groupId, bool deleteRespawnTimes = false);
+    [[nodiscard]] bool IsSpawnGroupActive(uint32 groupId) const;
+    void ProcessRespawns();
+    void ProcessCreatureRespawn(ObjectGuid::LowType spawnId);
+    void ProcessGameObjectRespawn(ObjectGuid::LowType spawnId);
+
+    [[nodiscard]] time_t GetRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId) const
+    {
+        switch (type)
+        {
+            case SPAWN_TYPE_CREATURE:
+                return GetCreatureRespawnTime(spawnId);
+            case SPAWN_TYPE_GAMEOBJECT:
+                return GetGORespawnTime(spawnId);
+            default:
+                return time_t(0);
+        }
+    }
+    void RemoveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId)
+    {
+        switch (type)
+        {
+            case SPAWN_TYPE_CREATURE:
+                RemoveCreatureRespawnTime(spawnId);
+                break;
+            case SPAWN_TYPE_GAMEOBJECT:
+                RemoveGORespawnTime(spawnId);
+                break;
+            default:
+                break;
+        }
+    }
 
     EventProcessor Events;
 
@@ -552,6 +600,8 @@ private:
 
     void SendObjectUpdates();
 
+    void UpdatePlayersRedirectKickEvent(uint32 diff);
+
 protected:
     // Type specific code for add/remove to/from grid
     template<class T>
@@ -575,13 +625,13 @@ protected:
     TransportsContainer::iterator _transportsUpdateIter;
 
 private:
-    Player* _GetScriptPlayerSourceOrTarget(Object* source, Object* target, const ScriptInfo* scriptInfo) const;
-    Creature* _GetScriptCreatureSourceOrTarget(Object* source, Object* target, const ScriptInfo* scriptInfo, bool bReverse = false) const;
-    Unit* _GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const;
-    Player* _GetScriptPlayer(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const;
-    Creature* _GetScriptCreature(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const;
-    WorldObject* _GetScriptWorldObject(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const;
-    void _ScriptProcessDoor(Object* source, Object* target, const ScriptInfo* scriptInfo) const;
+    Player* _GetScriptPlayerSourceOrTarget(Object* source, Object* target, ScriptInfo const* scriptInfo) const;
+    Creature* _GetScriptCreatureSourceOrTarget(Object* source, Object* target, ScriptInfo const* scriptInfo, bool bReverse = false) const;
+    Unit* _GetScriptUnit(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const;
+    Player* _GetScriptPlayer(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const;
+    Creature* _GetScriptCreature(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const;
+    WorldObject* _GetScriptWorldObject(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const;
+    void _ScriptProcessDoor(Object* source, Object* target, ScriptInfo const* scriptInfo) const;
     GameObject* _FindGameObject(WorldObject* pWorldObject, ObjectGuid::LowType guid) const;
 
     //used for fast base_map (e.g. MapInstanced class object) search for
@@ -606,6 +656,29 @@ private:
 
     std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t> _creatureRespawnTimes;
     std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t> _goRespawnTimes;
+
+    // Time-ordered index for ProcessRespawns() — avoids O(n) full scan.
+    // Based on TrinityCore's priority queue approach (r00ty-tc, 59db2eee).
+    struct RespawnEntry
+    {
+        time_t respawnTime;
+        SpawnObjectType type;
+        ObjectGuid::LowType spawnId;
+        bool operator<(RespawnEntry const& other) const
+        {
+            if (respawnTime != other.respawnTime)
+                return respawnTime < other.respawnTime;
+            if (type != other.type)
+                return type < other.type;
+            return spawnId < other.spawnId;
+        }
+    };
+    std::set<RespawnEntry> _respawnQueue;
+
+    std::unique_ptr<SpawnedPoolData> _poolData;
+
+    std::unordered_set<uint32> _toggledSpawnGroupIds;
+    uint32 _respawnCheckTimer{0};
 
     std::unordered_map<uint32, uint32> _zonePlayerCountMap;
 
@@ -639,6 +712,9 @@ private:
     PendingAddUpdatableObjectList _pendingAddUpdatableObjectList;
     IntervalTimer _updatableObjectListRecheckTimer;
     ZoneWideVisibleWorldObjectsMap _zoneWideVisibleWorldObjectsMap;
+
+    TimeTrackerSmall _redirectKickTimer;
+    TimeTrackerSmall _lastAnnounceRedirectKickTimer;
 };
 
 enum InstanceResetMethod

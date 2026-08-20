@@ -580,34 +580,6 @@ class spell_dk_rune_of_the_fallen_crusader : public SpellScript
     }
 };
 
-// 49222 - Bone Shield
-class spell_dk_bone_shield : public AuraScript
-{
-    PrepareAuraScript(spell_dk_bone_shield);
-
-    uint32 lastChargeUsedTime = 0;
-
-    void HandleProc(ProcEventInfo& eventInfo)
-    {
-        PreventDefaultAction();
-        uint32 currentTime = getMSTime();
-        // Checks for 2 seconds between uses of bone shield charges
-        if ((currentTime - lastChargeUsedTime) < 2000)
-            return;
-
-        if (!eventInfo.GetSpellInfo() || !eventInfo.GetSpellInfo()->IsTargetingArea())
-        {
-            DropCharge();
-            lastChargeUsedTime = currentTime;
-        }
-    }
-
-    void Register() override
-    {
-        OnProc += AuraProcFn(spell_dk_bone_shield::HandleProc);
-    }
-};
-
 // 51209 - Hungering Cold
 class spell_dk_hungering_cold : public AuraScript
 {
@@ -1245,19 +1217,27 @@ class spell_dk_blood_gorged : public AuraScript
 
     bool Load() override
     {
-        _procTarget = nullptr;
+        _procTargetGUID.Clear();
         return true;
     }
 
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
-        _procTarget = GetTarget()->GetOwner();
-        return _procTarget;
+        if (Unit* owner = GetTarget()->GetOwner())
+        {
+            _procTargetGUID = owner->GetGUID();
+            return true;
+        }
+        return false;
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
+
+        Unit* procTarget = ObjectAccessor::GetUnit(*GetTarget(), _procTargetGUID);
+        if (!procTarget)
+            return;
 
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
 
@@ -1267,7 +1247,7 @@ class spell_dk_blood_gorged : public AuraScript
         }
 
         int32 bp = static_cast<int32>(damageInfo->GetDamage() * 1.5f);
-        GetTarget()->CastCustomSpell(SPELL_DK_BLOOD_GORGED_HEAL, SPELLVALUE_BASE_POINT0, bp, _procTarget, true, nullptr, aurEff);
+        GetTarget()->CastCustomSpell(SPELL_DK_BLOOD_GORGED_HEAL, SPELLVALUE_BASE_POINT0, bp, procTarget, true, nullptr, aurEff);
     }
 
     void Register() override
@@ -1277,7 +1257,7 @@ class spell_dk_blood_gorged : public AuraScript
     }
 
 private:
-    Unit* _procTarget;
+    ObjectGuid _procTargetGUID;
 };
 
 class CorpseExplosionCheck
@@ -3001,7 +2981,7 @@ class spell_dk_pvp_4p_bonus : public AuraScript
         if (!spellInfo)
             return false;
 
-        return (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_SNARE))) != 0;
+        return (spellInfo->GetAllEffectsMechanicMask() & ((1ULL << MECHANIC_ROOT) | (1ULL << MECHANIC_SNARE))) != 0;
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -3031,7 +3011,6 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_improved_blood_presence_triggered);
     RegisterSpellScript(spell_dk_wandering_plague_aura);
     RegisterSpellScript(spell_dk_rune_of_the_fallen_crusader);
-    RegisterSpellScript(spell_dk_bone_shield);
     RegisterSpellScript(spell_dk_hungering_cold);
     RegisterSpellScript(spell_dk_blood_caked_blade);
     RegisterSpellScript(spell_dk_dancing_rune_weapon);

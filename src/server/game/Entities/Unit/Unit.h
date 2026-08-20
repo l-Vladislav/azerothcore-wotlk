@@ -31,6 +31,7 @@
 #include "ThreatManager.h"
 #include "UnitDefines.h"
 #include "UnitUtils.h"
+#include <boost/container/flat_map.hpp>
 #include <functional>
 #include <utility>
 
@@ -666,15 +667,15 @@ public:
     typedef std::unordered_set<Unit*> AttackerSet;
     typedef std::set<Unit*> ControlSet;
 
-    typedef std::multimap<uint32,  Aura*> AuraMap;
+    typedef boost::container::flat_multimap<uint32,  Aura*> AuraMap;
     typedef std::pair<AuraMap::const_iterator, AuraMap::const_iterator> AuraMapBounds;
     typedef std::pair<AuraMap::iterator, AuraMap::iterator> AuraMapBoundsNonConst;
 
-    typedef std::multimap<uint32,  AuraApplication*> AuraApplicationMap;
+    typedef boost::container::flat_multimap<uint32,  AuraApplication*> AuraApplicationMap;
     typedef std::pair<AuraApplicationMap::const_iterator, AuraApplicationMap::const_iterator> AuraApplicationMapBounds;
     typedef std::pair<AuraApplicationMap::iterator, AuraApplicationMap::iterator> AuraApplicationMapBoundsNonConst;
 
-    typedef std::multimap<AuraStateType,  AuraApplication*> AuraStateAurasMap;
+    typedef boost::container::flat_multimap<AuraStateType,  AuraApplication*> AuraStateAurasMap;
     typedef std::pair<AuraStateAurasMap::const_iterator, AuraStateAurasMap::const_iterator> AuraStateAurasMapBounds;
 
     typedef std::vector<AuraEffect*> AuraEffectList;
@@ -729,7 +730,7 @@ public:
     Pet* ToPet() { if (IsPet()) return reinterpret_cast<Pet*>(this); else return nullptr; }
     Totem* ToTotem() { if (IsTotem()) return reinterpret_cast<Totem*>(this); else return nullptr; }
     TempSummon* ToTempSummon() { if (IsSummon()) return reinterpret_cast<TempSummon*>(this); else return nullptr; }
-    [[nodiscard]] const TempSummon* ToTempSummon() const { if (IsSummon()) return reinterpret_cast<const TempSummon*>(this); else return nullptr; }
+    [[nodiscard]] TempSummon const* ToTempSummon() const { if (IsSummon()) return reinterpret_cast<TempSummon const*>(this); else return nullptr; }
 
     // Unit state
     void AddUnitState(uint32 f) { m_state |= f; }
@@ -877,7 +878,7 @@ public:
     [[nodiscard]] float GetCombatReach() const override { return m_floatValues[UNIT_FIELD_COMBATREACH]; }
     [[nodiscard]] float GetMeleeReach() const { float reach = m_floatValues[UNIT_FIELD_COMBATREACH]; return reach > MIN_MELEE_REACH ? reach : MIN_MELEE_REACH; }
     [[nodiscard]] bool IsWithinRange(Unit const* obj, float dist) const;
-    bool IsWithinBoundaryRadius(const Unit* obj) const;
+    bool IsWithinBoundaryRadius(Unit const* obj) const;
     bool IsWithinCombatRange(Unit const* obj, float dist2compare) const;
     bool IsWithinMeleeRange(Unit const* obj, float dist = 0.f) const;
     float GetMeleeRange(Unit const* target) const;
@@ -908,7 +909,7 @@ public:
     void StopAttackingInvalidTarget();
     Unit* SelectNearbyTarget(Unit* exclude = nullptr, float dist = NOMINAL_MELEE_RANGE) const;
     Unit* SelectNearbyNoTotemTarget(Unit* exclude = nullptr, float dist = NOMINAL_MELEE_RANGE) const;
-    void SendMeleeAttackStop(Unit* victim = nullptr);
+    void SendMeleeAttackStop(Unit const* victim = nullptr) const;
     void SendMeleeAttackStart(Unit* victim, Player* sendTo = nullptr);
 
     [[nodiscard]] uint32 GetAttackTime(WeaponAttackType att) const
@@ -1523,7 +1524,7 @@ public:
 
     [[nodiscard]] int32 GetTotalAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask) const;
     [[nodiscard]] float GetTotalAuraMultiplierByMiscMask(AuraType auratype, uint32 misc_mask) const;
-    [[nodiscard]] int32 GetMaxPositiveAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask, const AuraEffect* except = nullptr) const;
+    [[nodiscard]] int32 GetMaxPositiveAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask, AuraEffect const* except = nullptr) const;
     [[nodiscard]] int32 GetMaxNegativeAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask) const;
 
     [[nodiscard]] int32 GetTotalAuraModifierByMiscValue(AuraType auratype, int32 misc_value) const;
@@ -1622,7 +1623,7 @@ public:
     int32 HealBySpell(HealInfo& healInfo, bool critical = false);
 
     int32 SpellBaseHealingBonusDone(SpellSchoolMask schoolMask);
-    float SpellPctHealingModsDone(Unit* victim, SpellInfo const* spellProto, DamageEffectType damagetype);
+    float SpellPctHealingModsDone(Unit* victim, SpellInfo const* spellProto, DamageEffectType damagetype, bool includeHealingDonePct = true);
     uint32 SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint8 effIndex, float TotalMod = 0.0f, uint32 stack = 1);
     uint32 SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack = 1);
     static uint32 SpellCriticalHealingBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage, Unit const* victim);
@@ -1637,18 +1638,20 @@ public:
     // Spells immunities
     void ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply, SpellImmuneBlockType blockType = SPELL_BLOCK_TYPE_ALL);
     virtual bool IsImmunedToSpell(SpellInfo const* spellInfo, Spell const* spell = nullptr);
+    bool IsImmunedToSpell(SpellInfo const* spellInfo, Unit const* caster);
+    bool IsImmunedToSpell(SpellInfo const* spellInfo, Unit const* caster, SpellSchoolMask spellSchoolMask);
     bool IsImmunedToSpell(SpellInfo const* spellInfo, uint32 effectMask, Unit const* caster = nullptr);
+    bool IgnoresSchoolImmunityFromFriendlyCaster(Unit const* caster, uint32 immunityAuraId, SpellInfo const* immunitySpellInfo) const;
     [[nodiscard]] bool IsImmunedToDamage(SpellSchoolMask schoolMask) const;
     [[nodiscard]] bool IsImmunedToDamage(Unit const* caster, SpellInfo const* spellInfo) const;
     [[nodiscard]] bool IsImmunedToSchool(SpellSchoolMask schoolMask) const;
+    [[nodiscard]] bool HasSchoolImmunityForMask(SpellSchoolMask schoolMask, Unit const* caster, SpellInfo const* spellInfo) const;
 
     static bool IsImmuneMaskFully(SpellSchoolMask immuneMask, SpellSchoolMask schoolMask) { return (immuneMask & schoolMask) == schoolMask; }
 
     [[nodiscard]] uint32 GetSchoolImmunityMask() const;
     [[nodiscard]] uint32 GetDamageImmunityMask() const;
 
-    [[nodiscard]] bool IsImmunedToSchool(SpellInfo const* spellInfo) const;
-    [[nodiscard]] bool IsImmunedToSchool(Spell const* spell) const;
     [[nodiscard]] bool IsImmunedToDamageOrSchool(SpellSchoolMask schoolMask) const;
     [[nodiscard]] bool IsImmunedToAuraPeriodicTick(Unit const* caster, SpellInfo const* spellInfo) const;
     virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit const* caster = nullptr) const;
@@ -1695,6 +1698,7 @@ public:
     void AddGameObject(GameObject* gameObj);
     void RemoveGameObject(GameObject* gameObj, bool del);
     void RemoveGameObject(uint32 spellid, bool del);
+    void RemoveGameObjectsByType(GameobjectTypes type, bool del);
     void RemoveAllGameObjects();
 
     /*********************************************************/
@@ -1717,6 +1721,7 @@ public:
     [[nodiscard]] float GetHoverHeight() const { return IsHovering() ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f; }
 
     [[nodiscard]] virtual bool IsMovementPreventedByCasting() const;
+    [[nodiscard]] bool IsActionPreventedByCasting() const;
 
     [[nodiscard]] virtual bool CanEnterWater() const = 0;
     [[nodiscard]] virtual bool CanSwim() const;
@@ -1724,12 +1729,6 @@ public:
     {
         return !HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING | UNIT_STATE_IN_FLIGHT |
                              UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED) && !GetOwnerGUID();
-    }
-
-    [[nodiscard]] bool HasLeewayMovement() const
-    {
-         return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT | MOVEMENTFLAG_FALLING)
-                && !IsWalking();
     }
 
     void KnockbackFrom(float x, float y, float speedXY, float speedZ);
@@ -1741,6 +1740,7 @@ public:
     [[nodiscard]] float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
     void SetSpeed(UnitMoveType mtype, float rate, bool forced = false);
     void SetSpeedRate(UnitMoveType mtype, float rate) { m_speed_rate[mtype] = rate; }
+    void SendSpeedToController(UnitMoveType mtype, Player* target) const;
 
     void propagateSpeedChange() { GetMotionMaster()->propagateSpeedChange(); }
 
@@ -1756,7 +1756,7 @@ public:
     void SetHover(bool enable);
 
     MotionMaster* GetMotionMaster() { return i_motionMaster; }
-    [[nodiscard]] const MotionMaster* GetMotionMaster() const { return i_motionMaster; }
+    [[nodiscard]] MotionMaster const* GetMotionMaster() const { return i_motionMaster; }
     [[nodiscard]] virtual MovementGeneratorType GetDefaultMovementType() const;
 
     [[nodiscard]] bool IsStopped() const { return !(HasUnitState(UNIT_STATE_MOVING)); }
@@ -1825,7 +1825,7 @@ public:
     [[nodiscard]] bool HasShapeshiftAura()          const { return HasAuraType(SPELL_AURA_MOD_SHAPESHIFT); }
     [[nodiscard]] bool HasDecreaseSpeedAura()       const { return HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED); }
     [[nodiscard]] bool HasPacifyAura()              const { return HasAuraType(SPELL_AURA_MOD_PACIFY); }
-    [[nodiscard]] bool HasIgnoreTargetResistAura()  const { return HasAuraType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST); }
+    [[nodiscard]] bool HasIgnoreTargetResistModifiersAura()  const { return HasAuraType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST_MODIFIERS); }
     [[nodiscard]] bool HasIncreaseMountedSpeedAura() const { return HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED); }
     [[nodiscard]] bool HasIncreaseMountedFlightSpeedAura() const { return HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED); }
 
@@ -2005,7 +2005,7 @@ public:
     void UpdateHeight(float newZ);
 
     virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
-    bool UpdatePosition(const Position& pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
+    bool UpdatePosition(Position const& pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
 
     void ProcessPositionDataChanged(PositionFullTerrainStatus const& data) override;
     virtual void ProcessTerrainStatusUpdate();
@@ -2168,7 +2168,7 @@ protected:
     AuraMap m_ownedAuras;
     AuraApplicationMap m_appliedAuras;
     AuraList m_removedAuras;
-    AuraMap::iterator m_auraUpdateIterator;
+    std::vector<Aura*> m_auraUpdateSnapshot; // _UpdateSpells scratch buffer
     uint32 m_removedAurasCount;
 
     AuraEffectList m_modAuras[TOTAL_AURAS];
@@ -2184,6 +2184,9 @@ protected:
     VisibleAuraMap m_visibleAuras;
 
     float m_speed_rate[MAX_MOVE_TYPE];
+
+    // snapshot of speed rates taken when SetCharmedBy() is called
+    float _charmStartSpeedRate[MAX_MOVE_TYPE]{};
 
     CharmInfo* m_charmInfo;
     SharedVisionList m_sharedVision;
@@ -2305,6 +2308,32 @@ namespace Acore
         {
             float rA = a->GetMaxHealth() ? float(a->GetHealth()) / float(a->GetMaxHealth()) : 0.0f;
             float rB = b->GetMaxHealth() ? float(b->GetHealth()) / float(b->GetMaxHealth()) : 0.0f;
+            return _ascending ? rA < rB : rA > rB;
+        }
+
+    private:
+        bool const _ascending;
+    };
+
+    // Binary predicate for sorting Units based on current value of health
+    class HealthOrderPred
+    {
+    public:
+        HealthOrderPred(bool ascending = true) : _ascending(ascending) { }
+
+        bool operator()(WorldObject const* objA, WorldObject const* objB) const
+        {
+            Unit const* a = objA->ToUnit();
+            Unit const* b = objB->ToUnit();
+            uint32 rA = a ? a->GetHealth() : 0;
+            uint32 rB = b ? b->GetHealth() : 0;
+            return _ascending ? rA < rB : rA > rB;
+        }
+
+        bool operator() (Unit const* a, Unit const* b) const
+        {
+            uint32 rA = a ? a->GetHealth() : 0;
+            uint32 rB = b ? b->GetHealth() : 0;
             return _ascending ? rA < rB : rA > rB;
         }
 

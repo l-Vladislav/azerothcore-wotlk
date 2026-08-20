@@ -118,12 +118,6 @@ public:
                         {
                             sCreatureTextMgr->SendChat(me, CLEARWATER_SAY_END, 0, CHAT_MSG_MONSTER_YELL, LANG_UNIVERSAL, TEXT_RANGE_MAP);
                             finishWarning = true;
-                            // no one won - despawn
-                            if (!finished)
-                            {
-                                me->DespawnOrUnsummon();
-                                break;
-                            }
                         }
 
                         events.Repeat(1s);
@@ -314,11 +308,7 @@ public:
 
 struct npc_training_dummy : NullCreatureAI
 {
-    npc_training_dummy(Creature* creature) : NullCreatureAI(creature)
-    {
-        // TODO: Remove once WorldObject casting is ported
-        me->SetIsCombatDisallowed(false);
-    }
+    npc_training_dummy(Creature* creature) : NullCreatureAI(creature) { }
 
     void JustEnteredCombat(Unit* who) override
     {
@@ -333,6 +323,12 @@ struct npc_training_dummy : NullCreatureAI
             return;
 
         _combatTimer[attacker->GetGUID()] = 5s;
+
+        // Pet attacks engage the owner via propagation without firing
+        // JustEnteredCombat here, so track the owner's timer too.
+        if (Unit* owner = attacker->GetCharmerOrOwner())
+            if (me->GetCombatManager().IsInCombatWith(owner))
+                _combatTimer[owner->GetGUID()] = 5s;
     }
 
     void UpdateAI(uint32 diff) override
@@ -359,44 +355,33 @@ private:
     std::unordered_map<ObjectGuid, Milliseconds> _combatTimer;
 };
 
-struct npc_target_dummy : NullCreatureAI
+struct npc_target_dummy : ScriptedAI
 {
-    npc_target_dummy(Creature* creature) : NullCreatureAI(creature)
-    {
-        // TODO: Remove once WorldObject casting is ported
-        me->SetIsCombatDisallowed(false);
-        _deathTimer = 15s;
-    }
+    explicit npc_target_dummy(Creature* creature) : ScriptedAI(creature) { }
 
     void Reset() override
     {
+        scheduler.CancelAll();
+        ClearUniqueTimedEventsDone();
+
         me->SetControlled(true, UNIT_STATE_STUNNED);
         me->SetLootRecipient(me->GetOwner());
-        me->SelectLevel();
-    }
 
-    void DamageTaken(Unit*, uint32& damage, DamageEffectType, SpellSchoolMask) override
-    {
-        damage = 0;
+        ScheduleUniqueTimedEvent(15s, [this]
+        {
+            me->SetLootRecipient(me->GetOwner()); // the dummy is lootable by the player who summoned it
+            me->LowerPlayerDamageReq(me->GetMaxHealth());
+            me->KillSelf();
+        }, 1);
     }
 
     void UpdateAI(uint32 diff) override
     {
+        scheduler.Update(diff);
+
         if (!me->HasUnitState(UNIT_STATE_STUNNED))
             me->SetControlled(true, UNIT_STATE_STUNNED);
-
-        _deathTimer -= Milliseconds(diff);
-        if (_deathTimer <= 0s)
-        {
-            me->SetLootRecipient(me->GetOwner());
-            me->LowerPlayerDamageReq(me->GetMaxHealth());
-            me->KillSelf();
-            _deathTimer = 600s;
-        }
     }
-
-private:
-    Milliseconds _deathTimer;
 };
 
 /*########

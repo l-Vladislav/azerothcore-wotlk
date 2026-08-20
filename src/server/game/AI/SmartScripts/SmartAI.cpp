@@ -24,6 +24,7 @@
 #include "ObjectDefines.h"
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
 
@@ -44,6 +45,7 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
     mCanRepeatPath = false;
 
     mEvadeDisabled = false;
+    mSuppressEvade = false;
 
     mCanAutoAttack = true;
 
@@ -336,6 +338,8 @@ void SmartAI::StopPath(uint32 DespawnTime, uint32 quest, bool fail)
     if (quest)
         mEscortQuestID = quest;
 
+    mCanRepeatPath = false;
+
     SetDespawnTime(DespawnTime);
 
     if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == ESCORT_MOTION_TYPE)
@@ -592,7 +596,25 @@ void SmartAI::UpdateAI(uint32 diff)
         return;
 
     if (mCanAutoAttack)
+    {
+        UpdateMeleeStance();
         DoMeleeAttackIfReady();
+    }
+}
+
+void SmartAI::UpdateMeleeStance()
+{
+    // Ranged creatures should not switch to melee stance at distance
+    if (!_currentRangeMode || me->IsCrowdControlled())
+        return;
+
+    Unit* victim = me->GetVictim();
+    if (!victim)
+        return;
+
+    bool const canMelee = me->IsWithinMeleeRange(victim);
+    if (canMelee != me->HasUnitState(UNIT_STATE_MELEE_ATTACKING))
+        me->Attack(victim, canMelee);
 }
 
 bool SmartAI::IsEscortInvokerInRange()
@@ -696,8 +718,25 @@ void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
         MovepointReached(Data);
 }
 
-void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
+void SmartAI::JustExitedCombat()
 {
+    // When evade is suppressed or disabled, don't auto-evade on combat exit.
+    // This prevents scripted encounters (e.g. Mograine/Whitemane) from resetting
+    // when bosses temporarily stop fighting during scripted phases.
+    if (mSuppressEvade || mEvadeDisabled)
+    {
+        EngagementOver();
+        return;
+    }
+
+    CreatureAI::JustExitedCombat();
+}
+
+void SmartAI::EnterEvadeMode(EvadeReason why)
+{
+    if (mSuppressEvade)
+        return;
+
     if (mEvadeDisabled)
     {
         GetScript()->ProcessEventsFor(SMART_EVENT_EVADE);
@@ -720,7 +759,9 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
 
     if (Unit* owner = me->GetCharmerOrOwner())
     {
-        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+        if (!me->IsVehicle()) // vehicles should not follow their owner (passenger)
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+
         me->ClearUnitState(UNIT_STATE_EVADE);
     }
     else if (HasEscortState(SMART_ESCORT_ESCORTING))
@@ -745,6 +786,8 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
         if (!me->HasUnitState(UNIT_STATE_EVADE))
             GetScript()->OnReset();
     }
+
+    sScriptMgr->OnUnitEnterEvadeMode(me, why);
 }
 
 void SmartAI::MoveInLineOfSight(Unit* who)
@@ -800,6 +843,10 @@ bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
     if (!me->IsValidAssistTarget(who->GetVictim()))
         return false;
 
+    // Do not engage if we cannot actually attack the attacker (e.g. neutral faction)
+    if (!me->IsValidAttackTarget(who))
+        return false;
+
     //too far away and no free sight?
     if (me->IsWithinDistInMap(who, SMART_MAX_AID_DIST) && me->IsWithinLOSInMap(who))
     {
@@ -851,7 +898,14 @@ void SmartAI::JustEngagedWith(Unit* enemy)
 {
     // Xinef: Interrupt channeled spells
     if (IsAIControlled())
-        me->InterruptSpell(CURRENT_CHANNELED_SPELL, true, true);
+    {
+        if (Spell* spell = me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+        {
+            if (!spell->GetSpellInfo()->IsActionAllowedChannel())
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL, true, true);
+        }
+    }
+
     GetScript()->ProcessEventsFor(SMART_EVENT_AGGRO, enemy);
 }
 
@@ -893,7 +947,7 @@ void SmartAI::AttackStart(Unit* who)
         return;
     }
 
-    if (who && me->Attack(who, me->IsWithinMeleeRange(who)))
+    if (who && me->Attack(who, mCanAutoAttack && !_currentRangeMode))
     {
         if (!me->HasUnitState(UNIT_STATE_NO_COMBAT_MOVEMENT))
         {
@@ -1126,7 +1180,7 @@ void SmartAI::sGossipSelect(Player* player, uint32 sender, uint32 action)
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_SELECT, player, sender, action);
 }
 
-void SmartAI::sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/)
+void SmartAI::sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/)
 {
 }
 
@@ -1168,7 +1222,12 @@ void SmartAI::SetCurrentRangeMode(bool on, float range)
     _attackDistance = range;
 
     if (Unit* victim = me->GetVictim())
+    {
         me->GetMotionMaster()->MoveChase(victim, _attackDistance);
+
+        if (!on && mCanAutoAttack && !me->HasUnitState(UNIT_STATE_MELEE_ATTACKING))
+            me->Attack(victim, true);
+    }
 }
 
 void SmartAI::SetMainSpell(uint32 spellId)
@@ -1214,11 +1273,28 @@ void SmartAI::SetFollow(Unit* target, float dist, float angle, uint32 credit, ui
     mFollowArrivedEntry = end;
     mFollowArrivedAlive = !aliveState; // negate - 0 is alive
     mFollowCreditType = creditType;
-    me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle);
+    me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle, MOTION_SLOT_ACTIVE, true, false);
 }
 
 void SmartAI::StopFollow(bool complete)
 {
+    if (complete)
+    {
+        Player* player = ObjectAccessor::GetPlayer(*me, mFollowGuid);
+        if (player && mFollowCredit > 0)
+        {
+            if (!mFollowCreditType)
+                player->RewardPlayerAndGroupAtEvent(mFollowCredit, me);
+            else
+                player->GroupEventHappens(mFollowCredit, me);
+        }
+
+        SetDespawnTime(5000);
+        StartDespawn();
+
+        GetScript()->ProcessEventsFor(SMART_EVENT_FOLLOW_COMPLETED, player);
+    }
+
     mFollowGuid.Clear();
     mFollowDist = 0;
     mFollowAngle = 0;
@@ -1230,23 +1306,6 @@ void SmartAI::StopFollow(bool complete)
     me->GetMotionMaster()->Clear(false);
     me->StopMoving();
     me->GetMotionMaster()->MoveIdle();
-
-    if (!complete)
-        return;
-
-    Player* player = ObjectAccessor::GetPlayer(*me, mFollowGuid);
-    if (player)
-    {
-        if (!mFollowCreditType)
-            player->RewardPlayerAndGroupAtEvent(mFollowCredit, me);
-        else
-            player->GroupEventHappens(mFollowCredit, me);
-    }
-
-    SetDespawnTime(5000);
-    StartDespawn();
-
-    GetScript()->ProcessEventsFor(SMART_EVENT_FOLLOW_COMPLETED, player);
 }
 
 void SmartAI::SetScript9(SmartScriptHolder& e, uint32 entry, WorldObject* invoker)
@@ -1347,6 +1406,7 @@ void SmartGameObjectAI::UpdateAI(uint32 diff)
 void SmartGameObjectAI::InitializeAI()
 {
     GetScript()->OnInitialize(me);
+    aiDataSet.clear();
 
     // Xinef: do not call respawn event if go is not spawned
     if (me->isSpawned())
@@ -1378,7 +1438,7 @@ bool SmartGameObjectAI::GossipSelect(Player* player, uint32 sender, uint32 actio
 }
 
 // Called when a player selects a gossip with a code in the gameobject's gossip menu.
-bool SmartGameObjectAI::GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/)
+bool SmartGameObjectAI::GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/)
 {
     return false;
 }
@@ -1415,7 +1475,17 @@ void SmartGameObjectAI::SetData(uint32 id, uint32 value, WorldObject* invoker)
             gob = invoker->ToGameObject();
     }
 
+    aiDataSet[id] = value;
     GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, unit, id, value, false, nullptr, gob);
+}
+
+uint32 SmartGameObjectAI::GetData(uint32 id) const
+{
+    std::unordered_map<uint32, uint32>::const_iterator itr = aiDataSet.find(id);
+    if (itr != aiDataSet.end())
+        return itr->second;
+
+    return 0;
 }
 
 void SmartGameObjectAI::SetScript9(SmartScriptHolder& e, uint32 entry, WorldObject* invoker)

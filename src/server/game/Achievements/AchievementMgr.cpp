@@ -40,6 +40,7 @@
 #include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "RBAC.h"
 #include "RaceMgr.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
@@ -520,6 +521,8 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaCondition condi
     // disable for gamemasters with GM-mode enabled
     if (_player->IsGameMaster())
         return;
+    if (_player->GetSession()->HasPermission(rbac::RBAC_PERM_CANNOT_EARN_ACHIEVEMENTS))
+        return;
 
     LOG_DEBUG("achievement", "AchievementMgr::ResetAchievementCriteria({}, {}, {})", condition, value, evenIfCriteriaComplete);
 
@@ -821,6 +824,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     // disable for gamemasters with GM-mode enabled
     if (_player->IsGameMaster())
         return;
+    if (_player->GetSession()->HasPermission(rbac::RBAC_PERM_CANNOT_EARN_ACHIEVEMENTS))
+        return;
 
     if (type >= ACHIEVEMENT_CRITERIA_TYPE_TOTAL)
     {
@@ -1080,7 +1085,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
 
                     uint32 counter = 0;
 
-                    const RewardedQuestSet& rewQuests = GetPlayer()->getRewardedQuests();
+                    RewardedQuestSet const& rewQuests = GetPlayer()->getRewardedQuests();
                     for (RewardedQuestSet::const_iterator itr = rewQuests.begin(); itr != rewQuests.end(); ++itr)
                     {
                         Quest const* quest = sObjectMgr->GetQuestTemplate(*itr);
@@ -1770,7 +1775,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 {
                     // those requirements couldn't be found in the dbc
                     AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                    if (!data || !data->Meets(GetPlayer(), nullptr))
+                    if (!data || !data->Meets(GetPlayer(), unit))
                         continue;
 
                     // Check map id requirement
@@ -1829,14 +1834,17 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
         if (sAchievementMgr->IsRealmCompleted(achievement))
             return false;
 
-        // A character may only have 1 race-specific 'Realm First!' achievement
-        // prevent clever use of the race/faction change service to obtain multiple 'Realm First!' achievements
-        constexpr std::array<uint32, 9> raceSpecificRealmFirstAchievements { 1405, 1406, 1407, 1408, 1409, 1410, 1411, 1412, 1413 };
-        bool isRaceSpecific = std::ranges::find(raceSpecificRealmFirstAchievements, achievement->ID) != std::ranges::end(raceSpecificRealmFirstAchievements);
-        if (isRaceSpecific)
-            for (uint32 raceAchievementId : raceSpecificRealmFirstAchievements)
-                if (raceAchievementId != achievement->ID && HasAchieved(raceAchievementId))
-                    return false;
+        if (sWorld->getBoolConfig(CONFIG_ACHIEVEMENT_REALM_FIRST_RACE_LIMIT_ONE_PER_CHARACTER))
+        {
+            // A character may only have 1 race-specific 'Realm First!' achievement
+            // prevent clever use of the race/faction change service to obtain multiple 'Realm First!' achievements
+            constexpr std::array<uint32, 9> raceSpecificRealmFirstAchievements { 1405, 1406, 1407, 1408, 1409, 1410, 1411, 1412, 1413 };
+            bool isRaceSpecific = std::ranges::find(raceSpecificRealmFirstAchievements, achievement->ID) != std::ranges::end(raceSpecificRealmFirstAchievements);
+            if (isRaceSpecific)
+                for (uint32 raceAchievementId : raceSpecificRealmFirstAchievements)
+                    if (raceAchievementId != achievement->ID && HasAchieved(raceAchievementId))
+                        return false;
+        }
     }
 
     // pussywizard: progress will be deleted after getting the achievement (optimization)
@@ -2178,7 +2186,7 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
     sScriptMgr->OnPlayerCriteriaProgress(GetPlayer(), entry);
 }
 
-void AchievementMgr::RemoveCriteriaProgress(const AchievementCriteriaEntry* entry)
+void AchievementMgr::RemoveCriteriaProgress(AchievementCriteriaEntry const* entry)
 {
     CriteriaProgressMap::iterator criteriaProgress = _criteriaProgress.find(entry->ID);
     if (criteriaProgress == _criteriaProgress.end())
@@ -2282,6 +2290,8 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
         ChatHandler(_player->GetSession()).PSendSysMessage("Not available in GM mode");
         return;
     }
+    if (_player->GetSession()->HasPermission(rbac::RBAC_PERM_CANNOT_EARN_ACHIEVEMENTS))
+        return;
 
     if (!sScriptMgr->OnPlayerBeforeAchievementComplete(GetPlayer(), achievement))
     {
@@ -2323,7 +2333,9 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
                     }
     }
 
-    if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL) && AccountMgr::IsPlayerAccount(_player->GetSession()->GetSecurity()))
+    _player->AdditionalSavingAddMask(ADDITIONAL_SAVING_ACHIEVEMENTS);
+
+    if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL) && !_player->GetSession()->HasPermission(rbac::RBAC_PERM_CANNOT_EARN_REALM_FIRST_ACHIEVEMENTS))
         sAchievementMgr->SetRealmCompleted(achievement);
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, achievement->ID);
@@ -2964,7 +2976,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
         Field* fields = result->Fetch();
 
         uint16 achievementId = fields[0].Get<uint16>();
-        const AchievementEntry* achievement = sAchievementStore.LookupEntry(achievementId);
+        AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId);
         if (!achievement)
         {
             // Remove non existent achievements from all characters
