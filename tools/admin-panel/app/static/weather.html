@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Погода — админ-панель</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark">AC</span> Панель</a>
+    <nav class="nav">
+      <a href="/">Модули</a>
+      <a href="/board.html">Доска</a>
+      <a href="/spells.html">Мастерская</a>
+      <a href="/dex.html">Каталог</a>
+      <a href="/api/docs">API</a>
+      <a href="/envfx.html">Окружение</a>
+      <a class="active" href="/weather.html">Погода</a>
+    </nav>
+    <div id="module-state" class="health">…</div>
+    <div class="spacer"></div>
+    <button id="btn-refresh" class="btn ghost" title="Перечитать состояние зон с worldserver">Обновить</button>
+    <button id="btn-reload" class="btn ghost" title=".aw reload — перечитать конфиг модуля на PTR">Перечитать конфиг</button>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <input id="zone-filter" class="input" type="search" placeholder="Фильтр зон…" autocomplete="off">
+      <div id="zone-list" class="zone-list"></div>
+      <div class="sidebar-foot">
+        <div id="live-count" class="muted"></div>
+      </div>
+    </aside>
+
+    <section id="editor" class="editor">
+      <div class="empty">Выберите зону слева.</div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/weather.js"></script>
+</body>
+</html>

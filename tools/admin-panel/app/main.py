@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import (board, config, dbc, envfx, export, italents, registry, soap,
-               spelldex, spells)
+               spelldex, spells, weather)
 from .db import query_one
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
@@ -661,11 +661,56 @@ def italents_reload(_: str = Admin) -> dict:
         raise HTTPException(502, str(exc)) from exc
 
 
+# --- advanced weather -----------------------------------------------------
+# Единственный редактор, который ничего не пишет в БД: погода живёт в памяти
+# worldserver'а, и панель разговаривает с ним по SOAP командами ".aw".
+# Поэтому и SOAP-ошибка здесь не 500, а 502 — сервер недоступен, не панель.
+
+def _weather_call(fn):
+    try:
+        return fn()
+    except weather.WeatherError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    except soap.SoapError as exc:
+        raise HTTPException(502, f"SOAP: {exc}") from exc
+
+
+@app.get("/api/weather")
+def weather_overview(_: str = Admin) -> dict:
+    return _weather_call(weather.overview)
+
+
+@app.get("/api/weather/zones/{zone_id}")
+def weather_zone(zone_id: int, _: str = Admin) -> dict:
+    return _weather_call(lambda: weather.zone(zone_id))
+
+
+@app.put("/api/weather/zones/{zone_id}")
+def weather_set(zone_id: int, payload: weather.SetPayload,
+                _: str = Admin) -> dict:
+    return _weather_call(lambda: weather.set_weather(zone_id, payload))
+
+
+@app.post("/api/weather/zones/{zone_id}/pin")
+def weather_pin(zone_id: int, _: str = Admin) -> dict:
+    return _weather_call(lambda: weather.pin(zone_id))
+
+
+@app.post("/api/weather/zones/{zone_id}/release")
+def weather_release(zone_id: int, _: str = Admin) -> dict:
+    return _weather_call(lambda: weather.release(zone_id))
+
+
+@app.post("/api/weather/reload")
+def weather_reload(_: str = Admin) -> dict:
+    return {"ok": True, "output": _weather_call(weather.reload_module)}
+
+
 # --- static UI ------------------------------------------------------------
 
 PAGES = {"": "index.html", "envfx": "envfx.html", "board": "board.html",
          "spells": "spells.html", "dex": "dex.html",
-         "italents": "italents.html"}
+         "italents": "italents.html", "weather": "weather.html"}
 
 
 @app.get("/")
