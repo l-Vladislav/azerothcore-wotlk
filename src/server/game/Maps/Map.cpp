@@ -2881,6 +2881,18 @@ void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGra
     SendZoneMessage(zoneId, WorldPackets::Misc::Weather(weatherId, weatherGrade).Write());
 }
 
+WeatherState Map::GetZoneOverrideWeather(uint32 zoneId) const
+{
+    ZoneDynamicInfoMap::const_iterator itr = _zoneDynamicInfo.find(zoneId);
+    return itr == _zoneDynamicInfo.end() ? WEATHER_STATE_FINE : itr->second.WeatherId;
+}
+
+float Map::GetZoneOverrideWeatherGrade(uint32 zoneId) const
+{
+    ZoneDynamicInfoMap::const_iterator itr = _zoneDynamicInfo.find(zoneId);
+    return itr == _zoneDynamicInfo.end() ? 0.0f : itr->second.WeatherGrade;
+}
+
 void Map::SetZoneOverrideLight(uint32 zoneId, uint32 lightId, Milliseconds fadeInTime)
 {
     ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];

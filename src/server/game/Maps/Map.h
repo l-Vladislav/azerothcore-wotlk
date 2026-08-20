@@ -460,6 +460,12 @@ public:
     void SetZoneMusic(uint32 zoneId, uint32 musicId);
     Weather* GetOrGenerateZoneDefaultWeather(uint32 zoneId);
     void SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGrade);
+    // Weather laid over the zone by SetZoneWeather, for modules that drive it
+    // (mod-advanced-weather) or react to it (mod-environmental-effects). Fog and
+    // black snow exist only as an override: the Weather object cannot hold them.
+    // WEATHER_STATE_FINE means "no override", the zone runs on its own weather.
+    [[nodiscard]] WeatherState GetZoneOverrideWeather(uint32 zoneId) const;
+    [[nodiscard]] float GetZoneOverrideWeatherGrade(uint32 zoneId) const;
     void SetZoneOverrideLight(uint32 zoneId, uint32 lightId, Milliseconds fadeInTime);
 
     // Checks encounter state at kill/spellcast, originally in InstanceScript however not every map has instance script :(
