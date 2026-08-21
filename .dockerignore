@@ -21,3 +21,8 @@
 /launcher/
 /.claude/
 modules/**/.git/
+# The `**` form above did not actually exclude anything (2.8GB context observed
+# on 2026-08-21, ~780MB of it module .git dirs). Module clones are exactly one
+# level deep, so match them literally as well.
+modules/*/.git
+modules/*/.git/**
