@@ -29,11 +29,11 @@ DELETE FROM `smart_scripts` WHERE `entryorguid` IN (190010, 190011, 190012) AND 
 -- template deletion below)
 DELETE ca FROM `creature_addon` ca
   JOIN `creature` c ON c.`guid` = ca.`guid`
-  JOIN `creature_template` ct ON ct.`entry` = c.`id1`
+  JOIN `creature_template` ct ON ct.`entry` = c.`id`
  WHERE ct.`entry` IN (190010, 190011, 190012)
    AND ct.`name` IN ('Guardian Wolf Cub', 'Falcon Chick', 'Raven Fledgling');
 DELETE c FROM `creature` c
-  JOIN `creature_template` ct ON ct.`entry` = c.`id1`
+  JOIN `creature_template` ct ON ct.`entry` = c.`id`
  WHERE ct.`entry` IN (190010, 190011, 190012)
    AND ct.`name` IN ('Guardian Wolf Cub', 'Falcon Chick', 'Raven Fledgling');
 
