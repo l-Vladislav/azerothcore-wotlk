@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+
+# Файлы карты погоды: подложка — арт Blizzard, контуры зон производны от
+# клиентских данных. Собираются локально: scripts/build-map-assets.ps1
+app/static/maps/
