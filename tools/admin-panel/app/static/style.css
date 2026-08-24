@@ -751,3 +751,325 @@ a.chip:hover, button.chip:hover {
 .toast.hidden { display: none; }
 .toast.err { border-color: var(--err); }
 .toast.ok { border-color: var(--buff); }
+
+/* --- weather map ---------------------------------------------------------- */
+/* Карта поверх подложки из клиента. Контуры зон — SVG в координатах area-сетки
+ * (см. scripts/gen_zone_geometry.py), поэтому всё внутри одного viewBox и
+ * тянется вместе с окном. */
+
+.main-col { display: flex; flex-direction: column; min-width: 0; }
+
+/* Страница погоды: список зон | карта | всё про выбранную зону.
+   Список сворачивается — зону можно выбрать прямо на карте, и освободившееся
+   место забирают карта и правая колонка, а не пустота. */
+.layout-3 {
+  grid-template-columns:
+    280px minmax(0, 1fr) clamp(330px, 25vw, 460px);
+}
+/* Скрытая колонка выпадает из потока grid, поэтому у свёрнутого состояния
+   своя раскладка на две колонки, а не нулевая первая: иначе карта уезжает в
+   колонку нулевой ширины. */
+.layout-3.no-sidebar {
+  grid-template-columns: minmax(0, 1fr) clamp(360px, 28vw, 540px);
+}
+.layout-3.no-sidebar .sidebar { display: none; }
+
+/* Страница ровно в окно: скроллятся колонки, а не она сама.
+   Высота шапки НЕ вычитается числом. Так было, и это стоило пяти пикселей
+   вертикального скролла на любом размере окна: остальная страница считает
+   шапку 48 px, а на деле она 53. Здесь колонки просто забирают остаток flex. */
+@media (min-width: 1151px) {
+  body.page-fixed { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+  body.page-fixed .topbar { flex: none; position: static; }
+  body.page-fixed .layout-3 {
+    flex: 1; min-height: 0; height: auto; overflow: hidden;
+  }
+  body.page-fixed .sidebar,
+  body.page-fixed .side-right { position: static; max-height: 100%; }
+  body.page-fixed .main-col { overflow-y: auto; }
+}
+
+@media (max-width: 1500px) {
+  .layout-3 { grid-template-columns: 250px minmax(0, 1fr) clamp(320px, 27vw, 420px); }
+}
+/* Узкий экран: колонки не ужимаются дальше, а встают друг под друга — карта
+   во всю ширину, под ней работа с зоной. */
+@media (max-width: 1150px) {
+  .layout-3, .layout-3.no-sidebar { grid-template-columns: minmax(0, 1fr); }
+  .layout-3 .sidebar {
+    position: static; max-height: 260px; border-right: none;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .layout-3 .side-right {
+    position: static; max-height: none; border-left: none;
+    border-top: 1px solid var(--line-strong);
+  }
+  /* Столбиком страница и так листается - незачем ещё и жать карту по высоте. */
+  .wmap-canvas { max-width: min(100%, 1360px); }
+}
+
+.side-right {
+  border-left: 1px solid var(--line-strong);
+  background: linear-gradient(#171a21, #101319);
+  padding: 14px 14px 20px; display: flex; flex-direction: column; gap: 16px;
+  max-height: calc(100vh - 48px); overflow-y: auto;
+  position: sticky; top: 48px;
+}
+/* Редактор внутри колонки: своих полей у него больше нет, их даёт колонка. */
+.side-right .editor { padding: 0; }
+.side-right .pool { padding: 12px; }
+.side-right .pool h2 { font-size: 14px; }
+.side-right .zone-actions { flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
+/* На узком экране шапка перестаёт быть одной строкой: иначе последняя кнопка
+   уезжает за край и до неё не дотянуться. */
+@media (max-width: 1150px) {
+  .topbar { flex-wrap: wrap; row-gap: 8px; }
+}
+.side-block { display: flex; flex-direction: column; gap: 8px; }
+.side-subtitle {
+  color: var(--gold-dim); font-size: 11px; text-transform: uppercase;
+  letter-spacing: .3px; margin-top: 6px;
+  display: flex; align-items: center; gap: 6px;
+}
+.card-rows { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.card-row { display: flex; align-items: baseline; gap: 8px; }
+.card-name { color: var(--muted); }
+.card-value { flex: 1; text-align: right; color: var(--text); }
+.card-value.dim { color: var(--muted); }
+.side-title {
+  font-family: var(--serif); font-size: 13px; color: var(--gold);
+  letter-spacing: .4px; text-transform: uppercase;
+  border-bottom: 1px solid var(--line); padding-bottom: 5px;
+  display: flex; align-items: center; gap: 7px;
+}
+
+.wmap { padding: 14px 22px 0; }
+.wmap-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+.wmap-title {
+  font-family: var(--serif); font-size: 17px; color: var(--gold-bright);
+  letter-spacing: .5px;
+}
+/* Вкладки континентов вместо заголовка: карта одна, континентов несколько. */
+.wmap-tab {
+  font: inherit; font-family: var(--serif); font-size: 16px;
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--muted); cursor: pointer; padding: 2px 2px 4px;
+  letter-spacing: .4px;
+}
+.wmap-tab:hover { color: var(--text); }
+.wmap-tab.active { color: var(--gold-bright); border-bottom-color: var(--gold); }
+
+.wmap-canvas {
+  /* Три потолка сразу: ширина колонки, родной размер листа с запасом (выше
+     1360 px картинка мылится) и высота окна. Последний важнее прочих: лист
+     имеет соотношение 1.5, и без него на широком экране карта вылезала за
+     нижний край и тянула за собой вертикальный скролл всей страницы. 150 px -
+     это шапка сайта, заголовок карты и поля вокруг неё. */
+  position: relative;
+  max-width: min(100%, 1360px, calc((100vh - 145px) * 1.5));
+  border: 1px solid var(--line-strong); border-radius: 3px; overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+}
+.wmap-svg { display: block; width: 100%; height: auto; }
+
+/* Границ у зон нет намеренно: любая обводка спорит с рисунком карты. Вместо
+ * неё — пятно света из центра зоны (радиальный градиент в weather-map.js),
+ * которое к краям уходит в ноль. Клик всё равно ловится всей фигурой: для
+ * pointer-events важно, что fill не none, а не его прозрачность. */
+.wmap-zone {
+  stroke: none; cursor: pointer; pointer-events: all;
+  transition: filter .25s ease;
+}
+.wmap-zone:hover { filter: brightness(1.35); }
+/* Выделение — то же свечение, только плотнее (яркость ставится в градиенте,
+ * см. paint()); здесь только лёгкая добавка насыщенности. */
+.wmap-zone.selected { filter: saturate(1.2); }
+.wmap-zone.inert { cursor: default; }
+.wmap-zone.inert:hover { filter: none; }
+
+.wmap-pin {
+  stroke: rgba(0, 0, 0, .7); stroke-width: 1.5; pointer-events: none;
+}
+.wmap-labels text {
+  fill: #f7f1e4; font-family: var(--serif);
+  paint-order: stroke; stroke: rgba(0, 0, 0, .75); stroke-width: 3px;
+  pointer-events: none; user-select: none;
+}
+
+/* Кнопки поверх карты. Правый край занят полосой погоды (225 px + отступы),
+   поэтому ряд прижат к её левой границе. */
+.wmap-tools {
+  position: absolute; top: 12px; right: 247px;
+  display: flex; gap: 5px;
+}
+.wmap-tool {
+  width: 30px; height: 30px; display: flex;
+  align-items: center; justify-content: center;
+  background: rgba(10, 12, 16, .74);
+  border: 1px solid var(--line-strong); border-radius: 3px;
+  color: var(--muted); cursor: pointer; padding: 0;
+}
+.wmap-tool:hover { color: var(--text); border-color: var(--gold-dim); }
+.wmap-tool.active { color: var(--gold-bright); border-color: var(--gold); }
+.wmap-tool svg { width: 18px; height: 18px; display: block; }
+
+/* Прячем только подписи: точки городов - не название, а единственная отметка
+   того, что зона там вообще есть. */
+.wmap-labels.hidden text { display: none; }
+
+/* Состояние выбранной зоны, левый верхний угол карты. */
+.wmap-zoneinfo {
+  position: absolute; left: 12px; top: 12px; pointer-events: none;
+  min-width: 180px; max-width: 240px;
+  background: rgba(10, 12, 16, .74);
+  border: 1px solid var(--line-strong); border-radius: 3px;
+  padding: 8px 11px; font-size: 11px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .55);
+}
+.wmap-zoneinfo-head {
+  display: flex; align-items: baseline; gap: 8px;
+  padding-bottom: 5px; margin-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.wmap-zoneinfo-name {
+  font-family: var(--serif); font-size: 13px; color: var(--gold-bright);
+}
+.wmap-zoneinfo-id { color: var(--muted); font-size: 11px; }
+.wmap-zoneinfo .card-rows { font-size: 11px; }
+/* Плашка не ловит мышь целиком, поэтому кнопке возвращаем это отдельно. */
+.wmap-zoneinfo .wmap-jump {
+  pointer-events: auto; margin-top: 7px; width: 100%;
+  font: inherit; cursor: pointer; padding: 3px 6px;
+  background: var(--panel-2); color: var(--gold);
+  border: 1px solid var(--line-strong); border-radius: 3px;
+}
+.wmap-zoneinfo .wmap-jump:hover { border-color: var(--gold-dim); color: var(--gold-bright); }
+
+/* Полоса быстрых кнопок вдоль правого края карты. Прокручивается сама:
+   состояний четырнадцать, а карта на невысоком экране короче их столбика. */
+.wmap-states {
+  position: absolute; right: 10px; top: 10px; bottom: 10px; width: 225px;
+  display: flex; flex-direction: column; gap: 3px; overflow-y: auto;
+  background: rgba(10, 12, 16, .74);
+  border: 1px solid var(--line-strong); border-radius: 3px;
+  padding: 8px 9px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .55);
+}
+.wmap-states-title {
+  font-family: var(--serif); font-size: 12px; color: var(--gold-bright);
+  padding-bottom: 5px; border-bottom: 1px solid var(--line);
+}
+.wmap-states-group {
+  font-size: 10px; letter-spacing: .3px; text-transform: uppercase;
+  color: var(--gold-dim); margin-top: 5px;
+}
+..wmap-states-hint { font-size: 11px; color: var(--muted); }
+
+/* Квадраты с иконкой вместо длинных кнопок: в 225 px полосу помещается ряд из
+   четырёх, и весь набор погоды виден без прокрутки. */
+.wmap-state-grid {
+  /* Размер квадрата задан явно, а не долей ширины: групп по две-три кнопки, и
+     от «четырёх в ряд» они растягивались бы вслед за шириной полосы. */
+  display: grid; grid-template-columns: repeat(auto-fill, 38px); gap: 4px;
+}
+.wmap-state {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(#1c202a, #14171d);
+  border: 1px solid var(--line-strong); border-radius: 3px;
+  color: var(--muted); cursor: pointer; padding: 0;
+  transition: color .15s ease, border-color .15s ease, background .15s ease;
+}
+.wmap-state:hover { color: var(--text); border-color: var(--gold-dim); }
+.wmap-state.active {
+  color: var(--gold-bright); border-color: var(--gold);
+  background: linear-gradient(#2a2418, #1b1811);
+}
+.wmap-icon { display: block; width: 18px; height: 18px; }
+.wmap-icon svg { width: 100%; height: 100%; display: block; }
+
+/* Сила, удержание и действия внутри полосы: рамка и фон у них свои не нужны -
+   полоса сама и есть карточка. */
+.wmap-states .pool {
+  background: none; border: none; padding: 0; margin-top: 10px;
+}
+.wmap-states .pool h2 { font-size: 12px; margin-bottom: 5px; }
+.wmap-states .pool { margin-top: 8px; }
+/* Полоса и без того длинная: значки подсказок в рядах кнопок съедают по
+   строке каждый. Объяснение осталось одно — на заголовке блока. */
+.wmap-states .zone-actions .help { display: none; }
+.wmap-states .zone-actions {
+  display: flex; flex-direction: column; align-items: stretch;
+  gap: 5px; margin: 0;
+}
+.wmap-states .zone-actions .btn { width: 100%; }
+/* Ряд с ползунком остаётся рядом: столбиком он разваливается на «ползунок»,
+   «90%», знак вопроса и подпись отдельными строками. */
+.wmap-states .grade-row {
+  flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px;
+}
+.wmap-states .grade-row input[type="range"] { flex: 1 1 100%; }
+.wmap-states .grade-row .input { width: 64px; }
+.wmap-states .pool .zone-actions > span { color: var(--muted); font-size: 11px; }
+
+.wmap-tip {
+  position: absolute; display: none; pointer-events: none; z-index: 5;
+  background: linear-gradient(#12151b, #0b0d11);
+  border: 1px solid var(--gold-dim); border-radius: 3px;
+  padding: 7px 10px; font-size: 12px; max-width: 260px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .7);
+}
+.wmap-tip.show { display: block; }
+
+/* Плашка обозначений поверх карты. Курсор сквозь неё проходит: под ней всё
+ * равно только море, но перекрывать клик по зоне она не должна. */
+.wmap-legend-box {
+  position: absolute; left: 12px; bottom: 12px; pointer-events: none;
+  background: rgba(10, 12, 16, .74);
+  border: 1px solid var(--line-strong); border-radius: 3px;
+  padding: 8px 11px; max-width: 190px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .55);
+}
+.wmap-legend-title {
+  font-family: var(--serif); font-size: 11px; color: var(--gold);
+  letter-spacing: .3px; text-transform: uppercase;
+  margin-bottom: 7px; padding-bottom: 5px;
+  border-bottom: 1px solid var(--line);
+}
+/* Сетка, а не flex: точка, название и число должны стоять в три ровных
+   столбца, иначе строки разъезжаются по ширине названий. */
+.wmap-legend {
+  display: grid; grid-template-columns: 11px 1fr auto;
+  gap: 5px 8px; align-items: center;
+  font-size: 11px; color: #b9b3a5; min-width: 156px;
+}
+.wmap-legend .wmap-summary-row { display: contents; }
+.wmap-legend .wmap-summary-name { text-align: left; }
+.wmap-legend .wmap-summary-count { text-align: right; }
+.wmap-summary-pinned { grid-column: 1 / -1; }
+.wmap-legend .wmap-summary-row.empty { opacity: .45; }
+.wmap-summary-pinned { margin-top: 6px; color: var(--gold-dim); font-size: 11px; }
+.wmap-key { display: inline-flex; align-items: center; gap: 6px; }
+.wmap-dot {
+  width: 11px; height: 11px; border-radius: 2px; display: inline-block;
+  border: 1px solid rgba(0, 0, 0, .5);
+}
+.wmap-dot.pinned { background: transparent; border: 2px solid var(--gold); }
+.wmap-pinned-name {
+  color: var(--gold-bright); font-family: var(--serif);
+  text-shadow: 0 0 3px rgba(0, 0, 0, .8);
+}
+
+.wmap-offmap { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; }
+
+.wmap-summary-row { display: flex; align-items: center; gap: 7px; }
+.wmap-summary-name { flex: 1; color: #cfc8b8; }
+.wmap-legend .wmap-summary-row.empty > * { opacity: .45; }
+.wmap-summary-count { color: var(--gold); font-family: var(--serif); }
+.wmap-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line-strong); border-radius: 3px;
+  padding: 3px 8px; cursor: pointer; font: inherit;
+}
+.wmap-chip:hover { border-color: var(--gold-dim); }
+.wmap-chip.active { border-color: var(--gold); color: var(--gold-bright); }

@@ -662,9 +662,11 @@ def italents_reload(_: str = Admin) -> dict:
 
 
 # --- advanced weather -----------------------------------------------------
-# Единственный редактор, который ничего не пишет в БД: погода живёт в памяти
-# worldserver'а, и панель разговаривает с ним по SOAP командами ".aw".
-# Поэтому и SOAP-ошибка здесь не 500, а 502 — сервер недоступен, не панель.
+# Погода живёт в памяти worldserver'а, и панель разговаривает с ним по SOAP
+# командами ".aw". Поэтому и SOAP-ошибка здесь не 500, а 502 — сервер
+# недоступен, не панель. Исключение одно: связи зон это настройка, а не живое
+# состояние, они лежат в таблице, и панель пишет её напрямую, а серверу лишь
+# говорит перечитать.
 
 def _weather_call(fn):
     try:
@@ -699,6 +701,28 @@ def weather_pin(zone_id: int, _: str = Admin) -> dict:
 @app.post("/api/weather/zones/{zone_id}/release")
 def weather_release(zone_id: int, _: str = Admin) -> dict:
     return _weather_call(lambda: weather.release(zone_id))
+
+
+@app.get("/api/weather/zones/{zone_id}/links")
+def weather_links(zone_id: int, _: str = Admin) -> dict:
+    return _weather_call(lambda: weather.links(zone_id))
+
+
+@app.put("/api/weather/zones/{zone_id}/links")
+def weather_links_set(zone_id: int, payload: weather.LinksPayload,
+                      _: str = Admin) -> dict:
+    return _weather_call(lambda: weather.set_links(zone_id, payload))
+
+
+@app.get("/api/weather/links")
+def weather_links_live(_: str = Admin) -> dict:
+    """Связи, которыми worldserver руководствуется прямо сейчас."""
+    return {"links": _weather_call(weather.server_links)}
+
+
+@app.post("/api/weather/links/reload")
+def weather_links_reload(_: str = Admin) -> dict:
+    return {"ok": True, "loaded": _weather_call(weather.reload_links)}
 
 
 @app.post("/api/weather/reload")

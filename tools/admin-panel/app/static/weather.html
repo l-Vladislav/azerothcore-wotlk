@@ -6,7 +6,7 @@
   <title>Погода — админ-панель</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body class="page-fixed">
   <header class="topbar">
     <a class="brand" href="/"><span class="brand-mark">AC</span> Панель</a>
     <nav class="nav">
@@ -20,27 +20,41 @@
     </nav>
     <div id="module-state" class="health">…</div>
     <div class="spacer"></div>
+    <button id="btn-sidebar" class="btn ghost" title="Скрыть или показать список зон">Список зон</button>
     <button id="btn-refresh" class="btn ghost" title="Перечитать состояние зон с worldserver">Обновить</button>
     <button id="btn-reload" class="btn ghost" title=".aw reload — перечитать конфиг модуля на PTR">Перечитать конфиг</button>
   </header>
 
-  <main class="layout">
+  <main id="layout" class="layout layout-3">
     <aside class="sidebar">
       <input id="zone-filter" class="input" type="search" placeholder="Фильтр зон…" autocomplete="off">
       <div id="zone-list" class="zone-list"></div>
-      <div class="sidebar-foot">
-        <div id="live-count" class="muted"></div>
-      </div>
     </aside>
 
-    <section id="editor" class="editor">
-      <div class="empty">Выберите зону слева.</div>
-    </section>
+    <div class="main-col">
+      <section id="weather-map" class="wmap"></section>
+    </div>
+
+    <!-- Правая колонка - вся работа с зоной: сначала её состояние, потом
+         управление. Под картой редактор оставлял пустую половину экрана. -->
+    <aside id="weather-side" class="side-right">
+      <section id="editor" class="editor">
+        <div class="empty">Выберите зону на карте или в списке.</div>
+      </section>
+      <!-- Климат идёт последним: это справка о том, из чего режиссёр выбирает,
+           а не то, чем управляют каждый день. -->
+      <div class="side-block" id="zone-climate"></div>
+      <div class="side-block">
+        <div class="side-title">Вне карты континента</div>
+        <div id="map-offmap" class="wmap-offmap"></div>
+      </div>
+    </aside>
   </main>
 
   <div id="toast" class="toast hidden"></div>
 
   <script src="/static/common.js"></script>
+  <script src="/static/weather-map.js"></script>
   <script src="/static/weather.js"></script>
 </body>
 </html>
