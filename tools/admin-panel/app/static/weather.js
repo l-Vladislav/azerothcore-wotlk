@@ -61,6 +61,7 @@ async function load(silent) {
     renderZoneCard();
     renderZoneClimate();
     renderMapStates();
+    WeatherMap.setCyclones(data.cyclones || []);
     WeatherMap.render(state.zones, state.selected);
   } catch (err) {
     renderModuleState(err);
@@ -76,8 +77,18 @@ function renderModuleState(err) {
     return;
   }
   const mod = state.data.module || {};
-  box.appendChild(el('span', mod.enabled ? 'good' : 'bad',
-    mod.enabled ? 'режиссёр включён' : 'режиссёр выключен (Enable = 0)'));
+  // Откуда взято состояние, важно не меньше самого состояния: выключенный
+  // режиссёр — это либо AdvancedWeather.Enable = 0, либо кнопка на карте, и
+  // чинить это надо в разных местах.
+  const from = mod.stored ? ' (переключателем)'
+    : mod.can_toggle ? ' (из конфига)' : ' (Enable = 0)';
+  const link = el('a', mod.enabled ? 'good' : 'bad',
+    (mod.enabled ? 'режиссёр включён' : 'режиссёр выключен') + from);
+  // Кликабельно намеренно: прочитал «выключен» - там же и включил, не ища,
+  // где эта кнопка живёт.
+  link.href = '/weather-settings.html';
+  link.title = 'Настройки режиссёра и циклонов';
+  box.appendChild(link);
 
   // Старый протокол = worldserver не пересобран. Страница работает, но про
   // связи он ещё не знает, и молча делать вид, что всё на месте, нельзя.
@@ -927,10 +938,12 @@ state.timer = setInterval(() => load(true), REFRESH_MS);
 document.addEventListener('wmap:rebuilt', () => {
   renderZoneCard();
   renderMapStates();
+  WeatherMap.setCyclones((state.data && state.data.cyclones) || []);
 });
 
 WeatherMap.init().then(() => {
   renderZoneCard();
   renderMapStates();
+  WeatherMap.setCyclones((state.data && state.data.cyclones) || []);
 });
 load(false);

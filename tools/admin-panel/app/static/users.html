@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Люди — админ-панель</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark">AC</span> Панель</a>
+    <nav class="nav">
+      <a href="/">Модули</a>
+      <a href="/board.html">Доска</a>
+      <a href="/spells.html">Мастерская</a>
+      <a href="/dex.html">Каталог</a>
+      <a href="/api/docs">API</a>
+    </nav>
+    <div class="spacer"></div>
+    <button id="btn-invite" class="btn primary">＋ Пригласить</button>
+  </header>
+
+  <main class="home">
+    <section class="hero">
+      <h1>Люди и доступ</h1>
+      <p>Профиль заводится только по ссылке. Ты выбираешь роль, панель выдаёт
+         одноразовую ссылку со сроком — тот, кто по ней придёт, сам придумает
+         себе логин и пароль. Все его правки потом видны в
+         <a href="/audit.html">журнале</a>.</p>
+    </section>
+
+    <h2 class="section-title">Роли</h2>
+    <section class="tiles" id="role-legend"></section>
+
+    <h2 class="section-title">Профили</h2>
+    <div class="hint" id="users-hint">Загрузка…</div>
+    <div class="table-wrap">
+      <table class="grid" id="users-table"></table>
+    </div>
+
+    <h2 class="section-title">Приглашения</h2>
+    <div class="hint" id="invites-hint">Загрузка…</div>
+    <div class="table-wrap">
+      <table class="grid" id="invites-table"></table>
+    </div>
+  </main>
+
+  <div id="invite-modal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <strong>Новое приглашение</strong>
+        <div class="spacer"></div>
+        <button id="invite-close" class="btn ghost">Закрыть</button>
+      </div>
+      <div class="modal-body" id="invite-form"></div>
+      <div class="modal-foot">
+        <div class="spacer"></div>
+        <button id="invite-create" class="btn primary">Выдать ссылку</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="link-modal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <strong>Ссылка готова</strong>
+        <div class="spacer"></div>
+        <button id="link-close" class="btn ghost">Закрыть</button>
+      </div>
+      <div class="modal-body">
+        <p class="hint">Панель показывает её один раз — она нигде не хранится,
+           в базе лежит только её отпечаток. Закроешь окно — придётся выдавать
+           новую.</p>
+        <textarea id="link-value" class="input link-box" readonly rows="3"></textarea>
+        <div id="link-meta" class="hint"></div>
+      </div>
+      <div class="modal-foot">
+        <div class="spacer"></div>
+        <button id="link-copy" class="btn primary">Скопировать</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/users.js"></script>
+</body>
+</html>

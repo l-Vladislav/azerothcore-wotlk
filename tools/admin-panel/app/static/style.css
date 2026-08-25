@@ -115,6 +115,10 @@ h1, h2, .brand, .col-name, .section-title, .tile-value, .zone-head h1 {
 .health { font-size: 12px; color: var(--muted); display: flex; gap: 10px; }
 .health .bad { color: var(--err); }
 .health .good { color: var(--buff); }
+/* Состояние режиссёра в шапке — ссылка на его настройки: подчёркивание
+   только по наведению, иначе строка состояния читается как навигация. */
+.health a { color: inherit; text-decoration: none; border-bottom: 1px dotted currentColor; }
+.health a:hover { border-bottom-style: solid; }
 
 /* --- controls ------------------------------------------------------------- */
 
@@ -911,7 +915,14 @@ a.chip:hover, button.chip:hover {
 }
 .wmap-tool:hover { color: var(--text); border-color: var(--gold-dim); }
 .wmap-tool.active { color: var(--gold-bright); border-color: var(--gold); }
+.wmap-tool.off { opacity: .45; cursor: default; }
+.wmap-tool.off:hover { color: var(--muted); border-color: var(--line-strong); }
+.wmap-tool.busy { opacity: .6; cursor: progress; }
 .wmap-tool svg { width: 18px; height: 18px; display: block; }
+
+/* Тот же ряд кнопок, когда карты нет и класть его поверх нечего. */
+.wmap-tools-inline { position: relative; margin-top: 10px; }
+.wmap-tools-inline .wmap-tools { position: static; }
 
 /* Прячем только подписи: точки городов - не название, а единственная отметка
    того, что зона там вообще есть. */
@@ -1073,3 +1084,261 @@ a.chip:hover, button.chip:hover {
 }
 .wmap-chip:hover { border-color: var(--gold-dim); }
 .wmap-chip.active { border-color: var(--gold); color: var(--gold-bright); }
+
+/* --- страница настроек погоды -------------------------------------------
+   Одна колонка с ограниченной шириной: это не таблица данных, а форма, и
+   поля длиной во весь монитор читаются хуже коротких. */
+.wset {
+  max-width: 1080px; margin: 0 auto; padding: 20px 22px 40px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+
+/* Главный переключатель. Крупнее всего остального намеренно: пока он выключен,
+   вся страница ниже — украшение. */
+.wset-hero {
+  border: 1px solid var(--line-strong); border-radius: 4px;
+  background: linear-gradient(#1b1f27, #14171d);
+  padding: 18px 20px;
+}
+.wset-hero-row { display: flex; align-items: center; gap: 20px; }
+.wset-hero-text { flex: 1; min-width: 0; }
+.wset-hero-name {
+  font-family: var(--serif); font-size: 19px; color: var(--gold-bright);
+  letter-spacing: .4px; margin-bottom: 4px;
+}
+.wset-hero-hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.wset-hero-src {
+  margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line);
+  font-size: 11px; color: var(--muted);
+}
+
+.wset-switch {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(10, 12, 16, .74); border: 1px solid var(--line-strong);
+  border-radius: 999px; padding: 6px 14px 6px 6px;
+  color: var(--muted); cursor: pointer; font: inherit; font-size: 13px;
+  flex-shrink: 0;
+}
+.wset-switch:hover { border-color: var(--gold-dim); color: var(--text); }
+.wset-switch.on { border-color: var(--gold); color: var(--gold-bright); }
+.wset-switch.off { opacity: .45; cursor: default; }
+.wset-switch-knob {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--muted); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .5);
+}
+.wset-switch.on .wset-switch-knob {
+  background: var(--gold-bright); box-shadow: 0 0 8px rgba(220, 180, 90, .55);
+}
+.wset-switch.small { font-size: 12px; padding: 4px 11px 4px 4px; }
+.wset-switch.small .wset-switch-knob { width: 13px; height: 13px; }
+
+.wset-groups { display: flex; flex-direction: column; gap: 18px; }
+.wset-block {
+  border: 1px solid var(--line-strong); border-radius: 4px;
+  background: #14171d; padding: 16px 18px 18px;
+}
+.wset-block-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px;
+}
+.wset-title {
+  font-family: var(--serif); font-size: 16px; color: var(--gold-bright);
+  letter-spacing: .4px; margin: 0 0 4px;
+}
+.wset-grouphint {
+  font-size: 11.5px; color: var(--muted); line-height: 1.5;
+  margin-bottom: 14px; max-width: 70ch;
+}
+
+.wset-grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+}
+.wset-field {
+  border: 1px solid var(--line); border-radius: 3px;
+  background: rgba(10, 12, 16, .35); padding: 10px 12px 8px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+/* Переопределённое из базы — золотой кромкой: по странице сразу видно, что
+   именно уехало от конфига. */
+.wset-field.stored { border-left: 2px solid var(--gold); }
+.wset-field-head { display: flex; align-items: center; gap: 6px; }
+.wset-field-label { font-size: 12.5px; color: var(--text); }
+.wset-int { display: flex; align-items: center; gap: 8px; }
+.wset-int .input { width: 92px; }
+.wset-unit { font-size: 11.5px; color: var(--muted); }
+.wset-range { font-size: 10.5px; color: var(--muted); margin-left: auto; }
+.wset-field-foot {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 10.5px; color: var(--muted);
+}
+.wset-reset {
+  margin-left: auto; background: none; border: none; padding: 0;
+  color: var(--gold-dim); cursor: pointer; font: inherit; font-size: 10.5px;
+  text-decoration: underline dotted;
+}
+.wset-reset:hover { color: var(--gold-bright); }
+
+/* Живые фронты. Карточка на фронт: их единицы, таблица тут была бы пустой
+   формой ради формы. */
+.wset-cyclones {
+  display: grid; gap: 12px; margin-top: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.wset-cyc {
+  position: relative; border: 1px solid var(--line); border-radius: 3px;
+  background: rgba(10, 12, 16, .35); padding: 10px 12px 10px;
+}
+.wset-cyc.g-rain { border-left: 2px solid #4aa3ff; }
+.wset-cyc.g-snow { border-left: 2px solid #cfe9ff; }
+.wset-cyc.g-storm { border-left: 2px solid #d59a4a; }
+.wset-cyc.g-clear { border-left: 2px solid #d8c48a; }
+.wset-cyc-head {
+  display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px;
+  padding-right: 28px;
+}
+.wset-cyc-name { font-family: var(--serif); font-size: 13.5px; color: var(--gold-bright); }
+.wset-cyc-family { font-size: 11px; color: var(--muted); }
+.wset-cyc-arrow {
+  position: absolute; top: 9px; right: 10px; width: 20px; height: 20px;
+  color: var(--gold-dim);
+}
+.wset-cyc-grid {
+  display: grid; grid-template-columns: auto 1fr; gap: 3px 10px;
+  font-size: 11.5px;
+}
+.wset-cyc-k { color: var(--muted); }
+.wset-cyc-v { color: var(--text); text-align: right; }
+
+/* --- циклоны на карте погоды -------------------------------------------
+   Круг фронта лежит МЕЖДУ подложкой и зонами: свечение зоны должно читаться
+   поверх него, иначе непонятно, какая именно погода в зоне стоит. */
+.wmap-cyclone { pointer-events: none; }
+.wmap-cyclone-ring { fill: none; stroke-width: 1.6; opacity: .55; }
+/* Текстура вихря. Половинная прозрачность: под фронтом должно быть видно,
+   какая погода в зоне СТОИТ, иначе карта под ним слепнет. Обычное смешивание,
+   не screen: у текстуры тёмные полосы между рукавами несут форму, а screen
+   съедает всё тёмное и оставляет одно свечение. */
+.wmap-cyclone-texture { opacity: .5; }
+/* Глаз: тонкая обводка, чтобы светлая середина читалась как глаз, а не как
+   дырка в заливке. */
+.wmap-cyclone-eye { fill: none; stroke-width: 1.1; opacity: .5; }
+@keyframes wmap-cyclone-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }   /* против часовой, как в жизни */
+}
+.wmap-cyclone-arrow { stroke-width: 2.2; stroke-linecap: round; opacity: .85; }
+.wmap-cyclone-label {
+  font-size: 10px; fill: rgba(235, 226, 205, .8);
+  text-anchor: middle; paint-order: stroke;
+  stroke: rgba(8, 10, 14, .85); stroke-width: 2.5px;
+}
+
+/* --- who is signed in ----------------------------------------------------- */
+/* The chip is appended to .topbar by common.js rather than written into every
+ * page's markup — there are ten of them and the nav is already duplicated. */
+
+.me { position: relative; }
+.me-name {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 1px;
+  padding: 3px 10px; cursor: pointer;
+  background: transparent; color: var(--text);
+  border: 1px solid var(--line-strong); border-radius: 4px;
+  font: inherit; line-height: 1.15;
+}
+.me-name:hover { border-color: var(--gold-dim); color: var(--gold-bright); }
+.me-role { color: var(--muted); font-size: 10px; letter-spacing: .4px; }
+.me-menu {
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 40;
+  min-width: 170px; padding: 4px;
+  background: var(--panel-2); border: 1px solid var(--line-strong);
+  border-radius: 5px; box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+  display: flex; flex-direction: column;
+}
+.me-item {
+  padding: 6px 10px; text-align: left; cursor: pointer;
+  background: transparent; border: 0; border-radius: 3px;
+  color: var(--text); font: inherit;
+}
+.me-item:hover { background: rgba(200, 170, 110, .1); color: var(--gold-bright); }
+
+/* --- sign-in / invitation pages ------------------------------------------- */
+
+.gate { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.gate-box {
+  width: min(420px, 100%); padding: 26px 26px 20px;
+  background: var(--panel); border: 1px solid var(--line-strong);
+  border-radius: 8px; box-shadow: 0 18px 50px rgba(0, 0, 0, .45);
+}
+.gate-brand {
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--serif); color: var(--gold); letter-spacing: .5px;
+}
+.gate-title { margin: 14px 0 16px; font-size: 22px; color: var(--gold-bright); }
+.gate-form { display: flex; flex-direction: column; gap: 12px; }
+.gate-field { display: flex; flex-direction: column; gap: 4px; }
+.gate-field > span { color: var(--gold-dim); font-size: 11px; letter-spacing: .5px; }
+.gate-submit { margin-top: 4px; }
+.gate-error {
+  padding: 8px 10px; border-radius: 4px; font-size: 13px;
+  color: var(--err); border: 1px solid rgba(255, 107, 107, .4);
+  background: rgba(255, 107, 107, .08);
+}
+.gate-alt { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 12px; }
+.gate-alt summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+.gate-alt summary:hover { color: var(--gold); }
+.gate-alt .field, .gate-alt .gate-field { margin: 10px 0; }
+.gate-alt code, .banner code { color: var(--gold); font-size: 12px; }
+.gate-foot { margin: 16px 0 0; }
+
+/* --- plain data tables ---------------------------------------------------- */
+
+.table-wrap { overflow-x: auto; margin-top: 12px; }
+.grid {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 6px; overflow: hidden;
+}
+.grid th {
+  text-align: left; padding: 9px 12px; white-space: nowrap;
+  color: var(--gold-dim); font-weight: 400; font-size: 11px;
+  letter-spacing: .5px; text-transform: uppercase;
+  border-bottom: 1px solid var(--line-strong); background: var(--panel-2);
+}
+.grid td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.grid tbody tr:last-child td { border-bottom: 0; }
+.grid tbody tr:hover { background: rgba(200, 170, 110, .04); }
+.grid .row-off { opacity: .5; }
+.row-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+.btn.tiny.danger:hover { border-color: var(--err); color: var(--err); }
+.link-box { width: 100%; resize: vertical; font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+
+/* --- change log ----------------------------------------------------------- */
+
+.log { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.log-row {
+  display: flex; gap: 14px; padding: 10px 12px;
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 2px solid var(--line-strong); border-radius: 5px;
+}
+.log-row.log-bad { border-left-color: var(--err); }
+.log-when {
+  min-width: 62px; font-variant-numeric: tabular-nums;
+  color: var(--gold); font-size: 13px; line-height: 1.25;
+}
+.log-when .muted { font-size: 11px; }
+.log-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.log-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.log-line strong { font-weight: 400; }
+.log-target { color: var(--gold-bright); font-size: 13px; }
+.log-status { color: var(--err); border-color: rgba(255, 107, 107, .45); }
+.log-who { font-size: 11px; word-break: break-word; }
+.log-payload summary { cursor: pointer; color: var(--muted); font-size: 11px; }
+.log-payload summary:hover { color: var(--gold); }
+.log-payload pre {
+  margin: 6px 0 0; padding: 9px 10px; max-height: 320px; overflow: auto;
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: 4px;
+  font-family: ui-monospace, Consolas, monospace; font-size: 11px;
+  color: var(--muted); white-space: pre-wrap; word-break: break-word;
+}
+.log-more { display: flex; justify-content: center; margin: 16px 0 0; }

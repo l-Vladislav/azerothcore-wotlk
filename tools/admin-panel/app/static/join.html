@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Приглашение — админ-панель</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="gate">
+    <section class="gate-box">
+      <div class="gate-brand"><span class="brand-mark">AC</span> Панель</div>
+      <h1 class="gate-title">Приглашение</h1>
+
+      <div id="invite" class="hint">Проверяем ссылку…</div>
+
+      <form id="form" class="gate-form hidden" autocomplete="on">
+        <label class="gate-field">
+          <span>Логин</span>
+          <input id="login" class="input" name="username" autocomplete="username"
+                 autocapitalize="off" spellcheck="false" required
+                 placeholder="латиница, цифры, точка, дефис">
+        </label>
+        <label class="gate-field">
+          <span>Как тебя показывать</span>
+          <input id="name" class="input" maxlength="64"
+                 placeholder="имя на доске и в журнале">
+        </label>
+        <label class="gate-field">
+          <span>Пароль</span>
+          <input id="password" class="input" type="password" name="password"
+                 autocomplete="new-password" required minlength="8"
+                 placeholder="минимум 8 символов">
+        </label>
+        <label class="gate-field">
+          <span>Пароль ещё раз</span>
+          <input id="password2" class="input" type="password"
+                 autocomplete="new-password" required minlength="8">
+        </label>
+        <div id="error" class="gate-error hidden"></div>
+        <button id="submit" class="btn primary gate-submit" type="submit">
+          Создать профиль
+        </button>
+      </form>
+
+      <p class="gate-foot hint">Ссылка одноразовая и с сроком. Если она не
+         принимается — попроси у владельца новую.</p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/join.js"></script>
+</body>
+</html>

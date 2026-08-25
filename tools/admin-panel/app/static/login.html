@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход — админ-панель</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="gate">
+    <section class="gate-box">
+      <div class="gate-brand"><span class="brand-mark">AC</span> Панель</div>
+      <h1 class="gate-title">Вход</h1>
+
+      <div id="bootstrap" class="banner hidden">
+        Профилей ещё нет. Войди общим токеном из <code>ADMIN_PANEL_TOKEN</code>,
+        затем заведи людей на странице «Люди».
+      </div>
+
+      <form id="form" class="gate-form" autocomplete="on">
+        <label class="gate-field">
+          <span>Логин</span>
+          <input id="login" class="input" name="username" autocomplete="username"
+                 autocapitalize="off" spellcheck="false" required>
+        </label>
+        <label class="gate-field">
+          <span>Пароль</span>
+          <input id="password" class="input" type="password" name="password"
+                 autocomplete="current-password" required>
+        </label>
+        <div id="error" class="gate-error hidden"></div>
+        <button id="submit" class="btn primary gate-submit" type="submit">Войти</button>
+      </form>
+
+      <details class="gate-alt">
+        <summary>Войти общим токеном</summary>
+        <p class="hint">Запасной ход владельца: тот же токен, что в
+           <code>ADMIN_PANEL_TOKEN</code>. Даёт права владельца и не создаёт
+           профиля — в журнале такие правки подписаны как <code>root</code>.</p>
+        <div class="gate-field">
+          <input id="token" class="input" type="password"
+                 placeholder="ADMIN_PANEL_TOKEN" autocomplete="off">
+        </div>
+        <button id="token-submit" class="btn">Войти токеном</button>
+      </details>
+
+      <p class="gate-foot hint">Профиль заводится только по ссылке-приглашению
+         от владельца панели.</p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/login.js"></script>
+</body>
+</html>

@@ -942,7 +942,7 @@ async function init() {
   // Needed before the first icon preview renders, not just when the picker
   // opens; /api/health carries it and is cheap.
   try {
-    ICON_BASE = (await fetch('/api/health').then(r => r.json())).icon_base_url || '';
+    ICON_BASE = (await api('/api/health')).icon_base_url || '';
   } catch (e) { /* previews fall back to the blank icon */ }
 
   document.getElementById('f-block').addEventListener('change', async e => {

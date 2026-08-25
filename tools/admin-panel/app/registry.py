@@ -26,6 +26,14 @@ class ModuleInfo(BaseModel):
 
 MODULES: list[ModuleInfo] = [
     ModuleInfo(
+        id="items",
+        name="Каталог предметов",
+        summary="Поиск по item_template, копии в собственных блоках id, "
+                "правка свойств и выгрузка в миграцию.",
+        status="ready", url="/items.html", icon="cube",
+        tags=["предметы", "мир"],
+    ),
+    ModuleInfo(
         id="env-effects",
         name="Эффекты окружения",
         summary="Баффы и дебаффы по зонам: погода, время суток, пулы спеллов.",
@@ -38,6 +46,14 @@ MODULES: list[ModuleInfo] = [
         summary="Режиссёр погоды: состояние зоны, сила, закрепление, туман и гроза.",
         status="ready", url="/weather.html", icon="weather",
         tags=["зоны", "погода"],
+    ),
+    ModuleInfo(
+        id="advanced-weather-settings",
+        name="Настройки погоды",
+        summary="Режиссёр, циклоны и все числа модуля - без правки конфига "
+                "и рестарта.",
+        status="ready", url="/weather-settings.html", icon="weather",
+        tags=["погода", "настройки", "циклоны"],
     ),
     ModuleInfo(
         id="familiars",

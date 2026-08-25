@@ -307,6 +307,37 @@ SPELL_COLUMNS = layout([
 
 SPELL_ICON_COLUMNS = layout([("ID", "i"), ("TextureFilename", "s")])
 
+# ItemDisplayInfo.dbc, 3.3.5a: 25 полей. Каталогу предметов нужна из них ровно
+# одна колонка - InventoryIcon_1, имя текстуры иконки; остальные перечислены,
+# потому что смещения считаются по порядку и пропустить их нельзя.
+ITEM_DISPLAY_INFO_COLUMNS = layout([
+    ("ID", "i"),
+    ("ModelName", "s", 2),
+    ("ModelTexture", "s", 2),
+    ("InventoryIcon", "s", 2),
+    ("GeosetGroup", "i", 3),
+    ("Flags", "i"),
+    ("SpellVisualID", "i"),
+    ("GroupSoundIndex", "i"),
+    ("HelmetGeosetVis", "i", 2),
+    ("Texture", "s", 8),
+    ("ItemVisual", "i"),
+    ("ParticleColorID", "i"),
+])
+
+# Item.dbc, 3.3.5a: 8 полей. Клиентская половина предмета - трёхмерный вид,
+# ножны и материал. Тултип и иконку клиент спрашивает у сервера, а это - нет.
+ITEM_COLUMNS = layout([
+    ("ID", "i"),
+    ("ClassID", "i"),
+    ("SubclassID", "i"),
+    ("Sound_Override_Subclassid", "i"),
+    ("Material", "i"),
+    ("DisplayInfoID", "i"),
+    ("InventoryType", "i"),
+    ("SheatheType", "i"),
+])
+
 SPELL_DURATION_COLUMNS = layout([
     ("ID", "i"), ("Duration", "i"), ("DurationPerLevel", "i"),
     ("MaxDuration", "i"),

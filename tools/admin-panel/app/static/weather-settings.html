@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Настройки погоды — админ-панель</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark">AC</span> Панель</a>
+    <nav class="nav">
+      <a href="/">Модули</a>
+      <a href="/board.html">Доска</a>
+      <a href="/spells.html">Мастерская</a>
+      <a href="/dex.html">Каталог</a>
+      <a href="/api/docs">API</a>
+      <a href="/envfx.html">Окружение</a>
+      <a href="/weather.html">Погода</a>
+      <a class="active" href="/weather-settings.html">Настройки погоды</a>
+    </nav>
+    <div id="module-state" class="health">…</div>
+    <div class="spacer"></div>
+    <button id="btn-refresh" class="btn ghost" title="Перечитать настройки с worldserver">Обновить</button>
+    <button id="btn-reload" class="btn ghost" title=".aw reload — перечитать конфиг модуля и связи зон">Перечитать конфиг</button>
+  </header>
+
+  <main class="wset">
+    <!-- Главный переключатель отдельно и первым: всё остальное на странице
+         имеет смысл только пока режиссёр работает. -->
+    <section id="director" class="wset-hero"></section>
+
+    <div id="groups" class="wset-groups"></div>
+
+    <!-- Фронты идут последними: это не настройка, а то, что из настроек
+         получилось - живая сводка, по которой видно, сработала ли правка. -->
+    <section class="wset-block">
+      <div class="wset-block-head">
+        <h2 class="wset-title">Фронты сейчас в мире</h2>
+        <button id="btn-cycreset" class="btn ghost" title="Смести все фронты и запустить новые">Перезапустить фронты</button>
+      </div>
+      <div id="cyclones" class="wset-cyclones"></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/weather-settings.js"></script>
+</body>
+</html>
