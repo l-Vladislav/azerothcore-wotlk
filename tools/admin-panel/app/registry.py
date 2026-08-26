@@ -26,6 +26,14 @@ class ModuleInfo(BaseModel):
 
 MODULES: list[ModuleInfo] = [
     ModuleInfo(
+        id="world-items",
+        name="Мировые предметы",
+        summary="Что разложено по карте: привязанный предмет, кто поставил, "
+                "сколько человек уже забрало.",
+        status="ready", url="/worlditems.html", icon="cube",
+        tags=["предметы", "мир", "лут"],
+    ),
+    ModuleInfo(
         id="items",
         name="Каталог предметов",
         summary="Поиск по item_template, копии в собственных блоках id, "

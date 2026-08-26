@@ -18,7 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import (audit, board, config, dbc, envfx, export, italents, items,
-               registry, soap, spelldex, spells, users, weather)
+               registry, soap, spelldex, spells, users, weather, worlditems)
 from .db import query_one
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
@@ -604,6 +604,59 @@ def item_export_sql(_: users.Actor = Owner) -> dict:
         raise HTTPException(500, str(exc)) from exc
 
 
+# --- world items ----------------------------------------------------------
+# Placements are created in game, by the addon: a point cannot be picked on a
+# browser map — there is no height there and no room geometry, and the object
+# has to be sat on the ground and turned. The panel owns everything else.
+
+@app.get("/api/worlditems/meta")
+def world_item_meta(_: users.Actor = Viewer) -> dict:
+    return {"available": worlditems.available(),
+            "icon_base_url": config.ICON_BASE_URL}
+
+
+@app.get("/api/worlditems")
+def world_item_list(only_enabled: bool = False,
+                    _: users.Actor = Viewer) -> dict:
+    if not worlditems.available():
+        raise HTTPException(503, "Таблицы mod_world_items нет — примените "
+                                 "миграцию и пересоберите worldserver.")
+    return {"items": worlditems.list_all(only_enabled=only_enabled)}
+
+
+class WorldItemIn(BaseModel):
+    fields: dict
+
+
+@app.patch("/api/worlditems/{placement_id}")
+def world_item_update(placement_id: int, payload: WorldItemIn,
+                      _: users.Actor = Owner) -> dict:
+    try:
+        row = worlditems.update(placement_id, dict(payload.fields))
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    if not row:
+        raise HTTPException(404, "Размещение %d не найдено." % placement_id)
+    return row
+
+
+@app.delete("/api/worlditems/{placement_id}")
+def world_item_delete(placement_id: int, _: users.Actor = Owner) -> dict:
+    if not worlditems.delete(placement_id):
+        raise HTTPException(404, "Размещение %d не найдено." % placement_id)
+    return {"ok": True}
+
+
+@app.post("/api/worlditems/{placement_id}/reset-loot")
+def world_item_reset(placement_id: int, _: users.Actor = Owner) -> dict:
+    """Forget who picked this up, so it becomes visible to them again.
+
+    Needed after re-pointing a placement at a different item: everyone who
+    already looted the old one would otherwise never see the new one.
+    """
+    return {"ok": True, "forgotten": worlditems.reset_loot(placement_id)}
+
+
 # --- spell catalogue ------------------------------------------------------
 # Read-only, and deliberately separate from the workshop above: this one spans
 # all ~55 000 spells the server knows, the workshop only the ones we author.
@@ -1072,6 +1125,7 @@ def audit_meta(_: users.Actor = Owner) -> dict:
 PAGES = {"": "index.html", "envfx": "envfx.html", "board": "board.html",
          "spells": "spells.html", "dex": "dex.html",
          "italents": "italents.html", "items": "items.html",
+         "worlditems": "worlditems.html",
          "weather": "weather.html",
          "weather-settings": "weather-settings.html",
          # Reachable signed-out by design: they are the way in.
