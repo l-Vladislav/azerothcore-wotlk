@@ -25,6 +25,7 @@
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "ObjectAccessor.h"
 #include "GroupMgr.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
@@ -1270,6 +1271,30 @@ bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
     }
 
     return false;
+}
+
+void GameObject::HideFor(ObjectGuid guid)
+{
+    if (!_hiddenFor)
+        _hiddenFor = std::make_unique<GuidUnorderedSet>();
+
+    if (!_hiddenFor->insert(guid).second)
+        return;
+
+    // Игроку, который объект уже видит, мало перестать его показывать: клиент
+    // держит созданный объект у себя, пока не получит команду его убрать.
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
+        if (player->IsInWorld() && player->GetMap() == GetMap())
+            DestroyForPlayer(player);
+}
+
+void GameObject::ShowForAll()
+{
+    if (!_hiddenFor)
+        return;
+
+    _hiddenFor.reset();
+    UpdateObjectVisibility();
 }
 
 bool GameObject::IsInvisibleDueToDespawn() const

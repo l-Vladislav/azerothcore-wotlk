@@ -27,6 +27,18 @@ const WeatherMap = (() => {
     },
   };
 
+  // Пересчёт мировых координат в клетки карты. Ровно та же арифметика, что в
+  // scripts/gen_zone_geometry.py (cell_of / crop_to_map): грид 533.33 ярда на
+  // 16 клеток, X растёт на север (это строка), Y на запад (это столбец).
+  // Прямоугольник континента лежит в самой геометрии, поле "rect".
+  const SIZE_OF_GRIDS = 533.3333;
+  const CELLS_PER_GRID = 16;
+  const YARDS_PER_CELL = SIZE_OF_GRIDS / CELLS_PER_GRID;
+
+  function cellOf(coord) {
+    return CELLS_PER_GRID * (32 - coord / SIZE_OF_GRIDS);
+  }
+
   // Цвет группы состояний. Насыщенность даёт сила погоды, поэтому базовый
   // цвет здесь один на группу — иначе карта превращается в радугу.
   // Ниже этого размера зона подписывается точкой, а не именем.
@@ -59,6 +71,11 @@ const WeatherMap = (() => {
     // острова) они закрывают ровно то, что человек пришёл разглядывать.
     showLabels: localStorage.getItem('weatherMapLabels') !== '0',
     labelsGroup: null,
+    // Фронты, идущие сейчас по этому континенту. Рисуются под зонами:
+    // свечение зоны должно читаться поверх круга, иначе непонятно, какая
+    // погода в зоне СТОИТ.
+    cyclones: [],
+    cyclonesGroup: null,
     // Что было выбрано на прошлой перерисовке: по смене этого значения (и
     // только по ней) карта сама листается на нужный континент.
     lastSelected: null,
@@ -66,6 +83,12 @@ const WeatherMap = (() => {
 
   function host() {
     return document.getElementById('weather-map');
+  }
+
+  // SVG-узлы создаются только через namespace, а их здесь десятки — полное
+  // имя занимало больше места, чем сама фигура.
+  function el2(tag) {
+    return document.createElementNS('http://www.w3.org/2000/svg', tag);
   }
 
   // --- построение -----------------------------------------------------------
@@ -123,6 +146,11 @@ const WeatherMap = (() => {
         + 'клиента, контуры зон из серверных .map. В репозиторий эти файлы не '
         + 'кладутся.';
       box.appendChild(hint);
+      // Кнопки всё равно нужны: без собранной карты режиссёра иначе нечем
+      // переключить. Ряд тот же, просто не поверх картинки, а под подсказкой.
+      const inline = el('div', 'wmap-tools-inline');
+      inline.appendChild(tools());
+      box.appendChild(inline);
       return;
     }
     if (!view.geometry) return;
@@ -149,6 +177,13 @@ const WeatherMap = (() => {
     // общий на всех не поставить, координаты центра зашиты в него самого.
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     svg.appendChild(defs);
+
+    // Фронты идут сразу за подложкой, до зон: круг — это «где сейчас
+    // непогода», а цвет зоны — «что в ней стоит», и второе должно быть сверху.
+    const fronts = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    fronts.classList.add('wmap-cyclones');
+    svg.appendChild(fronts);
+    view.cyclonesGroup = fronts;
 
     const shapes = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     const texts = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -383,8 +418,8 @@ const WeatherMap = (() => {
   // По карте видно, ГДЕ идёт снег, но не сколько зон он накрыл. Строки с
   // нулём остаются: плашка заодно объясняет цвета, а пропавший «снег» пришлось
   // бы вспоминать по памяти.
-  // Кнопки поверх карты. Пока одна - подписи зон; место под ряд оставлено
-  // намеренно, следующие переключатели встанут сюда же.
+  // Кнопки поверх карты: подписи зон и переключатель режиссёра. Обе про то,
+  // что человек видит прямо здесь, поэтому обе здесь, а не в шапке.
   //
   // showTip/hideTip зовутся через window: в этом модуле есть свои функции с
   // теми же именами (подсказка по зоне под курсором), и они перекрывают общие
@@ -422,6 +457,147 @@ const WeatherMap = (() => {
     });
     box.appendChild(btn);
     return box;
+  }
+
+  // Фронты приезжают со страницы вместе с зонами: карта их только рисует.
+  function setCyclones(list) {
+    view.cyclones = Array.isArray(list) ? list : [];
+    drawCyclones();
+  }
+
+  // Текстура вихря. Рисованная, лежит в репозитории; готовит её из исходника
+  // scripts/make_cyclone_texture.py. Процедурный фрактальный шум, стоявший тут
+  // раньше, давал облака, но не давал спирали, а спутниковый снимок пришлось
+  // бы перекрашивать и он спорил с рисованной картой.
+  //
+  // Прозрачность живёт в CSS (.wmap-cyclone-texture), а не здесь: её правят
+  // чаще, чем что-либо ещё в этом файле.
+  const CYCLONE_TEXTURE = '/static/cyclone.png';
+
+  function drawCyclones() {
+    const g = view.cyclonesGroup;
+    if (!g) return;
+    g.innerHTML = '';
+
+    const geo = view.geometry;
+    if (!geo || !geo.rect) return;
+
+    // rect = [left, right, top, bottom]; left/right — это Y мира, top/bottom — X.
+    const c0 = Math.round(cellOf(geo.rect[0]));
+    const r0 = Math.round(cellOf(geo.rect[2]));
+
+    view.cyclones.forEach(c => {
+      // Фронт живёт на конкретной карте. Кель'Талас и дренейские острова
+      // нарисованы на этих листах, но физически лежат на карте Запределья —
+      // их фронты сюда и не попадут, это честно, а не забыто.
+      if (c.map !== geo.map) return;
+
+      const cx = cellOf(c.y) - c0;
+      const cy = cellOf(c.x) - r0;
+      const r = c.radius / YARDS_PER_CELL;
+      if (r <= 0) return;
+
+      const eye = (c.eye || 0) / YARDS_PER_CELL;
+      const color = GROUP_COLOR[c.family_group] || GROUP_COLOR.clear;
+      const node = el2('g');
+      node.classList.add('wmap-cyclone');
+
+      // Текстура вращается вместе с фронтом. Своих рукавов поверх неё не
+      // рисуем: на ней они уже есть, и вторая, нарисованная спираль
+      // читалась бы как два вихря в одном месте.
+      const swirl = el2('g');
+      swirl.classList.add('wmap-cyclone-swirl');
+
+      const photo = el2('image');
+      photo.setAttribute('href', CYCLONE_TEXTURE);
+      photo.setAttribute('x', String(cx - r));
+      photo.setAttribute('y', String(cy - r));
+      photo.setAttribute('width', String(r * 2));
+      photo.setAttribute('height', String(r * 2));
+      photo.classList.add('wmap-cyclone-texture');
+      swirl.appendChild(photo);
+
+      // Оборот ровно за столько же, за сколько крутит сервер: период тоже
+      // приезжает в протоколе, потому что настройка правится на лету и
+      // зашитая тут константа разошлась бы с ней на первой же правке.
+      // Промежуточные кадры рисует CSS, а каждые 15 секунд угол
+      // подтверждается сервером — расхождение не копится.
+      //
+      // Начальный угол ставим трансформацией самой группы, а вращение —
+      // анимацией внутри: иначе поворот с сервера и анимация перетирали бы
+      // друг друга, и спираль дёргалась бы на каждом обновлении.
+      const spun = el2('g');
+      spun.setAttribute('transform',
+        `rotate(${(-(c.spin || 0)).toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})`);
+      spun.appendChild(swirl);
+      if (c.spin_minutes > 0) {
+        swirl.style.transformOrigin = `${cx}px ${cy}px`;
+        swirl.style.transformBox = 'view-box';
+        swirl.style.animation =
+          `wmap-cyclone-spin ${c.spin_minutes * 60}s linear infinite`;
+      }
+      node.appendChild(spun);
+
+      // Кромка и глаз не крутятся: они круглые, вращать их нечего, а лишний
+      // анимированный узел — лишняя перерисовка.
+      const ring = el2('circle');
+      ring.setAttribute('cx', String(cx));
+      ring.setAttribute('cy', String(cy));
+      ring.setAttribute('r', String(r));
+      ring.setAttribute('stroke', color);
+      ring.setAttribute('stroke-dasharray', '6 5');
+      ring.classList.add('wmap-cyclone-ring');
+      node.appendChild(ring);
+
+      if (eye > 1) {
+        const pupil = el2('circle');
+        pupil.setAttribute('cx', String(cx));
+        pupil.setAttribute('cy', String(cy));
+        pupil.setAttribute('r', String(eye));
+        pupil.setAttribute('stroke', color);
+        pupil.classList.add('wmap-cyclone-eye');
+        node.appendChild(pupil);
+      }
+
+      // Стрелка курса из центра. Курс сервер считает в мировых осях, поэтому
+      // и здесь он раскладывается по тем же осям, а не по экранным.
+      const rad = c.heading * Math.PI / 180;
+      const dx = Math.cos(rad);   // вдоль мирового X — это строка, экранный Y
+      const dy = Math.sin(rad);   // вдоль мирового Y — это столбец, экранный X
+      const len = Math.min(r * 0.72, 46);
+      const arrow = el2('path');
+      // cellOf убывает при росте координаты, поэтому у обеих осей знак минус.
+      const ex = cx - dy * len;
+      const ey = cy - dx * len;
+      arrow.setAttribute('d', `M${cx.toFixed(1)} ${cy.toFixed(1)}`
+        + ` L${ex.toFixed(1)} ${ey.toFixed(1)}`);
+      arrow.setAttribute('stroke', color);
+      arrow.setAttribute('fill', 'none');
+      arrow.classList.add('wmap-cyclone-arrow');
+      node.appendChild(arrow);
+
+      const head = el2('path');
+      const wing = 7;
+      const px = -dx, py = dy;      // перпендикуляр к курсу в экранных осях
+      head.setAttribute('d',
+        `M${ex.toFixed(1)} ${ey.toFixed(1)}`
+        + ` l${(dy * wing + px * wing * 0.6).toFixed(1)} ${(dx * wing + py * wing * 0.6).toFixed(1)}`
+        + ` M${ex.toFixed(1)} ${ey.toFixed(1)}`
+        + ` l${(dy * wing - px * wing * 0.6).toFixed(1)} ${(dx * wing - py * wing * 0.6).toFixed(1)}`);
+      head.setAttribute('stroke', color);
+      head.setAttribute('fill', 'none');
+      head.classList.add('wmap-cyclone-arrow');
+      node.appendChild(head);
+
+      const label = el2('text');
+      label.setAttribute('x', String(cx));
+      label.setAttribute('y', String(cy - r - 6));
+      label.classList.add('wmap-cyclone-label');
+      label.textContent = c.family_name;
+      node.appendChild(label);
+
+      g.appendChild(node);
+    });
   }
 
   function renderSummary() {
@@ -502,7 +678,7 @@ const WeatherMap = (() => {
   }
 
   return {
-    init, render,
+    init, render, setCyclones,
     continent: () => view.key,
     hasMap: key => !!SRC[key],
     show: setContinent,

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Журнал изменений — админ-панель</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark">AC</span> Панель</a>
+    <nav class="nav">
+      <a href="/">Модули</a>
+      <a href="/board.html">Доска</a>
+      <a href="/spells.html">Мастерская</a>
+      <a href="/dex.html">Каталог</a>
+      <a href="/api/docs">API</a>
+    </nav>
+    <div class="spacer"></div>
+    <input id="q" class="input filter-input" type="search" placeholder="Поиск…"
+           autocomplete="off">
+    <select id="f-area" class="sel"></select>
+    <select id="f-actor" class="sel"></select>
+    <button id="f-failed" class="btn ghost" title="Только отказы и ошибки">
+      Только ошибки
+    </button>
+    <button id="btn-reload" class="btn">Обновить</button>
+  </header>
+
+  <main class="home">
+    <section class="hero">
+      <h1>Журнал изменений</h1>
+      <p>Каждая правка через панель: кто, когда, в каком модуле и что именно
+         отправил. Пишется на все изменяющие запросы разом, а не отдельно в
+         каждом редакторе — поэтому дыр в нём нет. Чтения не записываются.</p>
+    </section>
+
+    <section class="tiles" id="audit-tiles"></section>
+
+    <div class="hint" id="log-hint">Загрузка…</div>
+    <section class="log" id="log"></section>
+    <div class="log-more">
+      <button id="btn-more" class="btn ghost hidden">Показать ещё</button>
+    </div>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/audit.js"></script>
+</body>
+</html>

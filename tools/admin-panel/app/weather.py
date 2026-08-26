@@ -16,6 +16,10 @@ One table it does own: `mod_advanced_weather_zone_link`, the zone links. Those
 are not live state but a setting, so they live in the database and the module
 re-reads them on `.aw linkreload`. The panel writes the table and sends that
 command; everything else on this page still goes through SOAP.
+
+The director switch (`.aw enable`) is a setting too, but the panel does not
+write its table — the module does, so that the command line and the panel
+cannot disagree about it. Here it is one more `.aw` call.
 """
 
 import datetime
@@ -58,6 +62,7 @@ SOURCES = {
     1: "вручную",
     2: "закреплено",
     3: "по связи",
+    4: "фронт",
 }
 
 # Протокол, который панель умеет читать. Меньший номер = worldserver не
@@ -67,6 +72,148 @@ PROTOCOL = "3"
 # Ниже 0.27 клиент показывает «ясно» независимо от состояния
 # (Weather::GetWeatherState), поэтому ползунок в UI начинается с 30%.
 GRADE_MIN_PCT = 30
+
+# --- настройки модуля -----------------------------------------------------
+# Имена, границы и значения по умолчанию приходят с сервера (".aw cfg"):
+# реестр живёт в C++, и дублировать его тут значило бы разойтись при первой же
+# правке. Панель добавляет только то, чего в реестре нет и быть не должно —
+# человеческое имя, пояснение и группу, в которой поле стоит на странице.
+
+SETTING_GROUPS: list[dict] = [
+    {"key": "director", "name": "Режиссёр",
+     "hint": "Кто ведёт погоду и как часто он оглядывает мир."},
+    {"key": "cyclones", "name": "Циклоны",
+     "hint": "Фронты, идущие через всю карту. Фронт ставит погоду ТОЛЬКО "
+             "в зоне под своим центром - дальше она расходится по связям "
+             "зон, ровно как выставленная руками. Радиус, глаз, рукава и "
+             "вращение здесь - про рисунок; докуда достанет непогода, "
+             "решает «Глубина переноса» в связях."},
+    {"key": "rolls", "name": "Одиночные броски",
+     "hint": "Старая модель: каждая зона сама катает себе погоду на "
+             "случайный срок. Работает, только когда циклоны выключены."},
+    {"key": "links", "name": "Связи зон",
+     "hint": "ЕДИНСТВЕННЫЙ механизм растекания: и от фронта, и от "
+             "выставленной руками. Сами связи правятся на странице «Погода»."},
+]
+
+SETTING_META: dict[str, dict] = {
+    "enabled": {
+        "group": "director", "label": "Режиссёр включён", "kind": "bool",
+        "hint": "Выключенный модуль снимает свои наложения, и зоны "
+                "возвращаются под ядровую генерацию по game_weather.",
+    },
+    "debug": {
+        "group": "director", "label": "Подробный лог", "kind": "bool",
+        "hint": "Каждое решение и применение уезжает в канал «module».",
+    },
+    "tick_seconds": {
+        "group": "director", "label": "Тик режиссёра", "unit": "с",
+        "hint": "Как часто модуль осматривает мир. Это же интервал "
+                "самопочинки, если погоду сбила чужая команда.",
+    },
+    "manual_hold_minutes": {
+        "group": "director", "label": "Ручная погода держится", "unit": "мин",
+        "hint": "Сколько выставленная руками погода живёт до возврата "
+                "режиссёру. Закрепление этот таймер не использует.",
+    },
+    "cyclones_enabled": {
+        "group": "cyclones", "label": "Циклоны включены", "kind": "bool",
+        "hint": "Погоду носят движущиеся фронты, а не одиночные броски. "
+                "Фронт ставит её в зоне под своим центром, дальше разносят "
+                "связи. Между фронтами ясно — и переход видно.",
+    },
+    "cyclones_per_map": {
+        "group": "cyclones", "label": "Фронтов на карту", "unit": "шт",
+        "hint": "Сколько фронтов держать над каждым континентом. 0 — ни "
+                "одного, весь мир стоит ясным.",
+    },
+    "cyclone_radius": {
+        "group": "cyclones", "label": "Радиус фронта", "unit": "ярдов",
+        "hint": "На погоду НЕ влияет: фронт ставит её в зоне под центром, а "
+                "дальше дело связей. Радиус задаёт длину пути через карту и "
+                "размер рисунка.",
+    },
+    "cyclone_cross_minutes": {
+        "group": "cyclones", "label": "Пересечь карту за", "unit": "мин",
+        "hint": "Скорость задаётся временем, а не ярдами: одно число "
+                "одинаково хорошо смотрится и на Калимдоре, и на Запределье.",
+    },
+    "cyclone_calm_chance": {
+        "group": "cyclones", "label": "Шанс штиля", "unit": "%",
+        "hint": "С этим шансом освободившееся место фронта остаётся пустым "
+                "на тик. Без штиля над картой всегда ровно N фронтов.",
+    },
+    "cyclone_arms": {
+        "group": "cyclones", "label": "Рукавов спирали", "unit": "шт",
+        "hint": "Только рисунок: сколько рукавов у нарисованной спирали. "
+                "На погоду не влияет.",
+    },
+    "cyclone_eye_pct": {
+        "group": "cyclones", "label": "Глаз", "unit": "%",
+        "hint": "Только рисунок: светлая середина вихря. На погоду не "
+                "влияет - глаз у настоящего циклона меньше тысячи ярдов, а "
+                "зона в разы больше, так что её накрывает вал, а не затишье.",
+    },
+    "cyclone_band_angle": {
+        "group": "cyclones", "label": "Наклон рукавов", "unit": "°",
+        "hint": "Только рисунок. Угол, под которым рукав пересекает "
+                "окружности вокруг центра - у настоящих циклонов его и "
+                "меряют: типично 9-15°, разброс 0-40°.",
+    },
+    "cyclone_weak_chance": {
+        "group": "cyclones", "label": "Шанс слабого фронта", "unit": "%",
+        "hint": "Фронт ставит в своей зоне самую сильную обычную погоду "
+                "семейства: грозу, метель или сильную песчаную бурю. С этим "
+                "шансом он выходит на ступень слабее - иначе все фронты "
+                "одинаково грозовые.",
+    },
+    "cyclone_spin_minutes": {
+        "group": "cyclones", "label": "Оборот спирали за", "unit": "мин",
+        "hint": "Только рисунок: с какой скоростью крутится вихрь на карте, "
+                "против часовой стрелки. На погоду не влияет.",
+    },
+    "min_minutes": {
+        "group": "rolls", "label": "Фронт живёт от", "unit": "мин"},
+    "max_minutes": {
+        "group": "rolls", "label": "Фронт живёт до", "unit": "мин"},
+    "fog_chance": {
+        "group": "rolls", "label": "Туман", "unit": "%",
+        "hint": "Разыгрывается там, где климат не дал осадков. У циклонов "
+                "этим же шансом решается, будет ли фронт туманным.",
+    },
+    "thunders_chance": {
+        "group": "rolls", "label": "Гроза", "unit": "%",
+        "hint": "У циклонов — шанс, что в сердцевине фронта будет гроза.",
+    },
+    "black_rain_chance": {
+        "group": "rolls", "label": "Чёрный дождь", "unit": "%"},
+    "black_snow_chance": {
+        "group": "rolls", "label": "Чёрный снег", "unit": "%"},
+    "links_enabled": {
+        "group": "links", "label": "Переносить погоду соседям", "kind": "bool"},
+    "links_hops": {
+        "group": "links", "label": "Глубина переноса", "unit": "зон",
+        "hint": "1 - только прямой сосед; 2 - и сосед соседа, уже вдвойне "
+                "ослабленной. Гроза при связи 49% приезжает соседу дождём, а "
+                "через него - моросью. Назад к источнику погода не идёт.",
+    },
+    "links_respect_climate": {
+        "group": "links", "label": "С оглядкой на климат", "kind": "bool",
+        "hint": "Дождь из Хилсбрада приедет в Зимние Ключи снегом, а в "
+                "Танарис песчаной бурей. Тем же переводом пользуются циклоны.",
+    },
+}
+
+# Семейства осадков (AdvancedWeather::Family). Панель показывает, из чего
+# сделан фронт, и красит его в цвет группы.
+FAMILIES: dict[int, dict] = {
+    0: {"name": "без осадков", "group": "clear"},
+    1: {"name": "дождевой", "group": "rain"},
+    2: {"name": "снежный", "group": "snow"},
+    3: {"name": "песчаный", "group": "storm"},
+    4: {"name": "туманный", "group": "clear"},
+}
+
 
 # --- world zones ----------------------------------------------------------
 # Погода имеет смысл только под открытым небом. AreaTable даёт 100+ зон
@@ -139,17 +286,36 @@ _ZONE_RE = re.compile(
 _LINK_RE = re.compile(r"^AW:LINK:(\d+):(\d+):(\d+):(\d+)$")
 _ERR_RE = re.compile(r"^AW:ERR:([A-Z]+)$")
 _HELLO_RE = re.compile(r"^AW:HELLO:(\d+):(\d+)$")
+_ENABLED_RE = re.compile(r"^AW:ENABLED:(\d):(\d)$")
+_SETTING_RE = re.compile(r"^AW:SET:([a-z_]+):(\d+):(\d+):(\d):(\d+):(\d+)$")
+# Поля спирали (глаз, рукава, поворот, закрутка) приехали позже остальных:
+# на непересобранном worldserver'е их нет, и строка всё равно должна читаться —
+# фронт тогда просто нарисуется кругом.
+_CYCLONE_RE = re.compile(
+    r"^AW:CYC:(\d+):(\d+):(-?\d+):(-?\d+):(\d+):(\d+):(\d+):(\d+):(\d+):(\d+):(\d+)"
+    r"(?::(\d+):(\d+):(\d+):(\d+):(\d+))?$")
 
 ERRORS = {
-    "DISABLED": "Модуль выключен: AdvancedWeather.Enable = 0.",
+    "DISABLED": "Режиссёр выключен — включите его кнопкой на карте "
+                "(или AdvancedWeather.Enable в конфиге модуля).",
     "BADARG": "Сервер не принял аргументы команды.",
     "NOZONE": "Не указана зона.",
+    "NOSETTING": "Сервер не знает такой настройки.",
     "WEATHEROFF": "Погода отключена в конфиге сервера (Weather.Enabled).",
 }
 
 
 class WeatherError(RuntimeError):
     pass
+
+
+class DirectorPayload(BaseModel):
+    enabled: bool
+
+
+class SettingPayload(BaseModel):
+    # None = вернуть значение из конфига модуля (".aw cfg <имя> reset").
+    value: int | None = Field(default=None, ge=0, le=100000)
 
 
 class SetPayload(BaseModel):
@@ -217,11 +383,143 @@ def hello() -> dict:
     for line in _run("aw hello"):
         m = _HELLO_RE.match(line)
         if m:
-            return {"ok": True, "protocol": m.group(1),
-                    "enabled": m.group(2) == "1"}
+            status = {"ok": True, "protocol": m.group(1),
+                      "enabled": m.group(2) == "1"}
+            status.update(_director())
+            return status
     # Ядро отвечает на неизвестную команду списком доступных подкоманд.
     raise WeatherError("Worldserver не знает команду .aw — модуль не собран "
                        "или worldserver не перезапущен после сборки.")
+
+
+def _director() -> dict:
+    """Переключатель режиссёра: включён ли и откуда взято значение.
+
+    `can_toggle = False` означает, что worldserver собран без ".aw enable" —
+    страница тогда показывает состояние из `hello`, но кнопку не даёт нажать.
+    Ошибкой это не считается: на неизвестную подкоманду ядро отвечает списком
+    доступных, а не AW:ERR.
+    """
+    for line in _run("aw enable"):
+        m = _ENABLED_RE.match(line)
+        if m:
+            return {"can_toggle": True, "enabled": m.group(1) == "1",
+                    "stored": m.group(2) == "1"}
+    return {"can_toggle": False, "stored": False}
+
+
+def set_director(enabled: bool) -> dict:
+    """Включить или выключить режиссёра. Решение переживает рестарт.
+
+    Выключение не просто «перестать вмешиваться»: модуль ещё и снимает свои
+    наложения, иначе зона осталась бы с последней его погодой навсегда.
+    """
+    for line in _run(f"aw enable {1 if enabled else 0}"):
+        m = _ENABLED_RE.match(line)
+        if m:
+            return {"enabled": m.group(1) == "1", "stored": m.group(2) == "1"}
+    raise WeatherError("Worldserver не знает команду .aw enable — модуль не "
+                       "пересобран после появления переключателя.")
+
+
+def settings() -> dict:
+    """Все настройки модуля, как их отдаёт `.aw cfg`.
+
+    Пустой список означает worldserver без этой команды — страница настроек
+    тогда честно говорит, что её нечем наполнить, вместо того чтобы рисовать
+    пустые поля.
+    """
+    rows: list[dict] = []
+    for line in _run("aw cfg"):
+        m = _SETTING_RE.match(line)
+        if not m:
+            continue
+        name = m.group(1)
+        meta = SETTING_META.get(name, {})
+        rows.append({
+            "name": name,
+            "value": int(m.group(2)),
+            "default": int(m.group(3)),
+            "stored": m.group(4) == "1",
+            "min": int(m.group(5)),
+            "max": int(m.group(6)),
+            "label": meta.get("label", name),
+            "hint": meta.get("hint", ""),
+            "unit": meta.get("unit", ""),
+            # Границы 0..1 — это переключатель, что бы ни было написано в
+            # мета-данных: реестр на сервере тут авторитетнее.
+            "kind": "bool" if int(m.group(5)) == 0 and int(m.group(6)) == 1
+                    else meta.get("kind", "int"),
+            "group": meta.get("group", "director"),
+        })
+
+    known = {g["key"] for g in SETTING_GROUPS}
+    for row in rows:
+        if row["group"] not in known:
+            row["group"] = "director"
+
+    return {
+        "groups": SETTING_GROUPS,
+        "settings": rows,
+        "supported": bool(rows),
+    }
+
+
+def set_setting(name: str, value: int | None) -> dict:
+    """Записать настройку; `value = None` возвращает значение из конфига."""
+    arg = "reset" if value is None else str(int(value))
+    for line in _run(f"aw cfg {name} {arg}"):
+        m = _SETTING_RE.match(line)
+        if m and m.group(1) == name:
+            return {"name": name, "value": int(m.group(2)),
+                    "default": int(m.group(3)), "stored": m.group(4) == "1"}
+    raise WeatherError("Сервер не подтвердил настройку строкой AW:SET.")
+
+
+def _parse_cyclone(line: str) -> dict | None:
+    m = _CYCLONE_RE.match(line)
+    if not m:
+        return None
+    family = int(m.group(6))
+    meta = FAMILIES.get(family, FAMILIES[0])
+    return {
+        "id": int(m.group(1)),
+        "map": int(m.group(2)),
+        # Мировые ярды той карты, на которой фронт идёт. Пересчёт в пиксели
+        # карты делает weather-map.js: у него есть прямоугольник континента.
+        "x": int(m.group(3)),
+        "y": int(m.group(4)),
+        "radius": int(m.group(5)),
+        "family": family,
+        "family_name": meta["name"],
+        "family_group": meta["group"],
+        "peak": int(m.group(7)),
+        "heading": int(m.group(8)),
+        # Сервер шлёт сотые доли ярда в секунду: целым числом ярдов медленный
+        # фронт округлился бы в ноль.
+        "speed": int(m.group(9)) / 100.0,
+        "seconds_left": int(m.group(10)),
+        "zones": int(m.group(11)),
+        # Спираль. Глаз в ярдах, рукава штуками, поворот в градусах, закрутка
+        # логарифмической спирали r = eye * e^(twist * угол) — сервер шлёт её
+        # умноженной на 1000, чтобы протокол остался целочисленным. Панель
+        # рисует РОВНО по этим числам и своей константы закрутки не держит.
+        "eye": int(m.group(12) or 0),
+        "arms": int(m.group(13) or 0),
+        "spin": int(m.group(14) or 0),
+        "twist": int(m.group(15) or 0) / 1000.0,
+        # Период оборота: панель крутит рисунок ровно с этой скоростью.
+        "spin_minutes": int(m.group(16) or 0),
+    }
+
+
+def cyclones() -> list[dict]:
+    """Фронты, идущие по картам прямо сейчас."""
+    return [c for c in (_parse_cyclone(ln) for ln in _run("aw cyclones")) if c]
+
+
+def reset_cyclones() -> list[dict]:
+    return [c for c in (_parse_cyclone(ln) for ln in _run("aw cycreset")) if c]
 
 
 def climate_zones() -> dict[int, dict]:
@@ -262,6 +560,9 @@ def overview() -> dict:
     """
     status = hello()
     known = {z["zone_id"]: z for z in _zone_lines(_run("aw list"))}
+    # Фронты идут в тот же ответ: страница рисует их поверх той же карты и
+    # обновляет тем же таймером, лишний запрос раз в 15 секунд ни к чему.
+    fronts = cyclones() if status.get("can_toggle") else []
     climates = climate_zones()
     names = dbc.zone_names()
     counts = link_counts()
@@ -330,6 +631,7 @@ def overview() -> dict:
         "known_count": sum(1 for z in zones if z["known"]),
         "link_count": sum(z["links_out"] for z in zones),
         "links_table": bool(counts) or link_table_exists(),
+        "cyclones": fronts,
     }
 
 

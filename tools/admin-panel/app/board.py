@@ -1,59 +1,26 @@
 """Kanban board: bug tickets and feature ideas.
 
-Lives in its own schema (`config.BOARD_DB_NAME`, default `acore_admin`) rather
-than in `acore_world_ptr`, for two reasons: PTR snapshots get rolled back, and
-this is panel data, not game content. That is also why it deliberately does not
-go through `db.connect()` — that connector carries the PTR guard, which would
-reject `acore_admin` by design.
+Lives in the panel's own schema (`paneldb`, default `acore_admin`) rather than
+in `acore_world_ptr`: PTR snapshots get rolled back, and this is panel data,
+not game content. See `paneldb.py` for why that connector is separate.
 
 Ordering: cards carry an explicit `position` inside their column. A move
 renumbers only the columns it touched, so drag-and-drop is one small
 transaction.
 """
 
-import contextlib
 import datetime as _dt
-from typing import Any, Iterator, Literal
+from typing import Any, Literal
 
-import pymysql
 from pydantic import BaseModel, Field
-from pymysql.cursors import DictCursor
 
-from . import config
+from .paneldb import cursor, ensure
 
 KINDS = ("bug", "feature", "task")
 STATUSES = ("backlog", "todo", "doing", "review", "done")
 
 Kind = Literal["bug", "feature", "task"]
 Status = Literal["backlog", "todo", "doing", "review", "done"]
-
-
-# --- connection -----------------------------------------------------------
-
-def _connect(database: str | None) -> pymysql.connections.Connection:
-    return pymysql.connect(
-        host=config.DB_HOST, port=config.DB_PORT,
-        user=config.DB_USER, password=config.DB_PASS,
-        database=database, charset="utf8mb4",
-        cursorclass=DictCursor, autocommit=False,
-    )
-
-
-@contextlib.contextmanager
-def cursor(commit: bool = False) -> Iterator[DictCursor]:
-    conn = _connect(config.BOARD_DB_NAME)
-    try:
-        with conn.cursor() as cur:
-            yield cur
-        if commit:
-            conn.commit()
-        else:
-            conn.rollback()
-    except Exception:
-        conn.rollback()
-        raise
-    finally:
-        conn.close()
 
 
 SCHEMA = [
@@ -95,27 +62,10 @@ SCHEMA = [
     """,
 ]
 
-_ready = False
-
 
 def ensure_schema() -> None:
-    """Create schema and tables on first use; a cheap no-op afterwards."""
-    global _ready
-    if _ready:
-        return
-    conn = _connect(None)
-    try:
-        with conn.cursor() as cur:
-            cur.execute(
-                "CREATE DATABASE IF NOT EXISTS `%s` DEFAULT CHARACTER SET "
-                "utf8mb4 COLLATE utf8mb4_unicode_ci" % config.BOARD_DB_NAME)
-            cur.execute("USE `%s`" % config.BOARD_DB_NAME)
-            for stmt in SCHEMA:
-                cur.execute(stmt)
-        conn.commit()
-    finally:
-        conn.close()
-    _ready = True
+    """Create the panel schema and the board tables on first use."""
+    ensure("board", SCHEMA)
 
 
 # --- models ---------------------------------------------------------------

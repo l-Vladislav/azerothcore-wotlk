@@ -24,7 +24,7 @@ async function loadHealth() {
   tiles.innerHTML = '';
   let h;
   try {
-    h = await fetch('/api/health').then(r => r.json());
+    h = await api('/api/health');
   } catch (e) {
     box.appendChild(el('span', 'bad', 'панель недоступна'));
     return;

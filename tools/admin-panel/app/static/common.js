@@ -1,19 +1,35 @@
 'use strict';
 
-// Shared by every page: the API call, the token prompt, DOM helpers, toasts.
-// Token lives in localStorage; the panel is single-operator for now. When roles
-// arrive this becomes a real session and only api() has to change.
+// Shared by every page: the API call, the session, DOM helpers, toasts.
+//
+// Identity is a session cookie now, set by /login.html and sent automatically.
+// The old shared token survives in localStorage as the break-glass: it still
+// works as an owner, so a broken session table does not lock you out of your
+// own server.
 
 let TOKEN = localStorage.getItem('adminToken') || '';
 
+// The two pages that must work signed out — they are how you sign in.
+const OPEN_PAGES = ['/login.html', '/join.html'];
+const isOpenPage = () => OPEN_PAGES.includes(location.pathname);
+
+function goToLogin() {
+  if (isOpenPage()) return;
+  const next = encodeURIComponent(location.pathname + location.search);
+  location.href = '/login.html?next=' + next;
+}
+
 async function api(path, opts = {}) {
-  const headers = Object.assign({ 'X-Admin-Token': TOKEN }, opts.headers || {});
+  const headers = Object.assign({}, opts.headers || {});
+  if (TOKEN) headers['X-Admin-Token'] = TOKEN;
   if (opts.body) headers['Content-Type'] = 'application/json';
-  const res = await fetch(path, Object.assign({}, opts, { headers }));
-  if (res.status === 401) {
-    const t = prompt('Токен админ-панели:');
-    if (t) { TOKEN = t; localStorage.setItem('adminToken', t); return api(path, opts); }
-    throw new Error('Нужен токен');
+  // credentials: same-origin is the default for fetch, but say it out loud —
+  // the whole auth scheme rides on that cookie.
+  const res = await fetch(path, Object.assign({ credentials: 'same-origin' },
+                                              opts, { headers }));
+  if (res.status === 401 && !isOpenPage()) {
+    goToLogin();
+    throw new Error('Нужен вход');
   }
   const text = await res.text();
   let data = null;
@@ -22,10 +38,105 @@ async function api(path, opts = {}) {
     const detail = data && data.detail ? data.detail : text;
     const err = new Error(typeof detail === 'string' ? detail : (detail.detail || 'Ошибка'));
     err.payload = detail;
+    err.status = res.status;
+    // A refusal by role is not a bug in the page and not something the page
+    // author has to handle — say who you are and what it needs, once, here.
+    if (res.status === 403) toast(err.message, 'bad');
     throw err;
   }
   return data;
 }
+
+// --- the signed-in profile ------------------------------------------------
+// Filled by mountSession() before the page script needs it. Role gating is
+// enforced by the server on every endpoint; what happens here is only the
+// honest labelling of it — the nav hides pages you cannot open, and a refusal
+// arrives as a readable toast instead of a silent no-op.
+
+let ME = null;
+const RANK = { viewer: 0, editor: 1, owner: 2 };
+const ROLE_LABEL = { viewer: 'смотрящий', editor: 'редактор', owner: 'владелец' };
+
+function can(role) { return !!ME && RANK[ME.role] >= RANK[role]; }
+
+async function mountSession() {
+  if (isOpenPage()) return null;
+  let state;
+  try {
+    state = await fetch('/api/auth/state', {
+      credentials: 'same-origin',
+      headers: TOKEN ? { 'X-Admin-Token': TOKEN } : {},
+    }).then(r => r.json());
+  } catch (_) {
+    return null;                       // panel unreachable; pages say so already
+  }
+  if (!state.signed_in) { goToLogin(); return null; }
+  ME = state.actor;
+  document.body.dataset.role = ME.role;
+
+  const bar = document.querySelector('.topbar');
+  if (!bar) return ME;
+
+  // Owner-only pages are added here rather than written into eight copies of
+  // the nav: every page already loads this file.
+  const nav = bar.querySelector('.nav');
+  if (nav && can('owner')) {
+    const api_link = nav.querySelector('a[href="/api/docs"]');
+    for (const [href, label] of [['/users.html', 'Люди'],
+                                 ['/audit.html', 'Журнал']]) {
+      const a = el('a', location.pathname === href ? 'active' : '', label);
+      a.href = href;
+      nav.insertBefore(a, api_link);
+    }
+  }
+
+  const chip = el('div', 'me');
+  const who = el('button', 'me-name');
+  who.innerHTML = '';
+  who.appendChild(el('span', '', ME.name));
+  who.appendChild(el('span', 'me-role', ROLE_LABEL[ME.role] || ME.role));
+  const menu = el('div', 'me-menu hidden');
+  const item = (label, fn) => {
+    const b = el('button', 'me-item', label);
+    b.addEventListener('click', fn);
+    menu.appendChild(b);
+  };
+  if (ME.source === 'session') item('Сменить пароль', changePassword);
+  item('Выйти', signOut);
+  who.addEventListener('click', ev => {
+    ev.stopPropagation();
+    menu.classList.toggle('hidden');
+  });
+  document.addEventListener('click', () => menu.classList.add('hidden'));
+  chip.appendChild(who);
+  chip.appendChild(menu);
+  bar.appendChild(chip);
+  return ME;
+}
+
+async function signOut() {
+  try { await api('/api/auth/logout', { method: 'POST' }); } catch (_) {}
+  localStorage.removeItem('adminToken');
+  location.href = '/login.html';
+}
+
+async function changePassword() {
+  const current = prompt('Текущий пароль:');
+  if (current === null) return;
+  const password = prompt('Новый пароль (минимум 8 символов):');
+  if (!password) return;
+  try {
+    await api('/api/auth/password', {
+      method: 'POST',
+      body: JSON.stringify({ current, password }),
+    });
+    toast('Пароль изменён; остальные сессии закрыты.', 'good');
+  } catch (e) {
+    toast(e.message, 'bad');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', mountSession);
 
 function el(tag, cls, text) {
   const n = document.createElement(tag);

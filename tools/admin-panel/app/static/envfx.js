@@ -67,7 +67,7 @@ async function loadHealth() {
   const box = document.getElementById('health');
   box.innerHTML = '';
   try {
-    const h = await fetch('/api/health').then(r => r.json());
+    const h = await api('/api/health');
     ICON_BASE = h.icon_base_url || '';
     const add = (label, ok, title) => {
       const s = el('span', ok ? 'good' : 'bad', label);

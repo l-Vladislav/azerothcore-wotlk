@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Каталог предметов — админ-панель</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    /* Только то, чего нет в общей теме. Переменные берутся из пересечения
+       style.css и style.hive.css, чтобы смена скина ничего не ломала. */
+    .it-main { padding: 12px 16px 40px; display: flex; gap: 16px;
+               align-items: flex-start; }
+
+    /* Слева список, справа редактор. Список узкий и с прокруткой: строк в
+       item_template 277 тысяч, и весь экран под него отдавать незачем. */
+    .col-list { flex: 0 0 420px; min-width: 340px; }
+    .col-edit { flex: 1 1 auto; min-width: 0; }
+
+    .searchbar { display: flex; gap: 6px; margin-bottom: 8px; }
+    .searchbar input[type=text] {
+      flex: 1 1 auto; background: var(--bg-2); color: var(--text);
+      border: 1px solid var(--line); border-radius: 3px; padding: 5px 8px;
+      font: inherit;
+    }
+
+    .blocks { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+    .blocks .btn.on { border-color: var(--accent); color: var(--accent); }
+
+    .rows { max-height: calc(100vh - 230px); overflow-y: auto;
+            border: 1px solid var(--line); border-radius: 4px; }
+    .row {
+      display: flex; align-items: center; gap: 8px; padding: 5px 8px;
+      border-bottom: 1px solid var(--line); cursor: pointer; font-size: 13px;
+    }
+    .row:last-child { border-bottom: none; }
+    .row:hover { background: var(--panel-2); }
+    .row.sel { background: var(--panel-2); box-shadow: inset 3px 0 0 var(--accent); }
+    .row .ic { width: 28px; height: 28px; border-radius: 3px; flex: 0 0 auto;
+               background: var(--bg-2); }
+    .row .nm { flex: 1 1 auto; min-width: 0; }
+    .row .nm b { display: block; font-weight: 600; overflow: hidden;
+                 text-overflow: ellipsis; white-space: nowrap; }
+    .row .nm small { color: var(--muted); }
+    .row .tag { flex: 0 0 auto; font-size: 11px; color: var(--muted); }
+
+    /* Цвета качества — те же, что в игре: по ним предмет узнаётся быстрее,
+       чем по названию. */
+    .q0 { color: #9d9d9d; } .q1 { color: #ffffff; } .q2 { color: #1eff00; }
+    .q3 { color: #0070dd; } .q4 { color: #a335ee; } .q5 { color: #ff8000; }
+    .q6 { color: #e6cc80; } .q7 { color: #00ccff; }
+
+    .pager { display: flex; align-items: center; gap: 8px; margin-top: 8px;
+             font-size: 12px; color: var(--muted); }
+
+    .groups { display: flex; flex-direction: column; gap: 12px; }
+    .group { border: 1px solid var(--line); border-radius: 4px;
+             background: var(--panel); }
+    .group > h3 {
+      margin: 0; padding: 7px 10px; font-size: 13px; color: var(--accent);
+      border-bottom: 1px solid var(--line);
+    }
+    .group-body { padding: 8px 10px; }
+    .frow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;
+            padding: 4px 0; }
+    .frow + .frow { border-top: 1px dashed var(--line); }
+    .frow > .rl { flex: 0 0 74px; color: var(--muted); font-size: 12px;
+                  padding-bottom: 5px; }
+    .fld { display: flex; flex-direction: column; gap: 2px; }
+    .fld > label { font-size: 11px; color: var(--muted); }
+    .fld input, .fld select {
+      background: var(--bg-2); color: var(--text); border: 1px solid var(--line);
+      border-radius: 3px; padding: 4px 6px; font: inherit; min-width: 110px;
+    }
+    .fld.wide input { min-width: 320px; }
+    .fld input[type=number] { text-align: right; }
+
+    .edit-head { display: flex; align-items: center; gap: 10px;
+                 margin-bottom: 10px; flex-wrap: wrap; }
+    .edit-head .ic { width: 44px; height: 44px; border-radius: 4px;
+                     background: var(--bg-2); }
+    .edit-head h2 { margin: 0; font-size: 16px; }
+    .edit-head .sub { color: var(--muted); font-size: 12px; }
+    .actions { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+
+    .note { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+    .ro { color: #e0b050; }
+    pre.client-row { background: var(--bg-2); border: 1px solid var(--line);
+                     border-radius: 3px; padding: 8px; font-size: 12px;
+                     overflow-x: auto; white-space: pre; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark">AC</span> Панель</a>
+    <nav class="nav">
+      <a href="/">Модули</a>
+      <a href="/board.html">Доска</a>
+      <a href="/spells.html">Мастерская</a>
+      <a href="/dex.html">Каталог</a>
+      <a class="active" href="/items.html">Предметы</a>
+      <a href="/envfx.html">Окружение</a>
+      <a href="/weather.html">Погода</a>
+      <a href="/italents.html">Таланты</a>
+      <a href="/api/docs">API</a>
+    </nav>
+    <div class="spacer"></div>
+    <button id="btn-export" class="btn ghost"
+            title="Выгрузить блоки панели в data/sql/updates/pending_db_world/admin_panel_items.sql">
+      Выгрузить в SQL
+    </button>
+  </header>
+
+  <main class="it-main">
+    <section class="col-list">
+      <div class="blocks" id="blocks"></div>
+      <div class="searchbar">
+        <input type="text" id="q" placeholder="имя или id — например «меч» или 30606">
+        <button class="btn" id="btn-find">Найти</button>
+      </div>
+      <div class="rows" id="rows"><div class="empty">Загрузка…</div></div>
+      <div class="pager">
+        <button class="btn ghost" id="btn-prev">‹</button>
+        <span id="page-info">—</span>
+        <button class="btn ghost" id="btn-next">›</button>
+      </div>
+    </section>
+
+    <section class="col-edit" id="editor">
+      <div class="empty">Выберите предмет слева.</div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/items.js"></script>
+</body>
+</html>
