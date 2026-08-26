@@ -1937,6 +1937,13 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (obj->IsInvisibleDueToDespawn())
         return false;
 
+    // Персонально скрытые объекты: мировой предмет, который этот игрок уже
+    // подобрал. Ядро иначе такого не умеет - см. GameObject::HideFor.
+    // У обычных объектов набор не выделен, поэтому цена проверки - сравнение
+    // указателя с nullptr.
+    if (obj->IsGameObject() && obj->ToGameObject()->IsHiddenFor(GetGUID()))
+        return false;
+
     // pussywizard: arena spectator
     if (this->IsPlayer())
         if (((Player const*)this)->IsSpectator() && ((Player const*)this)->FindMap() && ((Player const*)this)->FindMap()->IsBattleArena() && (obj->m_invisibility.GetFlags() || obj->m_stealth.GetFlags()))

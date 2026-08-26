@@ -25,6 +25,7 @@
 #include "Object.h"
 #include "SharedDefines.h"
 #include "Unit.h"
+#include <memory>
 
 class GameObjectAI;
 class Transport;
@@ -273,6 +274,26 @@ public:
     bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
     [[nodiscard]] bool IsInvisibleDueToDespawn() const override;
 
+    // --- персональное скрытие -------------------------------------------
+    //
+    // Объект, которого для конкретного игрока не существует. Нужно мировым
+    // предметам: подобранный меч должен исчезнуть у того, кто его подобрал, и
+    // остаться лежать для всех остальных.
+    //
+    // Штатных средств для этого в 3.3.5 нет: IsAlwaysVisibleFor умеет только
+    // РАЗРЕШАТЬ видимость, IsInvisibleDueToDespawn решает за всех сразу, а фаз
+    // всего 32 и они глобальные.
+    //
+    // Набор не выделяется, пока в него никого не положили, поэтому у обычных
+    // объектов проверка стоит одно сравнение указателя с nullptr.
+    void HideFor(ObjectGuid guid);
+    void ShowForAll();
+
+    [[nodiscard]] bool IsHiddenFor(ObjectGuid guid) const
+    {
+        return _hiddenFor && _hiddenFor->find(guid) != _hiddenFor->end();
+    }
+
     uint8 getLevelForTarget(WorldObject const* target) const override
     {
         if (Unit* owner = GetOwner())
@@ -398,6 +419,9 @@ protected:
 
     int64 m_packedRotation;
     G3D::Quat WorldRotation;
+
+    // Кому этого объекта не видно. См. HideFor().
+    std::unique_ptr<GuidUnorderedSet> _hiddenFor;
     Position m_stationaryPosition;
 
     ObjectGuid m_lootRecipient;
