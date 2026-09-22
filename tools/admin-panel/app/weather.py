@@ -82,18 +82,14 @@ GRADE_MIN_PCT = 30
 SETTING_GROUPS: list[dict] = [
     {"key": "director", "name": "Режиссёр",
      "hint": "Кто ведёт погоду и как часто он оглядывает мир."},
-    {"key": "cyclones", "name": "Циклоны",
-     "hint": "Фронты, идущие через всю карту. Фронт ставит погоду ТОЛЬКО "
-             "в зоне под своим центром - дальше она расходится по связям "
-             "зон, ровно как выставленная руками. Радиус, глаз, рукава и "
-             "вращение здесь - про рисунок; докуда достанет непогода, "
-             "решает «Глубина переноса» в связях."},
+    {"key": "cyclones", "name": "Циклоны"},
     {"key": "rolls", "name": "Одиночные броски",
      "hint": "Старая модель: каждая зона сама катает себе погоду на "
              "случайный срок. Работает, только когда циклоны выключены."},
     {"key": "links", "name": "Связи зон",
-     "hint": "ЕДИНСТВЕННЫЙ механизм растекания: и от фронта, и от "
-             "выставленной руками. Сами связи правятся на странице «Погода»."},
+     "hint": "Как погода уходит ЗА пределы своей зоны: от фронта дальше его "
+             "круга и от выставленной руками. Сами связи правятся на "
+             "странице «Зоны»."},
 ]
 
 SETTING_META: dict[str, dict] = {
@@ -129,9 +125,15 @@ SETTING_META: dict[str, dict] = {
     },
     "cyclone_radius": {
         "group": "cyclones", "label": "Радиус фронта", "unit": "ярдов",
-        "hint": "На погоду НЕ влияет: фронт ставит её в зоне под центром, а "
-                "дальше дело связей. Радиус задаёт длину пути через карту и "
-                "размер рисунка.",
+        "hint": "Докуда фронт достаёт. Зона под центром получает полную силу, "
+                "зона у самой кромки — первую ступень. Он же задаёт длину "
+                "пути через карту и размер рисунка.",
+    },
+    "cyclone_area": {
+        "group": "cyclones", "label": "Накрывать площадью", "kind": "bool",
+        "hint": "Включено: погоду получают все зоны под кругом, тем сильнее, "
+                "чем ближе к центру. Выключено — прежнее правило: только та "
+                "зона, внутри которой стоит центр, а дальше дело связей.",
     },
     "cyclone_cross_minutes": {
         "group": "cyclones", "label": "Пересечь карту за", "unit": "мин",
@@ -162,10 +164,55 @@ SETTING_META: dict[str, dict] = {
     },
     "cyclone_weak_chance": {
         "group": "cyclones", "label": "Шанс слабого фронта", "unit": "%",
-        "hint": "Фронт ставит в своей зоне самую сильную обычную погоду "
-                "семейства: грозу, метель или сильную песчаную бурю. С этим "
-                "шансом он выходит на ступень слабее - иначе все фронты "
-                "одинаково грозовые.",
+        "hint": "Под центром фронт ставит самую сильную обычную погоду "
+                "семейства: грозу, метель или сильную песчаную бурю; к кромке "
+                "круга сила спадает до первой ступени. С этим шансом фронт "
+                "выходит на ступень слабее - иначе все фронты одинаково "
+                "грозовые.",
+    },
+    "cyclones_on_ek": {
+        "group": "cyclones", "label": "Восточные королевства", "kind": "bool",
+        "hint": "Ходят ли фронты по этому континенту. Выключенный остаётся "
+                "без них совсем — идущие там снимаются на месте.",
+    },
+    "cyclones_on_kalimdor": {
+        "group": "cyclones", "label": "Калимдор", "kind": "bool",
+        "hint": "Ходят ли фронты по этому континенту.",
+    },
+    "cyclones_on_outland": {
+        "group": "cyclones", "label": "Запределье", "kind": "bool",
+        "hint": "Ходят ли фронты по этому континенту.",
+    },
+    "cyclones_on_northrend": {
+        "group": "cyclones", "label": "Нордскол", "kind": "bool",
+        "hint": "Ходят ли фронты по этому континенту.",
+    },
+    "cyclone_gap_minutes": {
+        "group": "cyclones", "label": "Пауза между фронтами", "unit": "мин",
+        "hint": "Ясное небо между фронтами. Считается от момента, когда над "
+                "картой освободилось место, а не от рождения прошлого фронта: "
+                "иначе долгий фронт сменялся бы следующим в тот же миг. У "
+                "каждого континента пауза своя.",
+    },
+    "cyclone_queue_fill": {
+        "group": "cyclones", "label": "Заготовок в очереди", "unit": "шт",
+        "hint": "Сколько фронтов держать наготове на КАЖДОМ континенте. Мир "
+                "дописывает новую заготовку взамен ушедшей в небо, так что на "
+                "странице «Фронты» всегда виден прогноз наперёд. 0 — не "
+                "пополнять: в очереди будет только написанное руками.",
+    },
+    "cyclone_queue_end": {
+        "group": "cyclones", "label": "Написанное руками после выпуска",
+        "kind": "choice",
+        "options": [
+            {"value": 0, "label": "возвращать в очередь"},
+            {"value": 1, "label": "отдавать небо жребию"},
+            {"value": 2, "label": "оставлять штиль"},
+        ],
+        "hint": "Заготовку, собранную жребием, мир расходует насовсем. "
+                "Написанную руками не удаляет никогда: она либо уходит в "
+                "хвост очереди и сценарий повторяется, либо ждёт выключенной "
+                "на странице.",
     },
     "cyclone_spin_minutes": {
         "group": "cyclones", "label": "Оборот спирали за", "unit": "мин",
@@ -225,6 +272,15 @@ FAMILIES: dict[int, dict] = {
 # Дымки лежат на карте 530 (Запределье), но игрок считает их Восточными
 # королевствами и Калимдором. Порядок внутри группы — как в списке ниже,
 # сортировка идёт по имени уже на этапе выдачи.
+
+# Имена карт для очереди фронтов: фронт ходит по КАРТЕ, а не по континенту
+# панели (у неё Дренор и Запределье - одна карта, но разные группы зон).
+MAP_NAMES: dict[int, str] = {
+    0: "Восточные королевства",
+    1: "Калимдор",
+    530: "Запределье",
+    571: "Нордскол",
+}
 
 CONTINENTS: list[dict] = [
     {
@@ -293,7 +349,7 @@ _SETTING_RE = re.compile(r"^AW:SET:([a-z_]+):(\d+):(\d+):(\d):(\d+):(\d+)$")
 # фронт тогда просто нарисуется кругом.
 _CYCLONE_RE = re.compile(
     r"^AW:CYC:(\d+):(\d+):(-?\d+):(-?\d+):(\d+):(\d+):(\d+):(\d+):(\d+):(\d+):(\d+)"
-    r"(?::(\d+):(\d+):(\d+):(\d+):(\d+))?$")
+    r"(?::(\d+):(\d+):(\d+):(\d+):(\d+)(?::(\d+))?)?$")
 
 ERRORS = {
     "DISABLED": "Режиссёр выключен — включите его кнопкой на карте "
@@ -302,6 +358,8 @@ ERRORS = {
     "NOZONE": "Не указана зона.",
     "NOSETTING": "Сервер не знает такой настройки.",
     "WEATHEROFF": "Погода отключена в конфиге сервера (Weather.Enabled).",
+    "NOMAP": "Модуль не знает такой карты: он ведёт только те, где стоят "
+             "зоны с климатом.",
 }
 
 
@@ -450,6 +508,9 @@ def settings() -> dict:
             # мета-данных: реестр на сервере тут авторитетнее.
             "kind": "bool" if int(m.group(5)) == 0 and int(m.group(6)) == 1
                     else meta.get("kind", "int"),
+            # Варианты есть только у поля-выбора; остальным пустой список
+            # обходится дешевле, чем странице - проверка на отсутствие ключа.
+            "options": meta.get("options", []),
             "group": meta.get("group", "director"),
         })
 
@@ -510,6 +571,10 @@ def _parse_cyclone(line: str) -> dict | None:
         "twist": int(m.group(15) or 0) / 1000.0,
         # Период оборота: панель крутит рисунок ровно с этой скоростью.
         "spin_minutes": int(m.group(16) or 0),
+        # Поставлен руками из панели: такой фронт переживает «перезапустить
+        # фронты» и правку настроек. На старом worldserver'е поля нет - там
+        # своих фронтов и быть не может.
+        "manual": bool(int(m.group(17) or 0)),
     }
 
 
@@ -519,7 +584,84 @@ def cyclones() -> list[dict]:
 
 
 def reset_cyclones() -> list[dict]:
+    """Смести самозародившиеся фронты и запустить новые.
+
+    Поставленные руками остаются: модуль их бережёт (`Cyclone::manual`).
+    """
     return [c for c in (_parse_cyclone(ln) for ln in _run("aw cycreset")) if c]
+
+
+# --- свои фронты ----------------------------------------------------------
+# Всё, что не задано, модуль берёт из настроек: радиус, срок жизни по времени
+# пересечения карты, случайный курс. Панель не дублирует эти значения по себе -
+# иначе они разъедутся с модулем на первой же правке конфига.
+
+CYCLONE_FIELDS = {
+    "radius": (500, 20000),
+    "family": (1, 4),
+    "peak": (1, 4),
+    "heading": (0, 359),
+    "speed": (0, 100000),
+    "minutes": (1, 1440),
+    "eye": (0, 60),
+    "arms": (0, 5),
+    "angle": (5, 45),
+    "x": (-100000, 100000),
+    "y": (-100000, 100000),
+}
+
+
+class CyclonePayload(BaseModel):
+    map: int
+    x: int
+    y: int
+    radius: int = 0
+    family: int = 1
+    peak: int = 0
+    minutes: int = 0
+    heading: int | None = None
+    speed: int = 0
+
+
+def add_cyclone(payload: "CyclonePayload") -> dict:
+    """Завести фронт руками. Возвращает строку нового фронта, как её видит мир."""
+    parts = ["aw cycadd", str(int(payload.map)), str(int(payload.x)),
+             str(int(payload.y)), str(int(payload.radius)),
+             str(int(payload.family)), str(int(payload.peak)),
+             str(int(payload.minutes))]
+    if payload.heading is not None:
+        parts.append(str(int(payload.heading) % 360))
+        parts.append(str(int(payload.speed)))
+    line = " ".join(parts)
+
+    for answer in _run(line):
+        front = _parse_cyclone(answer)
+        if front:
+            return front
+    raise WeatherError("Сервер не подтвердил новый фронт строкой AW:CYC.")
+
+
+def set_cyclone(cyclone_id: int, field: str, value: int) -> dict:
+    """Подправить одно поле живого фронта."""
+    if field not in CYCLONE_FIELDS:
+        raise WeatherError("Модуль не знает поля «%s»." % field)
+    low, high = CYCLONE_FIELDS[field]
+    if not low <= int(value) <= high:
+        raise WeatherError(
+            "Значение «%s» вне границ %d..%d." % (field, low, high))
+
+    for answer in _run("aw cycset %d %s %d" % (int(cyclone_id), field, int(value))):
+        front = _parse_cyclone(answer)
+        if front:
+            return front
+    raise WeatherError("Сервер не подтвердил правку строкой AW:CYC.")
+
+
+def remove_cyclone(cyclone_id: int) -> dict:
+    for line in _run("aw cycdel %d" % int(cyclone_id)):
+        if line.startswith("AW:OK:CYCDEL:"):
+            return {"removed": int(line.rsplit(":", 1)[1])}
+    raise WeatherError("Сервер не подтвердил удаление фронта.")
 
 
 def climate_zones() -> dict[int, dict]:
@@ -666,6 +808,15 @@ def pin(zone_id: int) -> dict:
 def release(zone_id: int) -> dict:
     parsed = _zone_lines(_run(f"aw release {zone_id}"))
     return parsed[0] if parsed else zone(zone_id)
+
+
+def release_all() -> dict:
+    """Return every manually controlled zone to the weather director."""
+    zones = _zone_lines(_run("aw list"))
+    released = [zone["zone_id"] for zone in zones if zone["source"] in (1, 2)]
+    for zone_id in released:
+        _run(f"aw release {zone_id}")
+    return {"released": len(released)}
 
 
 def reload_module() -> str:
@@ -947,3 +1098,284 @@ def server_links() -> list[dict]:
                         "linked_zone": int(m.group(2)),
                         "strength": int(m.group(3))})
     return out
+
+
+# --- климат зоны ----------------------------------------------------------
+
+SEASONS = ("spring", "summer", "fall", "winter")
+SEASON_NAMES = {"spring": "весна", "summer": "лето",
+                "fall": "осень", "winter": "зима"}
+PRECIPITATION = ("rain", "snow", "storm")
+PRECIPITATION_NAMES = {"rain": "дождь", "snow": "снег", "storm": "буря"}
+
+CLIMATE_COLUMNS = ["%s_%s_chance" % (season, kind)
+                   for season in SEASONS for kind in PRECIPITATION]
+
+
+class ClimatePayload(BaseModel):
+    # Шансы в процентах, по сезону на каждый вид осадков. Сумма трёх шансов
+    # сезона больше ста означает, что жребий просто никогда не дойдёт до
+    # последнего вида - ядро проверяет их по очереди.
+    seasons: dict[str, dict[str, int]] = Field(default_factory=dict)
+
+
+def climate(zone_id: int) -> dict:
+    """Шансы осадков зоны по сезонам. `known = False` - строки в таблице нет."""
+    rows = query(
+        "SELECT %s FROM game_weather WHERE zone = %%s" % ", ".join(CLIMATE_COLUMNS),
+        (int(zone_id),))
+    seasons = {
+        season: {kind: 0 for kind in PRECIPITATION} for season in SEASONS
+    }
+    if rows:
+        for season in SEASONS:
+            for kind in PRECIPITATION:
+                seasons[season][kind] = int(rows[0]["%s_%s_chance" % (season, kind)])
+
+    return {
+        "zone_id": int(zone_id),
+        "known": bool(rows),
+        "seasons": seasons,
+        "season_names": SEASON_NAMES,
+        "kind_names": PRECIPITATION_NAMES,
+        # Ядро читает таблицу один раз, на старте мира.
+        "needs_restart": True,
+    }
+
+
+def save_climate(zone_id: int, payload: ClimatePayload) -> dict:
+    """Записать шансы. Строки нет - заводим: зона без неё живёт без погоды."""
+    values = []
+    for season in SEASONS:
+        given = payload.seasons.get(season, {})
+        for kind in PRECIPITATION:
+            value = int(given.get(kind, 0))
+            if not 0 <= value <= 100:
+                raise WeatherError(
+                    "Шанс «%s, %s» вне границ 0..100."
+                    % (SEASON_NAMES[season], PRECIPITATION_NAMES[kind]))
+            values.append(value)
+
+    exists = query("SELECT zone FROM game_weather WHERE zone = %s", (int(zone_id),))
+    with cursor(commit=True) as cur:
+        if exists:
+            cur.execute(
+                "UPDATE game_weather SET %s WHERE zone = %%s"
+                % ", ".join("`%s` = %%s" % c for c in CLIMATE_COLUMNS),
+                tuple(values) + (int(zone_id),))
+        else:
+            cur.execute(
+                "INSERT INTO game_weather (zone, %s) VALUES (%%s%s)"
+                % (", ".join("`%s`" % c for c in CLIMATE_COLUMNS),
+                   ", %s" * len(CLIMATE_COLUMNS)),
+                (int(zone_id),) + tuple(values))
+
+    return climate(zone_id)
+
+
+# --- очередь фронтов ------------------------------------------------------
+# Прогноз: что мир собирается выпустить дальше. Модуль держит на каждой карте
+# запас готовых заготовок и дописывает новую, как только предыдущая ушла в
+# небо; человек может переписать любую строку до того, как она сбудется.
+#
+# Таблицу правит панель, а сервер перечитывает её по команде - тем же порядком,
+# что и связи зон: строк там десятки, и гонять каждую через консоль значило бы
+# писать разбор аргументов ради того, что SQL делает одной строкой.
+
+QUEUE_TABLE = "mod_advanced_weather_queue"
+
+QUEUE_FIELDS = {
+    "ord": (0, 100000),
+    "map": (0, 10000),
+    "zone": (0, 100000),
+    "family": (1, 4),
+    # Порча (чёрный дождь - пятая ступень) редка, но заказать её в сценарии
+    # должно быть можно: модуль поджимает по потолку СВОЕГО семейства.
+    "peak": (0, 5),
+    "radius": (0, 20000),
+    "minutes": (0, 1440),
+    "enabled": (0, 1),
+}
+
+
+class QueuePayload(BaseModel):
+    ord: int = 0
+    map: int = 0
+    zone: int = 0
+    family: int = 1
+    peak: int = 0
+    radius: int = 0
+    minutes: int = 0
+    enabled: bool = True
+    comment: str = Field(default="", max_length=120)
+
+
+# Семейство -> лестница ступеней. Группы в FAMILIES заведены для цвета, и у
+# песка с туманом они с ключами лестниц не совпадают.
+QUEUE_LADDER = {1: "rain", 2: "snow", 3: "sand", 4: "fog"}
+
+
+def _peak_name(family: int, peak: int) -> str:
+    """«Гроза» вместо «4»: прогноз читают глазами, а не по памяти."""
+    ladder = LADDERS.get(QUEUE_LADDER.get(family, ""), [])
+    if not 0 < peak < len(ladder):
+        return ""
+    state = STATE_BY_ID.get(ladder[peak])
+    return state["label"] if state else ""
+
+
+def _queue_table_exists() -> bool:
+    rows = query(
+        "SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE()"
+        " AND table_name = %s LIMIT 1", (QUEUE_TABLE,))
+    return bool(rows)
+
+
+def queue() -> dict:
+    """Очередь так, как её видит панель, плюс состояние карт у сервера."""
+    if not _queue_table_exists():
+        return {"available": False, "entries": [], "maps": [], "fill": 0,
+                "gap": 0, "per_map": 0,
+                "reason": "Таблицы %s нет - примените миграцию." % QUEUE_TABLE}
+
+    rows = query(
+        "SELECT id, ord, map, zone, family, peak, radius, minutes, enabled,"
+        " auto_made, comment FROM %s ORDER BY ord, id" % QUEUE_TABLE)
+
+    # Голова очереди, остаток паузы и занятость неба живут в памяти мира, а не
+    # в таблице: своё у каждой карты, и одно число на мир сказало бы неправду
+    # про три континента из четырёх.
+    maps: dict[int, dict] = {}
+    fill = gap = per_map = 0
+    try:
+        for line in _run("aw queue"):
+            m = re.match(r"^AW:QUEUE:(\d+):(\d+):(\d+):(\d+)$", line)
+            if m:
+                fill, gap = int(m.group(2)), int(m.group(3))
+                per_map = int(m.group(4))
+                continue
+            m = re.match(r"^AW:QM:(\d+):(\d+):(\d+):(\d+):(\d+)$", line)
+            if m:
+                maps[int(m.group(1))] = {
+                    "map": int(m.group(1)),
+                    "map_name": MAP_NAMES.get(int(m.group(1)), m.group(1)),
+                    "current": int(m.group(2)),
+                    "wait": int(m.group(3)),
+                    "waiting": int(m.group(4)),
+                    "live": int(m.group(5)),
+                }
+    except WeatherError:
+        pass
+
+    entries = []
+    for r in rows:
+        map_id = int(r["map"])
+        entries.append({
+            "id": int(r["id"]),
+            "ord": int(r["ord"]),
+            "map": map_id,
+            "map_name": MAP_NAMES.get(map_id, str(map_id)),
+            "zone": int(r["zone"]),
+            "zone_name": dbc.zone_name(int(r["zone"])) if r["zone"] else "",
+            "family": int(r["family"]),
+            "family_name": FAMILIES.get(int(r["family"]), FAMILIES[0])["name"],
+            "peak": int(r["peak"]),
+            "peak_name": _peak_name(int(r["family"]), int(r["peak"])),
+            "radius": int(r["radius"]),
+            "minutes": int(r["minutes"]),
+            "enabled": bool(r["enabled"]),
+            "auto": bool(r["auto_made"]),
+            "comment": r["comment"] or "",
+            "current": int(r["id"]) == maps.get(map_id, {}).get("current"),
+        })
+
+    # Карта, у которой есть строки, но которой сервер не назвал, - это
+    # континент с выключенными фронтами. Показать его всё равно надо: иначе
+    # строки просто пропали бы со страницы без объяснения.
+    for entry in entries:
+        maps.setdefault(entry["map"], {
+            "map": entry["map"], "map_name": entry["map_name"], "current": 0,
+            "wait": 0, "waiting": 0, "live": 0, "off": True,
+        })
+
+    return {"available": True, "entries": entries, "fill": fill, "gap": gap,
+            "per_map": per_map,
+            "maps": sorted(maps.values(), key=lambda m: m["map"])}
+
+
+def queue_add(payload: "QueuePayload") -> dict:
+    """Добавить свою заготовку - следующей на выпуск.
+
+    Не в конец: очередь этой карты почти всегда полна жребием, и написанная
+    рукой строка ждала бы за десятком случайных фронтов несколько часов. А
+    пишут её ровно тогда, когда хотят определённой погоды - и скоро.
+
+    Место берём тем же номером, что у головы очереди: строки одного номера
+    идут по возрастанию id, а новый id самый большой, - значит заготовка
+    встанет сразу ЗА текущей головой, не отменяя того, что уже выпускается.
+    """
+    if not _queue_table_exists():
+        raise WeatherError("Таблицы %s нет - примените миграцию." % QUEUE_TABLE)
+
+    _check_queue(payload)
+    rows = query(
+        "SELECT MIN(ord) AS head FROM %s WHERE map = %%s AND enabled = 1"
+        % QUEUE_TABLE, (payload.map,))
+    head = rows[0]["head"] if rows else None
+    if head is None:
+        tail = query("SELECT MAX(ord) AS last FROM %s" % QUEUE_TABLE)
+        head = (tail[0]["last"] + 1) if tail and tail[0]["last"] is not None else 0
+
+    with cursor(commit=True) as cur:
+        cur.execute(
+            "INSERT INTO %s (ord, map, zone, family, peak, radius, minutes,"
+            " enabled, comment) VALUES (%%s, %%s, %%s, %%s, %%s, %%s, %%s,"
+            " %%s, %%s)" % QUEUE_TABLE,
+            (int(head), payload.map, payload.zone, payload.family, payload.peak,
+             payload.radius, payload.minutes, int(payload.enabled),
+             payload.comment))
+    return queue_reload()
+
+
+def queue_save(entry_id: int, payload: "QueuePayload") -> dict:
+    _check_queue(payload)
+    with cursor(commit=True) as cur:
+        cur.execute(
+            "UPDATE %s SET ord = %%s, map = %%s, zone = %%s, family = %%s,"
+            " peak = %%s, radius = %%s, minutes = %%s, enabled = %%s,"
+            " comment = %%s WHERE id = %%s" % QUEUE_TABLE,
+            (payload.ord, payload.map, payload.zone, payload.family,
+             payload.peak, payload.radius, payload.minutes,
+             int(payload.enabled), payload.comment, int(entry_id)))
+    return queue_reload()
+
+
+def queue_delete(entry_id: int) -> dict:
+    with cursor(commit=True) as cur:
+        cur.execute("DELETE FROM %s WHERE id = %%s" % QUEUE_TABLE, (int(entry_id),))
+    return queue_reload()
+
+
+def queue_reload() -> dict:
+    """Попросить мир перечитать таблицу и вернуть свежую очередь."""
+    try:
+        _run("aw queuereload")
+    except WeatherError:
+        # Мир не отозвался - таблица всё равно правлена, покажем как есть.
+        pass
+    return queue()
+
+
+def _check_queue(payload: "QueuePayload") -> None:
+    values = {
+        "ord": payload.ord, "map": payload.map, "zone": payload.zone,
+        "family": payload.family, "peak": payload.peak,
+        "radius": payload.radius, "minutes": payload.minutes,
+    }
+    for name, value in values.items():
+        low, high = QUEUE_FIELDS[name]
+        if not low <= int(value) <= high:
+            raise WeatherError(
+                "Поле «%s» вне границ %d..%d." % (name, low, high))
+    if payload.radius and payload.radius < 500:
+        raise WeatherError("Радиус меньше 500 ярдов модуль не примет.")

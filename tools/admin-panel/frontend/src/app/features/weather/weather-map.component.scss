@@ -1,0 +1,300 @@
+:host {
+  display: block;
+}
+// Кромка - панель набора (`panel-thin` с листа), поэтому здесь только то,
+// чего у панели нет: карта идёт от края до края, без её внутренних полей.
+.map-frame {
+  overflow: hidden;
+  padding: 0;
+}
+header {
+  align-items: center;
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--line-title);
+  display: flex;
+  gap: 12px;
+  padding: 10px 14px;
+}
+// Континенты - у правого края, всё остальное прижато к заголовку слева.
+header nav {
+  margin-left: auto;
+}
+h2 {
+  color: var(--gold-bright);
+  font: 20px var(--serif);
+  margin: 0;
+}
+p {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 3px 0 0;
+}
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+// Карта - хозяйка своей страницы, поэтому меряется высотой окна, а не
+// прежними 560 пикселями: их не хватало пульту, и он обрезался.
+.canvas {
+  align-items: center;
+  background: #060806;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+// Высота задана, ширина считается по соотношению сторон самой карты: так у
+// рисунка нет пустых полей внутри рамки, а ставить их поровну по бокам - дело
+// уже гибкой раскладки.
+svg {
+  display: block;
+  height: min(calc(100vh - 250px), 780px);
+  max-width: 100%;
+  width: auto;
+}
+// Режим постановки: перекрестье говорит, что щелчок теперь ставит фронт, а не
+// выбирает зону.
+svg.picking,
+svg.picking path {
+  cursor: crosshair;
+}
+
+path {
+  cursor: pointer;
+  stroke-width: 1.2;
+  transition:
+    fill 0.2s,
+    stroke 0.2s,
+    stroke-width 0.2s;
+}
+path:hover {
+  stroke: #ffe382;
+  stroke-width: 2.5;
+}
+path.selected {
+  filter: drop-shadow(0 0 4px #ffe382);
+  stroke-width: 3;
+}
+path.inert {
+  cursor: default;
+  opacity: 0.38;
+}
+.fronts {
+  pointer-events: none;
+}
+.front-area {
+  fill: none;
+  opacity: 0.82;
+  stroke-dasharray: 8 5;
+  stroke-width: 2.5;
+}
+.front-texture {
+  opacity: 0.5;
+}
+.front-spin.spinning {
+  animation-name: front-spin;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  transform-box: view-box;
+}
+@keyframes front-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+.front-eye {
+  fill: #06080680;
+  stroke-width: 1.5;
+}
+path.front-arrow {
+  cursor: default;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+}
+path.front-arrow:hover {
+  stroke-width: 2.4;
+}
+.front-label {
+  fill: #fff7dc;
+  font-size: 11px;
+  paint-order: stroke;
+  stroke: #080a0b;
+  stroke-width: 3px;
+  text-anchor: middle;
+}
+// Два столбца поверх карты: слева сводка по миру, справа пульт выбранной зоны.
+// Середина при этом остаётся открытой - на неё и смотрят.
+//
+// Подложка у обоих - приглушённая панель набора (`panel-subtle` с листа), но с
+// тёмной заливкой поверх её текстуры: под ними лежит карта, и без собственного
+// фона сквозь панель читались бы очертания зон.
+// Привязка к МЕСТУ ПРОЕКЦИИ, а не к имени класса: страница фронтов назвала
+// свою панель иначе, под правило не попала и вместо наложения встала соседом,
+// отжав карту влево. Атрибут же ставит сам шаблон - забыть его нельзя.
+:host ::ng-deep [map-stats],
+:host ::ng-deep [map-tools] {
+  background-image: linear-gradient(#0a0f14ee, #0a0f14ee), var(--texture-panel);
+  box-shadow: 0 2px 16px #000a;
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  padding: 10px;
+  position: absolute;
+  top: 12px;
+  z-index: 1;
+}
+:host ::ng-deep [map-stats] {
+  display: grid;
+  gap: 6px;
+  left: 12px;
+  width: min(200px, calc(100% - 24px));
+}
+:host ::ng-deep [map-tools] {
+  right: 12px;
+  width: min(340px, calc(100% - 24px));
+}
+// Плитка показателя на карте - та же, что на «Обзоре», только число мельче:
+// в столбце шириной в двести пикселей двадцатичетырёхпунктовое не к месту.
+:host ::ng-deep [map-stats] .forge-stat .value {
+  font-size: 19px;
+}
+:host ::ng-deep .map-zone-tools header,
+:host ::ng-deep .map-zone-tools .map-actions,
+:host ::ng-deep .map-zone-tools .map-settings,
+:host ::ng-deep .map-zone-tools .map-state-buttons {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+:host ::ng-deep .map-zone-tools header {
+  background: transparent;
+  border: 0;
+  justify-content: space-between;
+  padding: 0;
+}
+:host ::ng-deep .map-zone-tools header strong {
+  color: var(--gold-bright);
+  font: 16px var(--serif);
+}
+:host ::ng-deep .map-zone-tools p {
+  font-size: 12px;
+  line-height: 1.3;
+  margin: 5px 0;
+}
+// Состояния - в два столбца: пять рядов подряд не влезали в высоту карты, и
+// пульт приходилось прокручивать. «Ясное небо» и «Особые состояния» поставлены
+// в первый ряд явно - остальные встают за ними сами.
+:host ::ng-deep .map-zone-tools .map-state-groups {
+  column-gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+:host ::ng-deep .map-zone-tools .map-state-group.is-clear {
+  grid-area: 1 / 1;
+}
+:host ::ng-deep .map-zone-tools .map-state-group.is-special {
+  grid-area: 1 / 2;
+}
+
+:host ::ng-deep .map-zone-tools .map-state-group {
+  border-top: 1px solid var(--line-title);
+  margin-top: 8px;
+  padding-top: 8px;
+}
+:host ::ng-deep .map-zone-tools .map-state-group > span {
+  color: var(--gold-dim);
+  display: block;
+  font: 12px var(--serif);
+  margin-bottom: 5px;
+}
+:host ::ng-deep .map-zone-tools .map-actions button {
+  font-size: 13px;
+}
+// Клетка состояния - квадрат: значок в ней один, и ряд из таких квадратов
+// читается как пульт, а не как строка разной длины надписей.
+:host ::ng-deep .map-zone-tools .state-button {
+  align-items: center;
+  display: grid;
+  height: 40px;
+  padding: 0;
+  place-items: center;
+  width: 40px;
+}
+:host ::ng-deep .map-zone-tools .map-settings {
+  align-items: end;
+  border-top: 1px solid var(--line-title);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+:host ::ng-deep .map-zone-tools label {
+  color: var(--muted);
+  display: grid;
+  font-size: 12px;
+  gap: 3px;
+}
+:host ::ng-deep .map-zone-tools input[type='range'] {
+  width: 100%;
+}
+:host ::ng-deep .map-zone-tools input[type='number'] {
+  width: 74px;
+}
+:host ::ng-deep .map-zone-tools .map-actions {
+  margin-top: 8px;
+}
+.legend {
+  background: #080a0bd9;
+  border: 1px solid var(--line-title);
+  bottom: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  left: 10px;
+  padding: 5px 8px;
+  position: absolute;
+}
+.legend span {
+  border-radius: 50%;
+  display: inline-block;
+  height: 8px;
+  margin: 0 3px 0 7px;
+  width: 8px;
+}
+.legend span:first-child {
+  margin-left: 0;
+}
+.rain {
+  background: #4aa3ff;
+}
+.snow {
+  background: #cfe9ff;
+}
+.storm {
+  background: #d59a4a;
+}
+.error,
+.loading {
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+}
+.error {
+  color: var(--text-danger);
+}
+@media (max-width: 700px) {
+  header {
+    align-items: start;
+    flex-direction: column;
+  }
+  .canvas,
+  svg {
+    max-height: 420px;
+  }
+}

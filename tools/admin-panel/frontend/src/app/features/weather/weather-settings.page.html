@@ -1,0 +1,142 @@
+<section class="page-head"></section>
+
+@if (overview(); as overview) {
+  <section class="forge-panel director" [class.off]="!overview.module.enabled">
+    <div>
+      <h2>Режиссёр погоды</h2>
+      <p>
+        @if (overview.module.enabled) {
+          Модуль ведёт погоду, перемещает фронты и применяет связи между зонами.
+        } @else {
+          Модуль не вмешивается: зоны используют обычную генерацию game_weather.
+        }
+      </p>
+    </div>
+    @if (canEdit()) {
+      <label
+        class="director-switch"
+        [title]="
+          overview.module.can_toggle ? '' : 'Переключатель появится после пересборки worldserver'
+        "
+      >
+        <input
+          class="forge-toggle"
+          type="checkbox"
+          [checked]="overview.module.enabled"
+          (change)="toggleDirector()"
+          [disabled]="!overview.module.can_toggle || pending() !== null"
+        />
+        <span>{{ overview.module.enabled ? 'Включён' : 'Выключен' }}</span>
+      </label>
+    }
+  </section>
+}
+
+@if (settings(); as data) {
+  @if (!data.supported) {
+    <p class="forge-alert">
+      Этот worldserver не поддерживает команду <code>.aw cfg</code>. Настройки пока меняются в
+      конфигурации модуля.
+    </p>
+  } @else {
+    <div class="groups">
+      @for (group of data.groups; track group.key) {
+        @if (rows(group.key).length) {
+          <section class="forge-panel is-subtle setting-group">
+            <header>
+              <h2>{{ group.name }}</h2>
+              @if (group.hint) {
+                <p>{{ group.hint }}</p>
+              }
+            </header>
+            <div class="setting-grid">
+              @for (setting of rows(group.key); track setting.name) {
+                <article
+                  class="setting"
+                  [class.stored]="setting.stored"
+                  [class.busy]="pending() === setting.name"
+                >
+                  <div class="setting-title">
+                    <strong>{{ setting.label }}</strong>
+                    @if (setting.hint) {
+                      <span class="hint" [title]="setting.hint">
+                        <app-icon name="question" [size]="13" />
+                      </span>
+                    }
+                  </div>
+                  @if (canEdit()) {
+                    @if (setting.kind === 'bool') {
+                      <label class="boolean">
+                        <input
+                          class="forge-toggle"
+                          type="checkbox"
+                          [checked]="setting.value"
+                          (change)="toggle(setting)"
+                          [disabled]="pending() !== null"
+                        />
+                        <span>{{ setting.value ? 'Да' : 'Нет' }}</span>
+                      </label>
+                    } @else if (setting.kind === 'choice') {
+                      <label class="numeric">
+                        <select
+                          class="forge-field is-select"
+                          [ngModel]="setting.value"
+                          (ngModelChange)="choose(setting, $event)"
+                          [disabled]="pending() !== null"
+                        >
+                          @for (option of setting.options; track option.value) {
+                            <option [ngValue]="option.value">{{ option.label }}</option>
+                          }
+                        </select>
+                      </label>
+                    } @else {
+                      <label class="numeric">
+                        <input
+                          #numberInput
+                          class="forge-field"
+                          type="number"
+                          [min]="setting.min"
+                          [max]="setting.max"
+                          [value]="setting.value"
+                          (keydown.enter)="numberInput.blur()"
+                          (keydown.escape)="
+                            numberInput.value = setting.value.toString(); numberInput.blur()
+                          "
+                          (blur)="save(setting, numberInput)"
+                          [disabled]="pending() !== null"
+                        />
+                        @if (setting.unit) {
+                          <span>{{ setting.unit }}</span>
+                        }
+                      </label>
+                    }
+                  } @else {
+                    <strong class="read-value">{{ formatValue(setting, setting.value) }}</strong>
+                  }
+                  <footer>
+                    <span>{{ setting.stored ? 'переопределено' : 'из конфигурации' }}</span>
+                    <span class="range">{{ setting.min }}…{{ setting.max }}</span>
+                    @if (canEdit() && setting.stored) {
+                      <button
+                        type="button"
+                        class="forge-btn is-ghost is-compact reset"
+                        (click)="reset(setting)"
+                        [disabled]="pending() !== null"
+                      >
+                        Сбросить
+                      </button>
+                    }
+                  </footer>
+                </article>
+              }
+            </div>
+          </section>
+        }
+      }
+    </div>
+  }
+}
+
+@if (loading()) {
+  <p class="forge-alert">Загружаем настройки погоды…</p>
+}

@@ -1,0 +1,82 @@
+<section class="filter-bar" aria-label="Отбор зон">
+  <input
+    class="forge-field is-search grow"
+    type="search"
+    [ngModel]="search()"
+    (ngModelChange)="setSearch($event)"
+    placeholder="имя зоны или её номер"
+    aria-label="Поиск зоны"
+  />
+  <select
+    class="forge-field is-select"
+    [ngModel]="continent()"
+    (ngModelChange)="setContinent($event)"
+    aria-label="Континент"
+  >
+    <option value="">любой континент</option>
+    @for (item of continents(); track item.key) {
+      <option [value]="item.key">{{ item.name }}</option>
+    }
+  </select>
+  <label class="check">
+    <input
+      class="forge-check"
+      type="checkbox"
+      [ngModel]="onlyLinked()"
+      (ngModelChange)="toggleLinked($event)"
+    />
+    <span>только со связями</span>
+  </label>
+  @if (store.overview(); as data) {
+    <span class="season">сезон: {{ seasonLabel(data.season) }}</span>
+  }
+</section>
+
+@if (store.loading() && !store.zones().length) {
+  <p class="muted">Загружаем зоны…</p>
+} @else if (!filtered().length) {
+  <p class="empty big">Ничего не нашлось. Попробуйте номер зоны или снимите отбор.</p>
+} @else {
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Зона</th>
+          <th class="num">Номер</th>
+          <th class="where">Континент</th>
+          <th class="state">Погода</th>
+          <th class="num">Уходит</th>
+          <th class="num">Приходит</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (zone of rows(); track zone.zone_id) {
+          <tr tabindex="0" (click)="open(zone)" (keydown.enter)="open(zone)">
+            <td class="who">
+              <span class="weather-mark" [class]="'weather-mark ' + zone.state_group"></span>
+              <strong>{{ zone.name }}</strong>
+            </td>
+            <td class="num">{{ zone.zone_id }}</td>
+            <td class="where">{{ zone.continent_name || '—' }}</td>
+            <td class="state">
+              {{ zone.known ? zone.state_label : 'нет данных' }}
+              @if (zone.known && zone.state !== 0) {
+                <small>{{ zone.grade }}%</small>
+              }
+            </td>
+            <td class="num">{{ zone.links_out || '—' }}</td>
+            <td class="num">{{ zone.links_in || '—' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <app-table-pager
+    [total]="filtered().length"
+    [page]="page()"
+    [perPage]="perPage()"
+    (pageChange)="page.set($event)"
+    (perPageChange)="setPerPage($event)"
+  />
+}
