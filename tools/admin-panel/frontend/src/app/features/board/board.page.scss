@@ -1,0 +1,438 @@
+// Доска целиком на ките `styles/forge.scss`: кнопки, поля, баннеры и плашки
+// берутся оттуда классами, а здесь остаётся только раскладка и то, чего в
+// ките нет, - колонки, карточка и метки перетаскивания.
+//
+// Своего правила на голые `button`/`input`/`select` тут больше НЕТ и быть не
+// должно: из-за эмуляции стилей Angular селектор `button[_ngcontent-…]`
+// весит больше, чем класс `.forge-btn`, и такое правило молча перебивает
+// кит - кнопки набора рисуются серыми прямоугольниками.
+
+:host {
+  display: block;
+}
+
+.toolbar,
+.column > header,
+.card-meta,
+.card footer,
+.modal > header,
+.modal > footer,
+.modal > footer > div {
+  align-items: center;
+  display: flex;
+}
+
+label > span,
+.card small,
+.modal footer small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+h2,
+h3 {
+  font-family: var(--serif);
+}
+
+// Поиск, фильтры и обе кнопки стоят одной строкой. На узком экране строка
+// переносится, а поиск остаётся во всю доступную ширину.
+.toolbar {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-top: 4px;
+}
+
+.toolbar .forge-field.is-search {
+  flex: 1;
+  min-width: 220px;
+}
+
+.toolbar .forge-select {
+  min-width: 170px;
+}
+
+// Кнопки уезжают вправо, к краю доски, и растут до высоты полей: у
+// `is-compact` она своя, 38 против 44, и в одной строке это заметно.
+.toolbar .forge-btn {
+  min-height: 44px;
+}
+
+.toolbar button:first-of-type {
+  margin-left: auto;
+}
+
+.forge-alert {
+  margin-bottom: 12px;
+}
+
+.move-status {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+  min-height: 24px;
+}
+
+.board {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(5, minmax(190px, 1fr));
+  min-height: calc(100vh - 260px);
+  overflow-x: auto;
+}
+
+// Колонка - «толстая» рамка набора, карточка внутри - «тихая»: так видно, что
+// колонка держит карточки, а не стоит с ними вровень. Кромка уже родной
+// ширины (16 вместо 26): при пяти колонках в ряд полная съедает половину
+// места под карточки.
+.column {
+  background-image: var(--forge-inner-slate);
+  background-size: auto, 420px;
+  border: 16px solid transparent;
+  border-image: url('/ui/frames/panel-thick.png') 26 round;
+  display: flex;
+  flex-direction: column;
+  min-width: 190px;
+}
+
+.column > header {
+  gap: 8px;
+  padding: 2px 2px 8px;
+}
+
+.column h2 {
+  color: var(--gold);
+  font-size: 15px;
+  margin: 0;
+}
+
+.column > header span {
+  color: var(--muted);
+  font-size: 12px;
+  margin-left: auto;
+}
+
+// Квадратная кнопка набора в размер шапки колонки.
+.column > header .add {
+  border-width: 9px;
+  font-size: 17px;
+  height: 30px;
+  min-height: 0;
+  padding: 0;
+  width: 30px;
+}
+
+.card-list {
+  align-content: start;
+  display: grid;
+  flex: 1;
+  gap: 8px;
+  min-height: 100px;
+  padding: 2px 0 0;
+}
+
+// Карточка - «тихая» рамка набора. Приоритет показывает только плашка: полоса
+// слева спорила с кромкой и резала её угол.
+.card {
+  // Заливка КАРТОЧКИ темнее заливки колонки, хотя плитка та же. Пока обе
+  // брали `--forge-inner-slate`, карточка на колонке не читалась вовсе:
+  // одинаковый камень с одинаковой вуалью выглядел прозрачным окном, и
+  // границу держала только кромка. Вуаль тут плотнее (0.66 против 0.32), и
+  // плитка мельче - карточка садится в колонку, а не сливается с ней.
+  background-image: linear-gradient(#000000a8, #000000a8), var(--texture-slate);
+  background-size: auto, 260px;
+  // Кромка тут только держит место: саму рамку рисует `::after` ниже.
+  border: 12px solid transparent;
+  cursor: pointer;
+  display: grid;
+  gap: 7px;
+  overflow-wrap: anywhere;
+  padding: 2px;
+  position: relative;
+}
+
+// Рамку карточки рисует псевдоэлемент - иначе её не подкрасить: `filter` на
+// самой карточке ушёл бы и на текст с плашками. Золото уголков уведено в
+// серебро: одна и та же кромка на колонке и на карточке читалась бы одной
+// деталью, а не карточкой внутри колонки.
+.card::after {
+  border: 12px solid transparent;
+  border-image: url('/ui/frames/panel-subtle.png') 22 round;
+  content: '';
+  filter: grayscale(0.72) brightness(1.1);
+  inset: -12px;
+  pointer-events: none;
+  position: absolute;
+}
+
+// Приоритет показывает САМА КРОМКА карточки - та же кованая рамка, только в
+// цвете. Красить её на лету нечем: `border-image` рисует картинку, и своего
+// цвета у неё нет, а фильтрами (`sepia` + `hue-rotate`) в конкретный #ff2020
+// не попасть. Поэтому перекрашенные копии режутся заранее нарезчиком
+// (`TINTS` в slice_style_guide.py), а числа там - те же, что у констант
+// `--priority-*` в styles/theme.scss.
+//
+// Обычный приоритет копии не имеет: он и есть обычная серая кромка.
+.card.p0::after {
+  border-image-source: url('/ui/frames/panel-subtle-low.png');
+  filter: none;
+}
+.card.p2::after {
+  border-image-source: url('/ui/frames/panel-subtle-high.png');
+  filter: none;
+}
+.card.p3::after {
+  border-image-source: url('/ui/frames/panel-subtle-critical.png');
+  filter: none;
+}
+
+.card[draggable='true'] {
+  cursor: grab;
+}
+
+.card:hover {
+  filter: brightness(1.12);
+}
+
+.card.dragging {
+  opacity: 0.35;
+}
+
+// Колонка под перетаскиванием - нарядная рамка. Срез задан заново: у неё он
+// свой, 48, и оставить прежние 26 значило бы резать по середине угла.
+.column.drop-active {
+  border-image: url('/ui/frames/panel-ornate.png') 48 round;
+}
+
+.card.insert-before::before {
+  background: var(--gold-bright);
+  border-radius: 2px;
+  content: '';
+  height: 3px;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: -7px;
+}
+
+.card-list.insert-end::after {
+  background: var(--gold-bright);
+  border-radius: 2px;
+  content: '';
+  height: 3px;
+  pointer-events: none;
+}
+
+.card > strong {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.card-meta,
+.card footer {
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+// Метки на карточке - чипы набора, ужатые до её масштаба. Круглые пилюли на
+// заливке остались от прежнего скина и рядом с коваными кромками читались
+// наклейками.
+.tag,
+.card footer span {
+  align-items: center;
+  border: 7px solid transparent;
+  border-image: url('/ui/tabs/chip-filter.png') 16 fill round stretch;
+  // Текст чипа на листе БЕЛЫЙ (замерено: #ffffff у «Active»); кремовый
+  // #d3cebf остался от прежнего тёплого скина. Берём холодный основной - на
+  // карточке их до десятка разом, и чистый белый в таком количестве кричит.
+  color: var(--text);
+  display: inline-flex;
+  font-family: var(--serif);
+  font-size: 11px;
+  min-height: 22px;
+  padding: 0 4px;
+}
+
+// Значок типа карточки идёт в цвет золота - он метка, а не текст.
+.card .kind {
+  align-items: center;
+  color: var(--gold-dim);
+  display: inline-flex;
+}
+
+.empty {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 8px 0;
+  text-align: center;
+}
+
+.modal-backdrop {
+  align-items: center;
+  background: rgb(0 0 0 / 65%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 10;
+}
+
+// Окно карточки - кованая рамка набора по камню. Скругление режет заливку и
+// внутреннюю тень, `border-image` оно не трогает.
+.modal {
+  background-image: var(--forge-inner);
+  background-size: auto, 380px;
+  // Кромка держит место, рамку рисует `::after` - иначе её не подкрасить.
+  border: 28px solid transparent;
+  border-radius: 22px;
+  // Внутренней тени тут больше НЕТ: она затемняла камень по краям окна и
+  // сверху читалась тёмным градиентом поперёк заголовка. Снаружи тень
+  // остаётся - она отделяет окно от страницы.
+  box-shadow: 0 18px 60px rgb(0 0 0 / 55%);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 40px);
+  max-width: 850px;
+  position: relative;
+  width: 100%;
+}
+
+.modal::after {
+  border: 28px solid transparent;
+  border-image: url('/ui/frames/panel-thick.png') 26 round;
+  content: '';
+  inset: -28px;
+  pointer-events: none;
+  position: absolute;
+}
+// Открытая карточка носит тот же приоритет, что и закрытая: кромка окна
+// берёт перекрашенную копию своей рамки (`panel-thick`). Иначе цвет пропадал
+// ровно там, где карточку и правят.
+.modal.p0::after {
+  border-image-source: url('/ui/frames/panel-thick-low.png');
+}
+.modal.p2::after {
+  border-image-source: url('/ui/frames/panel-thick-high.png');
+}
+.modal.p3::after {
+  border-image-source: url('/ui/frames/panel-thick-critical.png');
+}
+
+// Открытая карточка с высоким или критичным приоритетом - рамка окна в том же
+// красном, что и у карточки на доске.
+.modal.high::after {
+  filter: grayscale(1) sepia(1) saturate(5) hue-rotate(-38deg) brightness(0.92);
+}
+
+.modal > header,
+.modal > footer {
+  justify-content: space-between;
+  padding: 0;
+}
+
+// Полоса набора рисуется кромкой внутрь, поэтому своя высота у неё есть, а
+// внешних отступов ей тут не надо - зазор дают сами блоки.
+.modal .forge-rule {
+  flex: none;
+  margin: 2px 0;
+}
+
+.modal > header h2 {
+  // Заголовок - обычное золото заголовков, как везде. Светлое золото в теме
+  // значит наведение и выбранное.
+  color: var(--gold);
+  font-size: 19px;
+  margin: 0;
+}
+
+.modal-body {
+  display: grid;
+  gap: 13px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 4px 2px;
+  scrollbar-color: var(--gold-dim) #0000;
+  scrollbar-width: thin;
+}
+
+label {
+  display: grid;
+  gap: 4px;
+}
+
+.form-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+// Ряд «Тип · Приоритет · Колонка · Модуль»: равные доли тут не по делу. В
+// «Типе» слова короткие («Баг», «Идея»), а в «Модуле» - названия вроде
+// «Продвинутые профессии», и они не влезали. Тип ужат на четверть, весь запас
+// отдан модулю.
+.form-grid.is-meta {
+  grid-template-columns: 0.75fr 0.95fr 1fr 1.3fr;
+}
+
+// Ряд «Теги · Исполнитель» - на двоих, а не на четверых: иначе половина ряда
+// пустая, а поля вдвое уже нужного.
+.form-grid.is-pair {
+  grid-template-columns: 1.6fr 1fr;
+}
+
+.comments {
+  display: grid;
+  gap: 8px;
+}
+
+// Кнопка не тянется во всю ширину: `round` уложит кромку на 800 пикселей
+// десятком повторов, и заклёпки пойдут частоколом. Под всю ширину в ките
+// есть своя кнопка (`is-wide`), но здесь она была бы не по делу.
+.comments > button {
+  justify-self: end;
+}
+
+.comments h3 {
+  color: var(--gold);
+  font-size: 16px;
+  margin: 0;
+}
+
+.comments article {
+  background: #0b0d11a8;
+  border: 1px solid var(--line);
+  padding: 8px;
+}
+
+.comments article p {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+}
+
+.modal > footer {
+  gap: 8px;
+  padding: 10px 0 0;
+}
+
+.modal > footer > div {
+  gap: 8px;
+  margin-left: auto;
+}
+
+@media (max-width: 720px) {
+  .toolbar .forge-field.is-search,
+  .toolbar .forge-select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .toolbar button:first-of-type {
+    margin-left: 0;
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

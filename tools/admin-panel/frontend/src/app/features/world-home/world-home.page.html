@@ -1,0 +1,22 @@
+<div class="module-grid">
+  @for (group of groups(); track group.label) {
+    <article class="forge-panel is-subtle module">
+      <h3 class="forge-panel-title">{{ group.label }}</h3>
+      <ul>
+        @for (item of group.items; track item.route) {
+          <li>
+            <a [routerLink]="item.route">
+              <i class="forge-icon-tile"><app-icon [name]="item.icon ?? 'dot'" [size]="22" /></i>
+              <span class="body">
+                <b>{{ item.label }}</b>
+                @if (item.hint) {
+                  <small>{{ item.hint }}</small>
+                }
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    </article>
+  }
+</div>

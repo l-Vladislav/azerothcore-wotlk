@@ -1,0 +1,108 @@
+// Только раскладка: таблица, поля и кнопки берут вид из набора.
+:host {
+  display: block;
+}
+
+.forge-alert {
+  margin: 0 0 12px;
+}
+
+.filter-bar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.filter-bar .grow {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.filter-bar select {
+  max-width: 220px;
+}
+.filter-bar .check {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 12px;
+  gap: 6px;
+}
+.muted,
+.empty {
+  color: var(--muted);
+  font-size: 12px;
+}
+.empty.big {
+  font-size: 13px;
+  padding: 28px 12px;
+  text-align: center;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+// Ширину таблица берёт по месту, а не требует своей: иначе рядом с раскрытой
+// боковой панелью под ней появляется вторая полоса прокрутки.
+table {
+  min-width: 0;
+  table-layout: fixed;
+  width: 100%;
+}
+th,
+td {
+  overflow: hidden;
+  padding: 6px 10px;
+  text-align: left;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+th.num,
+td.num {
+  text-align: right;
+  white-space: nowrap;
+  width: 92px;
+}
+// «Выключено» - самая длинная подпись счётчика: в 92 пикселя она обрезалась.
+th.off,
+td.off {
+  text-align: right;
+  white-space: nowrap;
+  width: 120px;
+}
+th.where,
+td.where {
+  width: 130px;
+}
+// Названия погоды длинные - «сильная песчаная буря», «чёрный снег»: в 150
+// пикселей они не влезали и ломали разбивку по колонкам.
+
+// Строка - ссылка на правила зоны: курсор говорит об этом раньше, чем человек
+// попробует.
+tbody tr {
+  cursor: pointer;
+}
+// ЯЧЕЙКА ОСТАЁТСЯ ЯЧЕЙКОЙ. `display: flex` на `<td>` выкидывает её из
+// табличной раскладки: она перестаёт тянуться по высоте строки и делить с
+// соседями базовую линию - имя зоны уезжало вверх, стоило соседней ячейке
+// перенестись на две строки. Огонёк ставим строчным элементом.
+td.who {
+  white-space: nowrap;
+}
+td.who strong {
+  color: var(--text-bright);
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+// Поиск по справочнику зон - тот, которым заводят правила там, где их нет.
+.filter-bar .add {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.hits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+}
