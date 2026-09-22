@@ -1,0 +1,57 @@
+@use './professions';
+
+.card {
+  background-image: var(--texture-panel);
+  border: 10px solid transparent;
+  border-image: url('/ui/frames/panel-subtle.png') 22 round;
+  border-image-width: 22px;
+  margin-bottom: 16px;
+  max-width: 900px;
+  padding: 12px 14px 14px;
+}
+.card h2 {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+// Метка «не используется» - про саму таблицу, а не про строку: раздел остался
+// в схеме под возможное развитие, и ковка его не читает.
+// Шрифт задаём полями, а не сокращением `font:`: сокращение требует семейство,
+// и `inherit` в нём делает всё правило недействительным - метка вырастала до
+// заголовочного шрифта и кричала капсом на пол-экрана.
+.wip {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.8;
+  padding: 0 5px;
+  text-transform: uppercase;
+}
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+tr.sum td {
+  color: var(--muted);
+  font-size: 12px;
+}
+tr.sum .warn {
+  color: var(--text-warning);
+}
+td.name {
+  font-family: var(--mono, monospace);
+  font-size: 12px;
+  white-space: nowrap;
+}
+td.muted {
+  font-size: 11px;
+  line-height: 1.45;
+}
+.forge-alert {
+  margin: 10px 0 0;
+}

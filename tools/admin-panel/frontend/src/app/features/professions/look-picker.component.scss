@@ -1,0 +1,103 @@
+dialog {
+  background-image: var(--texture-panel);
+  background-size: auto, 480px;
+  border: 3px ridge #62655c;
+  border-radius: 3px;
+  box-shadow: var(--frame-shadow);
+  color: var(--text);
+  max-height: min(720px, 86vh);
+  padding: 0;
+  width: min(760px, 94vw);
+}
+dialog::backdrop {
+  background: #04060799;
+}
+
+header {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 10px 14px;
+}
+h2 {
+  color: var(--gold);
+  font: 18px var(--serif);
+  margin: 0;
+}
+.close {
+  height: 38px;
+  width: 38px;
+}
+
+.tools {
+  display: flex;
+  gap: 8px;
+  padding: 12px 14px;
+}
+.tools input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.tools select {
+  min-width: 180px;
+}
+
+// Сетка, а не список: вид выбирают глазами по картинке, и в ряд их помещается
+// десяток.
+.grid {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  max-height: 48vh;
+  overflow-y: auto;
+  padding: 0 14px 12px;
+}
+.look {
+  align-items: center;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: var(--muted);
+  cursor: pointer;
+  display: grid;
+  font-size: 10px;
+  gap: 1px;
+  justify-items: center;
+  padding: 5px 2px;
+}
+.look:hover,
+.look:focus-visible {
+  background: var(--surface-accent-subtle);
+  border-color: var(--border-accent);
+}
+.look img {
+  border: 1px solid var(--line);
+}
+.look .id {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+footer {
+  border-top: 1px solid var(--line);
+  padding: 8px 14px 12px;
+}
+.pager {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.pager span {
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.hint {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+  margin: 8px 0 0;
+}

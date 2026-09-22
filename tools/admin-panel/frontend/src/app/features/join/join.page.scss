@@ -1,0 +1,23 @@
+@use '../login/login.page.scss';
+
+.invite-note {
+  background: var(--surface-accent-subtle);
+  border: 1px solid var(--border-accent);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 18px;
+  padding: 10px;
+}
+
+.invite-note strong {
+  color: var(--gold-bright);
+}
+
+.footnote {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 20px 0 0;
+}
