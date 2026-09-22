@@ -5,6 +5,7 @@ with Basic auth (src/server/apps/worldserver/ACSoap/ACSoap.cpp). The calling
 account must exist in acore_auth and have gmlevel >= 3 (SEC_ADMINISTRATOR).
 """
 
+import datetime
 import html
 import re
 
@@ -76,3 +77,39 @@ def reload_config() -> str:
 
 def ping() -> str:
     return execute("server info", timeout=5.0)
+
+
+# `.server info` answers e.g. "Server uptime: 1 hour(s) 41 minute(s) 59
+# second(s)". Each unit is matched on its own: a single regex with every group
+# optional would happily match the empty string and report zero.
+UPTIME_UNITS = ((r"(\d+)\s*day", 86400), (r"(\d+)\s*hour", 3600),
+                (r"(\d+)\s*minute", 60), (r"(\d+)\s*second", 1))
+
+
+def uptime_seconds() -> int | None:
+    """Worldserver uptime, or None when the console is unreachable."""
+    try:
+        text = execute("server info", timeout=8.0)
+    except Exception:
+        return None
+    line = re.search(r"uptime[^\r\n]*", text, re.I)
+    if not line:
+        return None
+    total = 0
+    for pattern, multiplier in UPTIME_UNITS:
+        match = re.search(pattern, line.group(0), re.I)
+        if match:
+            total += int(match.group(1)) * multiplier
+    return total or None
+
+
+def started_at() -> datetime.datetime | None:
+    """When the worldserver came up. Anything written before that is live.
+
+    The panel leans on this instead of a flag it sets itself: a flag survives
+    the restart that already made the change live, and then lies forever.
+    """
+    uptime = uptime_seconds()
+    if uptime is None:
+        return None
+    return datetime.datetime.now() - datetime.timedelta(seconds=uptime)
