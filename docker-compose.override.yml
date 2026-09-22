@@ -1,0 +1,228 @@
+# Override to run NEW server alongside the OLD one.
+# Different ports, container names, volumes, and network.
+#
+# Old server:  DB=3306, World=8085, Auth=3724, SOAP=7878
+# New server:  DB=3307, World=8086, Auth=3725, SOAP=7879
+#
+# Usage:
+#   docker compose up -d --build
+#
+# After migration is complete and verified, shut down the OLD server
+# and switch these ports back to defaults if desired.
+
+services:
+  ac-database:
+    container_name: ac-database-v2
+    # Настройки передаются КОМАНДОЙ, а не файлом, и это не вкусовщина: том с
+    # Windows отдаёт примонтированный conf/mysql-custom.cnf с правами 0777, а
+    # MySQL молча игнорирует world-writable конфиг - в логе одна строка
+    # «World-writable config file is ignored», и сервер живёт на умолчаниях.
+    # Так и было: пул стоял 128 МБ при 32 ГБ ОЗУ, из-за чего поиск по
+    # item_template читал с диска и занимал 2-3 секунды вместо сотых.
+    # Значения те же, что в conf/mysql-custom.cnf - он остаётся как справка.
+    command: >-
+      --innodb-buffer-pool-size=4G
+      --innodb-io-capacity=500
+      --innodb-io-capacity-max=2500
+      --skip-log-bin
+      --transaction-isolation=READ-COMMITTED
+    volumes:
+      - ac-database-v2:/var/lib/mysql
+      - ./conf/mysql-custom.cnf:/etc/mysql/conf.d/custom.cnf:ro
+
+  ac-db-import:
+    container_name: ac-db-import-v2
+
+  ac-worldserver:
+    container_name: ac-worldserver-v2
+    environment:
+      TZ: "Europe/Moscow"
+    volumes:
+      - ./env/dist/etc:/azerothcore/env/dist/etc
+      - ./env/dist/logs:/azerothcore/env/dist/logs:delegated
+      - ac-client-data-v2:/azerothcore/env/dist/data/:ro
+      - ./modules:/azerothcore/modules:ro
+
+  ac-authserver:
+    container_name: ac-authserver-v2
+
+  ac-client-data-init:
+    container_name: ac-client-data-init-v2
+    volumes:
+      - ac-client-data-v2:/azerothcore/env/dist/data
+
+  ac-tools:
+    container_name: ac-tools-v2
+
+  ac-dev-server:
+    container_name: ac-dev-server-v2
+
+  ac-worldserver-ptr:
+    container_name: ac-worldserver-ptr
+    build:
+      context: .
+      target: worldserver
+      dockerfile: apps/docker/Dockerfile
+      args:
+        USER_ID: ${DOCKER_USER_ID:-1000}
+        GROUP_ID: ${DOCKER_GROUP_ID:-1000}
+        DOCKER_USER: ${DOCKER_USER:-acore}
+    networks:
+      - ac-network
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    env_file:
+        ${DOCKER_AC_ENV_FILE:-conf/dist/env.ac}
+    environment:
+      AC_DATA_DIR: "/azerothcore/env/dist/data"
+      AC_LOGS_DIR: "/azerothcore/env/dist/logs"
+      AC_LOGIN_DATABASE_INFO: "ac-database-v2;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_auth"
+      AC_WORLD_DATABASE_INFO: "ac-database-v2;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_world_ptr"
+      AC_CHARACTER_DATABASE_INFO: "ac-database-v2;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_characters_ptr"
+      AC_PLAYERBOTS_DATABASE_INFO: "ac-database-v2;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_playerbots"
+      AC_UPDATES_ENABLE_DATABASES: "0"
+      AC_DISABLE_INTERACTIVE: "1"
+      AC_CLOSE_IDLE_CONNECTIONS: "0"
+      TZ: "Europe/Moscow"
+    ports:
+      - "8087:8085"
+      - "7880:7878"
+    volumes:
+      - ./env/dist/etc-ptr:/azerothcore/env/dist/etc
+      - ./env/dist/logs:/azerothcore/env/dist/logs:delegated
+      - ac-client-data-v2:/azerothcore/env/dist/data/:ro
+      - ./modules:/azerothcore/modules:ro
+    profiles: [ptr]
+
+  # Admin panel for module content (currently: mod-environmental-effects).
+  # PTR only — app/config.py refuses any schema not ending in "_ptr".
+  #
+  # Bind address defaults to loopback. Set ADMIN_PANEL_BIND to the tailnet
+  # address to reach it from another machine or from the launcher's WebView2 tab.
+  # ADMIN_PANEL_TOKEN must be set or the API returns 503 on every call.
+  ac-admin-panel:
+    container_name: ac-admin-panel
+    build:
+      context: ./tools/admin-panel
+    networks:
+      - ac-network
+    restart: unless-stopped
+    environment:
+      ADMIN_DB_HOST: ac-database-v2
+      ADMIN_DB_PORT: "3306"
+      ADMIN_DB_USER: root
+      ADMIN_DB_PASS: ${DOCKER_DB_ROOT_PASSWORD:-password}
+      ADMIN_DB_NAME: acore_world_ptr
+      # Panel-owned schema (board of bugs / ideas). Created on first start;
+      # deliberately outside *_ptr so PTR snapshot restores do not roll it back.
+      ADMIN_BOARD_DB_NAME: acore_admin
+      ADMIN_SOAP_HOST: ac-worldserver-ptr
+      ADMIN_SOAP_PORT: "7878"
+      ADMIN_SOAP_USER: ${ADMIN_SOAP_USER:-}
+      ADMIN_SOAP_PASS: ${ADMIN_SOAP_PASS:-}
+      ADMIN_TOKEN: ${ADMIN_PANEL_TOKEN:-}
+      ADMIN_REPO_ROOT: /repo
+      # Client data the worldserver itself loads — the spell catalogue reads
+      # Spell.dbc and friends straight out of it.
+      ADMIN_DBC_DIR: /client-data/dbc
+      # Сборка клиентского патча живёт в ac-patch-builder: у панели нет ни
+      # StormLib, ни права писать в launcher/cdn, поэтому она только просит.
+      ADMIN_PATCH_BUILDER_URL: http://ac-patch-builder:8092
+      ADMIN_PATCH_BUILDER_TOKEN: ${PATCH_BUILDER_TOKEN:-}
+    ports:
+      - "${ADMIN_PANEL_BIND:-127.0.0.1}:8091:8091"
+    volumes:
+      # Least privilege: reference data read-only, and exactly one writable
+      # directory — the pending migrations the panel exports into.
+      # Whole directory, not single files: the spell workshop rewrites
+      # Spell_custom.csv atomically (write temp + rename), which a single-file
+      # bind mount cannot support.
+      - ./.claude/dbc:/repo/.claude/dbc
+      - ./modules/mod-environmental-effects/docs:/repo/modules/mod-environmental-effects/docs:ro
+      - ./data/sql/updates/pending_db_world:/repo/data/sql/updates/pending_db_world
+      # The worldserver's own client data, read-only: the only complete list of
+      # what spells exist. Shared volume, so the panel sees exactly what the
+      # PTR server loaded.
+      - ac-client-data-v2:/client-data:ro
+    profiles: [ptr]
+
+  # Сборка клиентского патча по запросу из панели. Отдельный контейнер, а не
+  # код внутри панели, ровно по одной причине: здесь есть право писать в
+  # launcher/cdn, то есть в то, что качают игроки, а у панели такого права
+  # быть не должно. Панель только просит.
+  #
+  # Наружу порт НЕ публикуется: сервис виден лишь тем, кто сидит в
+  # ac-network. Публиковать его - значит выставить в тайлнет кнопку
+  # «перезалить игрокам патч».
+  ac-patch-builder:
+    container_name: ac-patch-builder
+    build:
+      context: ./tools/patch-builder
+    networks:
+      - ac-network
+    restart: unless-stopped
+    environment:
+      BUILDER_REPO_ROOT: /repo
+      PATCH_BUILDER_TOKEN: ${PATCH_BUILDER_TOKEN:-}
+      # Проверка после публикации: отдаёт ли nginx новые размеры или ещё
+      # закешированные атрибуты. Контейнер CDN живёт в отдельном compose-
+      # проекте и в эту сеть не входит, поэтому стучимся через хост.
+      CLIENT_PATCH_CDN_URL: http://host.docker.internal:8090/
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      # ТОЛЬКО петля, и адрес намеренно не вынесен в переменную: сюда ходит
+      # scripts/client-patch.ps1 с этой же машины. Открыть наружу - значит
+      # выставить кнопку «перезалить игрокам патч» без всякого пароля.
+      - "127.0.0.1:8092:8092"
+    volumes:
+      # Код сборки - только на чтение: сервис его запускает, а не правит.
+      - ./tools/client-patch:/repo/tools/client-patch:ro
+      # Оверлеи: сюда пишет панель кнопкой «экспорт в клиент», отсюда читает
+      # сборщик. Ему хватает чтения.
+      - ./.claude/dbc:/repo/.claude/dbc:ro
+      # Единственное, что пишется наружу: содержимое CDN.
+      - ./launcher/cdn:/repo/launcher/cdn
+      - ./launcher/content.config.json:/repo/launcher/content.config.json:ro
+      # Рабочий каталог (база DBC, дерево сборки, склад версий для дельт) - в
+      # томе, а не в репозитории: это 92 МБ распакованных DBC, которым в git
+      # делать нечего, и на bind-монте Docker Desktop они читались бы втрое
+      # дольше. Том пустой при первом запуске - сборщик сам сделает bootstrap
+      # из архивов, которые лежат на CDN.
+      - client-patch-work:/repo/client-patch
+    profiles: [ptr]
+
+  ollama:
+    container_name: ollama
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_FLASH_ATTENTION: "1"
+      OLLAMA_NUM_PARALLEL: "2"
+    networks:
+      - ac-network
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  ac-database-v2:
+  ac-client-data-v2:
+  ollama-data:
+  # База DBC + склад прошлых версий для дельт. Удалить том = потерять
+  # историю: следующее обновление уедет игрокам целым архивом вместо
+  # килобайтной дельты. Саму базу сборщик восстановит сам (bootstrap).
+  client-patch-work:
+
+networks:
+  ac-network:
+    name: ac-network-v2
