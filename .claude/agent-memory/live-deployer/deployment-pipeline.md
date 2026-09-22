@@ -138,3 +138,54 @@ feature was still pre-deployment). **Do not trust any brief's framing of "first-
 If ground truth contradicts the brief, the package must document reality, not the brief's
 assumption — including flipping "apply" from a real deploy into an idempotent no-op reconcile when
 appropriate (see the 2026-07-07 mod-item-talents-live-reconcile package for the pattern).
+
+### `pending_db_world/` is baked into the image and auto-applied by AC's OWN updater — not bind-mounted, not lexicographically safe
+
+Discovered 2026-09-17 while preparing the mod-advanced-professions first-install package.
+Confirmed by reading source, not guessing:
+
+1. `docker inspect <worldserver-container> --format '{{json .Mounts}}'` shows NO mount for
+   `data/sql/updates/` on either live or PTR — that whole tree is copied into the image at
+   `docker compose build` time and is whatever it was at the last build, not the live host
+   checkout.
+2. `SELECT * FROM acore_world.updates_include` (and `acore_world_ptr`) lists
+   `$/data/sql/updates/pending_db_world` with `state=PENDING`, on **both** databases.
+3. `DatabaseLoader::Load` → `DBUpdater<T>::Update` runs **inside `worldserver.exe` itself**
+   at every boot (gated by `Updates.EnableDatabases`, `= 7` on both live and PTR conf) — this
+   is not something only a separate `dbimport` binary does.
+4. Net effect: **any `.sql` file sitting in the image's baked-in `pending_db_world/` that
+   isn't yet recorded (by name+hash) in `<db>.updates` gets auto-applied the moment that
+   image's worldserver boots** — completely independent of any live-deployer package.
+5. The apply order AC uses is whatever `std::filesystem::directory_iterator` yields for
+   `PENDING`-state files (`UpdateFetcher::Update`, the "apply only pending/custom/module
+   updates" loop) — empirically close to lexicographic, which is **not** numeric order for
+   filenames like `mod_foo_v2_x.sql` / `mod_foo_v10_y.sql` / `mod_foo_v42_z.sql` (`"v42"` sorts
+   before `"v6"` as a string). If a module's migration files have real SQL-time cross-file
+   dependencies (confirmed present in ~11 of mod-advanced-professions' 47 files — literal
+   `SELECT`/`JOIN` against tables other numbered files create), letting AC's own updater
+   apply them via a bare rebuild+restart can fail outright or silently compute wrong derived
+   data.
+
+**Two practical consequences for every future package:**
+
+- **This is *why* past packages' manual `mysql < file` applies turned out safe in
+  hindsight**: since that path doesn't write to `<db>.updates`, the file stayed "pending" and
+  AC's own updater re-ran it (harmlessly, since the affected files were self-contained
+  DELETE-then-INSERT/REPLACE or `CREATE TABLE IF NOT EXISTS`) on some LATER, unrelated
+  rebuild — which is exactly how the ~55 older ad-hoc files ended up correctly recorded with
+  state=PENDING in both live's and PTR's `updates` tables despite never going through a
+  live-deployer `apply.ps1`-driven `updates` write. Verified via hash comparison: zero drift
+  between on-disk content and the recorded hash for every one of them.
+- **For any deploy where file order actually matters (multi-file modules with real
+  cross-file SQL dependencies), don't rely on step 5's behavior.** Apply the files manually
+  in the verified-correct order, THEN immediately `REPLACE INTO updates (name, hash, state,
+  speed) VALUES (...)` for each one yourself (exact format from
+  `UpdateFetcher::UpdateEntry`, `state='PENDING'`, hash = uppercase SHA1 hex of the file
+  bytes) — this makes the next boot see them as already-applied-and-hash-matched, so AC's own
+  updater leaves them alone instead of re-running them out of order. See the
+  2026-09-17 mod-advanced-professions-install package's `apply.ps1` for the pattern.
+- **Every live rebuild is a promotion event for the ENTIRE `pending_db_world/` directory,
+  not just whatever one file/module you meant to ship.** Before recommending or running any
+  rebuild, diff the full directory against `<db>.updates` (by hash, not just presence) to
+  surface untracked riders — anything not covered by the package in hand needs an explicit
+  per-file decision from the operator, the same way "surprise module" C++ riders do.
