@@ -143,3 +143,16 @@ launcher/
 
 # Deploy rollback packages (DB snapshots etc.) - ephemeral, regenerated per deploy
 .claude/agent-memory/live-deployer/packages/
+
+# Черновики: заготовки текстур, проверочные скрипты - живут только локально
+/scratchpad/
+
+# Клиентский патч: база DBC (92 МБ), сборка и готовые архивы
+/client-patch/
+
+# Наш docker-compose.override.yml — это не локальная мелочь, а описание
+# всего сервера: контейнеры PTR, админ-панель, сборщик клиентского патча,
+# ollama, тома и сеть. Апстримное правило /*.override.yml держало его вне
+# git, то есть в одном экземпляре на диске. Секретов в нём нет — пароли и
+# токены подставляются из .env через ${VAR:-default}, а .env остаётся вне git.
+!/docker-compose.override.yml
