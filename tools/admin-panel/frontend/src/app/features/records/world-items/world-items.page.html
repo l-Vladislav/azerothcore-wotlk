@@ -1,0 +1,96 @@
+<section class="filter-bar" aria-label="Отбор размещений">
+  <input
+    class="forge-field is-search grow"
+    type="search"
+    [ngModel]="filter()"
+    (ngModelChange)="filter.set($event); page.set(1)"
+    placeholder="название предмета, его номер или комментарий"
+    aria-label="Поиск среди размещений"
+  />
+  <label class="check">
+    <input
+      class="forge-check"
+      type="checkbox"
+      [ngModel]="onlyEnabled()"
+      (ngModelChange)="toggleOnlyEnabled($event)"
+    />
+    <span>только включённые</span>
+  </label>
+  <span class="count">{{ filtered().length }} из {{ rows().length }}</span>
+</section>
+
+@if (loading()) {
+  <p class="muted">Загружаем размещения…</p>
+} @else if (!filtered().length) {
+  <p class="empty big">
+    @if (rows().length) {
+      Ничего не нашлось. Попробуйте номер предмета или снимите отбор.
+    } @else {
+      Ничего не разложено. Поставьте объект в игре и привяжите к нему предмет.
+    }
+  </p>
+} @else {
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="num">№</th>
+          <th>Предмет</th>
+          <th class="num">Кол-во</th>
+          <th class="where">Где</th>
+          <th class="num">Респавн</th>
+          <th class="state">Состояние</th>
+          <th class="num">Забрали</th>
+          <th>Комментарий</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of pageRows(); track row.id) {
+          <tr
+            tabindex="0"
+            [class.disabled]="!row.enabled"
+            (click)="open(row.id)"
+            (keydown.enter)="open(row.id)"
+          >
+            <td class="num">{{ row.id }}</td>
+            <td class="who">
+              <span class="face">
+                <img [src]="iconUrl(row)" alt="" loading="lazy" (error)="useBlankIcon($event)" />
+              </span>
+              <span class="names">
+                @if (row.item_missing) {
+                  <strong class="missing">предмета {{ row.item_entry }} больше нет</strong>
+                } @else {
+                  <strong [class]="'quality-' + row.item_quality">{{ row.item_name }}</strong>
+                }
+                <small>
+                  {{ row.item_entry }}
+                  @if (row.item_block) {
+                    · {{ row.item_block }}
+                  }
+                </small>
+              </span>
+            </td>
+            <td class="num">{{ row.item_count }}</td>
+            <td class="where">{{ place(row) }}</td>
+            <td class="num">{{ row.respawn_secs ? row.respawn_secs + ' с' : 'без' }}</td>
+            <td class="state">
+              {{ row.enabled ? 'включено' : 'выключено'
+              }}{{ row.one_per_char ? ' · один раз' : '' }}
+            </td>
+            <td class="num">{{ row.looted_by ?? '?' }}</td>
+            <td>{{ row.comment || '—' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <app-table-pager
+    [total]="filtered().length"
+    [page]="page()"
+    [perPage]="perPage()"
+    (pageChange)="page.set($event)"
+    (perPageChange)="perPage.set($event); page.set(1)"
+  />
+}

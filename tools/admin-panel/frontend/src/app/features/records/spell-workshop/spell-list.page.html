@@ -1,0 +1,194 @@
+<section class="page-head">
+  <div class="head-left">
+    @if (canEdit()) {
+      <button type="button" class="forge-btn is-compact" (click)="create()">Новое заклинание</button>
+    }
+  </div>
+  @if (pending(); as state) {
+    <p
+      class="restart-state"
+      [class.bad]="!state.known || state.count > 0"
+      [title]="state.reason ?? 'Заклинания записаны после старта worldserver - в игре их ещё нет.'"
+    >
+      {{ pendingLabel() }}
+    </p>
+  }
+</section>
+
+<section class="filter-bar" aria-label="Отбор заклинаний">
+  <input
+    class="forge-field is-search grow"
+    type="search"
+    [ngModel]="query()"
+    (ngModelChange)="onQuery($event)"
+    placeholder="название заклинания или его номер"
+    aria-label="Поиск заклинания"
+  />
+  <span class="scope" role="group" aria-label="Где искать">
+    <button
+      type="button"
+      class="forge-tab is-compact"
+      [class.is-active]="scope() === 'own'"
+      (click)="setScope('own')"
+    >
+      Свои
+    </button>
+    <button
+      type="button"
+      class="forge-tab is-compact"
+      [class.is-active]="scope() === 'all'"
+      (click)="setScope('all')"
+    >
+      Все в клиенте
+    </button>
+  </span>
+  <select
+    class="forge-field is-select"
+    [ngModel]="block()"
+    (ngModelChange)="patch({ block: $event || null, from: null })"
+    aria-label="Пул номеров"
+  >
+    <option value="">все пулы</option>
+    @for (item of meta()?.blocks ?? []; track item.id) {
+      <!-- В отборе важно имя пула: свободный номер нужен при создании, а не
+           при поиске. -->
+      <option [value]="item.id">{{ item.name }}</option>
+    }
+  </select>
+  <select
+    class="forge-field is-select"
+    [ngModel]="module()"
+    (ngModelChange)="patch({ module: $event || null, from: null })"
+    aria-label="Модуль"
+  >
+    <option value="">любой модуль</option>
+    @for (item of meta()?.modules ?? []; track item.id) {
+      <option [value]="item.id">{{ item.name }}</option>
+    }
+  </select>
+  <select
+    class="forge-field is-select"
+    [ngModel]="school()"
+    (ngModelChange)="patch({ school: $event || null, from: null })"
+    aria-label="Школа"
+  >
+    <option value="">любая школа</option>
+    @for (item of enums('school_mask'); track item.id) {
+      <option [value]="item.id">{{ item.label }}</option>
+    }
+  </select>
+  <select
+    class="forge-field is-select"
+    [ngModel]="effect()"
+    (ngModelChange)="patch({ effect: $event || null, from: null })"
+    aria-label="Эффект"
+  >
+    <option value="">любой эффект</option>
+    @for (item of enums('effects'); track item.id) {
+      <option [value]="item.id">{{ item.label }}</option>
+    }
+  </select>
+  <select
+    class="forge-field is-select"
+    [ngModel]="aura()"
+    (ngModelChange)="patch({ aura: $event || null, from: null })"
+    aria-label="Аура"
+  >
+    <option value="">любая аура</option>
+    @for (item of enums('auras'); track item.id) {
+      <option [value]="item.id">{{ item.label }}</option>
+    }
+  </select>
+  <label class="range" title="Шанс срабатывания, проценты.">
+    <span>прок</span>
+    <input
+      #procFrom
+      class="forge-field"
+      type="number"
+      min="0"
+      max="100"
+      [ngModel]="procMin()"
+      (ngModelChange)="procMin.set($event)"
+      (change)="onProc(procFrom.value, procTo.value)"
+      placeholder="от"
+      aria-label="Прок от"
+    />
+    <input
+      #procTo
+      class="forge-field"
+      type="number"
+      min="0"
+      max="100"
+      [ngModel]="procMax()"
+      (ngModelChange)="procMax.set($event)"
+      (change)="onProc(procFrom.value, procTo.value)"
+      placeholder="до"
+      aria-label="Прок до"
+    />
+  </label>
+  @if (filtersUsed()) {
+    <button type="button" class="forge-btn is-ghost is-compact" (click)="resetFilters()">
+      Сбросить
+    </button>
+  }
+</section>
+
+@if (loading() && !rows().length) {
+  <p class="muted">Ищем…</p>
+} @else if (!rows().length) {
+  <p class="empty big">
+    {{
+      scope() === 'own'
+        ? 'В своих пулах ничего не нашлось. Снимите отбор или заведите новое заклинание.'
+        : 'В клиенте ничего не нашлось. Попробуйте номер заклинания.'
+    }}
+  </p>
+} @else {
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Заклинание</th>
+          <th class="num">Номер</th>
+          <th class="from">Откуда</th>
+          @if (scope() === 'own') {
+            <th>Что делает</th>
+            <th class="num">Прок</th>
+          } @else {
+            <th class="from">Школа</th>
+            <th class="num">Уровень</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr tabindex="0" (click)="open(row.id)" (keydown.enter)="open(row.id)">
+            <td class="who">
+              <span class="face">
+                <app-game-icon [texture]="row.icon" [base]="iconBase()" [size]="24" />
+              </span>
+              <span class="names">
+                <strong>{{ row.title }}</strong>
+                @if (row.subtitle) {
+                  <small>{{ row.subtitle }}</small>
+                }
+              </span>
+            </td>
+            <td class="num">{{ row.id }}</td>
+            <td class="from">{{ row.from }}</td>
+            <td class="does">{{ row.does || '—' }}</td>
+            <td class="num">{{ row.tail }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <app-table-pager
+    [total]="total()"
+    [page]="page()"
+    [perPage]="perPage()"
+    (pageChange)="goToPage($event)"
+    (perPageChange)="onPerPage($event)"
+  />
+}

@@ -1,0 +1,113 @@
+// Только раскладка: таблица, поля и кнопки берут вид из набора, цвета
+// качества - из него же (`styles/forge.scss`, `.quality-*`).
+.filter-bar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.filter-bar .grow {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.filter-bar .check {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 12px;
+  gap: 6px;
+}
+
+.filter-bar .count {
+  color: var(--muted);
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  min-width: 0;
+  table-layout: fixed;
+  width: 100%;
+}
+
+th,
+td {
+  overflow: hidden;
+  padding: 6px 10px;
+  text-align: left;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+th.num,
+td.num {
+  text-align: right;
+  white-space: nowrap;
+  width: 88px;
+}
+
+th.where,
+td.where {
+  width: 170px;
+}
+
+th.state,
+td.state {
+  width: 192px;
+}
+
+// Строка - ссылка на карточку размещения; выключенное приглушено.
+tbody tr {
+  cursor: pointer;
+}
+
+tbody tr.disabled {
+  opacity: 0.55;
+}
+
+// Имя с иконкой. `display: flex` на самой ячейке выбросил бы её из таблицы, и
+// колонки разъехались бы - поэтому раскладка внутри, на span'ах.
+td.who .face {
+  display: inline-block;
+  height: 24px;
+  vertical-align: middle;
+  width: 24px;
+}
+
+td.who img {
+  background: var(--bg);
+  border-radius: 4px;
+  height: 24px;
+  object-fit: cover;
+  width: 24px;
+}
+
+td.who .names {
+  display: inline-grid;
+  max-width: calc(100% - 32px);
+  min-width: 0;
+  vertical-align: middle;
+}
+
+td.who strong {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+td.who small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.missing {
+  color: var(--text-danger);
+}

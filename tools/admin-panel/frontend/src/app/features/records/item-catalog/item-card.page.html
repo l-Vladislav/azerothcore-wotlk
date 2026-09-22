@@ -1,0 +1,123 @@
+<section class="page-head">
+  <div class="head-left">
+    <a class="forge-btn is-ghost is-compact back" routerLink="/catalog/items">
+      <app-icon tone="plain" name="caret-right" [size]="12" />К списку
+    </a>
+    <h1>{{ title() }}</h1>
+  </div>
+</section>
+
+@if (loading()) {
+  <p class="muted">Загружаем предмет…</p>
+} @else if (item(); as current) {
+  <section class="forge-panel is-subtle item-card">
+    <span class="face">
+      @if (iconUrl(current.icon)) {
+        <img [src]="iconUrl(current.icon)" alt="" />
+      } @else {
+        <i class="no-icon"><app-icon name="items" [size]="24" /></i>
+      }
+    </span>
+    <p class="hint">
+      номер {{ current.entry }} · {{ blockName(current.block) }}
+      @if (draft) {
+        · черновик, ещё не в базе
+      }
+    </p>
+    @if (showLock()) {
+      <app-edit-lock [locked]="locked()" (toggled)="locked.set($event)" />
+    }
+  </section>
+
+  @if (!current.block) {
+    <p class="read-only">
+      Стоковый предмет доступен только для чтения. Создайте копию в одном из своих блоков -
+      править можно то, чем панель владеет.
+    </p>
+  }
+
+  <section class="actions">
+    <button type="button" class="forge-btn is-ghost is-compact" (click)="showClientRow()">
+      {{ clientRow() ? 'Скрыть клиентскую строку' : 'Клиентская строка' }}
+    </button>
+    @if (canEdit()) {
+      <label
+        >Копия в блок
+        <select class="forge-field is-select" #cloneBlock>
+          @for (block of meta()?.blocks ?? []; track block.id) {
+            <option [value]="block.id">{{ block.name }} · #{{ block.next ?? 'занят' }}</option>
+          }
+        </select>
+      </label>
+      <button type="button" class="forge-btn is-compact" (click)="clone(cloneBlock.value)">
+        Создать копию
+      </button>
+      @if (canEditNow()) {
+        <button type="button" class="forge-btn is-primary is-compact" (click)="save()">
+          {{ draft ? 'Создать' : 'Сохранить' }}
+        </button>
+        @if (!draft) {
+          <button type="button" class="forge-btn is-danger is-compact" (click)="deleteItem()">
+            Удалить
+          </button>
+        }
+      }
+    }
+  </section>
+
+  @if (clientRow(); as row) {
+    <section class="forge-panel is-subtle client-row">
+      <p class="hint">
+        Строка для Item.dbc внутри MPQ. Скопируйте её в Item_custom.csv и пересоберите патч -
+        сборка MPQ остаётся ручной.
+      </p>
+      <pre>{{ row.header }}
+{{ row.line }}</pre>
+      <button type="button" class="forge-btn is-ghost is-compact" (click)="copyClientRow()">
+        Скопировать
+      </button>
+    </section>
+  }
+
+  <div class="editor-groups">
+    @for (group of meta()?.groups ?? []; track group.id) {
+      <app-collapsible-section [title]="group.name">
+        @for (row of group.rows; track row.label) {
+          <div class="field-row">
+            @if (row.label) {
+              <span class="row-label">{{ row.label }}</span>
+            }
+            @for (field of row.fields; track field.col) {
+              <label class="field" [class.wide]="field.width === 'wide'" [title]="field.hint ?? ''">
+                <span>{{ field.label }}</span>
+                @if (field.kind === 'enum' && enumOptions(field).length) {
+                  <select
+                    class="forge-field is-select"
+                    [(ngModel)]="fields[field.col]"
+                    [name]="field.col"
+                    [disabled]="!canEditNow()"
+                  >
+                    @for (option of enumOptions(field); track option.value) {
+                      <option [ngValue]="option.value">{{ option.label }} ({{ option.value }})</option>
+                    }
+                  </select>
+                } @else {
+                  <input
+                    class="forge-field"
+                    [(ngModel)]="fields[field.col]"
+                    [name]="field.col"
+                    [disabled]="!canEditNow()"
+                    [type]="field.kind === 'text' ? 'text' : 'number'"
+                    [step]="field.kind === 'float' ? '0.01' : '1'"
+                  />
+                }
+              </label>
+            }
+          </div>
+        }
+      </app-collapsible-section>
+    }
+  </div>
+} @else {
+  <p class="empty big">Такого предмета в базе нет.</p>
+}

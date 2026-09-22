@@ -1,0 +1,105 @@
+// Только раскладка: рамки, поля и кнопки берут вид из набора, каретка «К
+// списку» - из него же (`styles/forge.scss`, правило `.page-head > .back`).
+.page-head {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.page-head .head-left {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+}
+
+.page-head h1 {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Паспорт размещения: то, что правкой не меняется, - объект, место, кто
+// поставил. Менять его должен тот, кто двигает объект в игре, а не панель.
+.facts {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.facts .face img {
+  background: var(--bg);
+  border-radius: 4px;
+  height: 40px;
+  object-fit: cover;
+  width: 40px;
+}
+
+.facts dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  min-width: 0;
+}
+
+.facts dl > div {
+  display: grid;
+  gap: 2px;
+  grid-template-columns: 140px minmax(0, 1fr);
+}
+
+.facts dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.warn {
+  border-left: 2px solid var(--text-danger);
+  color: var(--text-danger);
+  font-size: 12px;
+  margin: 0 0 12px;
+  padding-left: 9px;
+}
+
+.editor .grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.editor label {
+  color: var(--muted);
+  display: grid;
+  font-size: 11px;
+  gap: 3px;
+}
+
+.editor label.wide {
+  grid-column: 1 / -1;
+}
+
+.editor label.check {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  gap: 7px;
+}
+
+.editor input[type='number'] {
+  text-align: right;
+}
+
+.actions {
+  border-top: 1px solid var(--line-title);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 14px;
+  padding-top: 12px;
+}
