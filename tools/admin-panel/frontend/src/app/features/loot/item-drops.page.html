@@ -1,0 +1,203 @@
+<section class="page-head"></section>
+
+<form class="search" (submit)="submit($event)">
+  <input
+    class="forge-field"
+    type="search"
+    [ngModel]="draftEntry()"
+    (ngModelChange)="draftEntry.set($event)"
+    name="entry"
+    inputmode="numeric"
+    placeholder="номер предмета"
+    aria-label="Номер предмета"
+  />
+  <button type="submit" class="forge-btn is-compact">Найти</button>
+  <button type="button" class="forge-btn is-ghost is-compact" (click)="picker.open()">
+    Найти по имени…
+  </button>
+</form>
+
+@if (loading()) {
+  <p class="muted">Ищем пути…</p>
+} @else if (!drops()) {
+  <p class="empty big">Укажите предмет — покажем всех, с кого он падает, и через какие ссылки.</p>
+} @else if (drops(); as found) {
+  <article class="card item-card">
+    <h2 [class]="'q' + found.item.quality">{{ itemName(found.item) }}</h2>
+    <p class="hint">
+      @if (found.item.missing) {
+        Строки этого предмета нет в item_template.
+      } @else {
+        id {{ found.item.entry }} · уровень {{ found.item.ilvl }} · требует
+        {{ found.item.req_level }}
+      }
+    </p>
+  </article>
+
+  @if (!found.paths.length) {
+    <p class="empty big">Ни в одной таблице добычи не встречается.</p>
+  } @else {
+    <div class="filters-bar">
+      <input
+        type="search"
+        class="forge-field owner"
+        [ngModel]="filterOwner()"
+        (ngModelChange)="filterOwner.set($event)"
+        name="owner"
+        placeholder="поиск по владельцу"
+        aria-label="Поиск по владельцу"
+      />
+      <select
+        class="forge-field is-select"
+        [ngModel]="filterTable()"
+        (ngModelChange)="filterTable.set($event)"
+        name="table"
+        aria-label="Таблица"
+      >
+        <option value="">любая таблица</option>
+        @for (table of tables(); track table.id) {
+          <option [value]="table.id">{{ table.name }}</option>
+        }
+      </select>
+      <select
+        class="forge-field is-select"
+        [ngModel]="filterKind()"
+        (ngModelChange)="filterKind.set($event)"
+        name="kind"
+        aria-label="Источник"
+      >
+        <option value="">любой источник</option>
+        @for (kind of ownerKinds; track kind.id) {
+          <option [value]="kind.id">{{ kind.label }}</option>
+        }
+      </select>
+      <select
+        class="forge-field is-select"
+        [ngModel]="filterFloor()"
+        (ngModelChange)="filterFloor.set($event)"
+        name="floor"
+        aria-label="Шанс"
+      >
+        <option value="">любой шанс</option>
+        <option value="1">от 1 %</option>
+        <option value="5">от 5 %</option>
+        <option value="25">от 25 %</option>
+        <option value="100">только гарантированные</option>
+      </select>
+      <select
+        class="forge-field is-select"
+        [ngModel]="filterQuest()"
+        (ngModelChange)="filterQuest.set($event)"
+        name="quest"
+        aria-label="Квестовые строки"
+      >
+        <option value="">квест и обычные</option>
+        <option value="0">без квестовых</option>
+        <option value="1">только квестовые</option>
+      </select>
+      @if (filtersUsed()) {
+        <button type="button" class="forge-btn is-ghost is-compact" (click)="resetFilters()">
+          Сбросить
+        </button>
+      }
+      <span class="count">
+        {{
+          shown().length === found.paths.length
+            ? 'путей: ' + found.paths.length
+            : 'показано ' + shown().length + ' из ' + found.paths.length
+        }}
+      </span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="sortable" [class.sorted]="sortKey() === 'chance'" (click)="sortBy('chance')">
+              Шанс
+              @if (sortArrow('chance'); as dir) {
+                <app-icon class="arrow" tone="plain" [name]="dir" [size]="11" />
+              }
+            </th>
+            <th class="sortable" [class.sorted]="sortKey() === 'table'" (click)="sortBy('table')">
+              Откуда
+              @if (sortArrow('table'); as dir) {
+                <app-icon class="arrow" tone="plain" [name]="dir" [size]="11" />
+              }
+            </th>
+            <th class="sortable" [class.sorted]="sortKey() === 'owner'" (click)="sortBy('owner')">
+              Кто
+              @if (sortArrow('owner'); as dir) {
+                <app-icon class="arrow" tone="plain" [name]="dir" [size]="11" />
+              }
+            </th>
+            <th>Через что</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (path of shown(); track $index) {
+            <tr>
+              <td class="chance">
+                <span class="bar"><i [style.width.%]="chanceWidth(path.chance)"></i></span>
+                <span class="value">{{ chanceText(path.chance) }}</span>
+              </td>
+              <td>{{ path.table_name }}</td>
+              <td>
+                @if (path.owner_kind === 'creature') {
+                  <a [routerLink]="['/loot/creatures', path.owner_entry]"
+                    >{{ path.owner_name }} ({{ path.owner_entry }})</a
+                  >
+                } @else {
+                  <span>{{ path.owner_name }} ({{ path.owner_entry }})</span>
+                }
+              </td>
+              <td class="chain">
+                @for (hop of path.chain; track $index) {
+                  @if (!$first) {
+                    <span class="arrow-sep">→</span>
+                  }
+                  <b [title]="hopTitle(hop)">{{ hopName(hop) }}</b>
+                }
+              </td>
+              <td class="marks">
+                @if (lastHop(path); as hop) {
+                  @if (hop.quest) {
+                    <span class="mark quest" title="Видно только тому, кто взял задание."
+                      >квест</span
+                    >
+                  }
+                  @if (hop.mode && hop.mode !== 1) {
+                    <span class="mark mode" [title]="'Режим сложности: ' + hop.mode_name">{{
+                      hop.mode_name
+                    }}</span>
+                  }
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (found.truncated) {
+      <p class="forge-alert is-warning">
+        Показаны первые {{ found.limit }} путей — их больше. Так бывает у общих ссылок, которые
+        тянут к себе половину мира; сузить список пока нечем, и это честнее, чем считать полчаса.
+      </p>
+    }
+  }
+
+  <p class="hint footnote">
+    Чего здесь нет: дропа mod-worn-drops (раздаётся кодом), наград за задания, торговцев и создания
+    предмета ремеслом.
+  </p>
+}
+
+<app-item-picker
+  #picker
+  title="Какой предмет ищем"
+  hint="Найдите предмет по имени — панель покажет все пути, которыми он попадает к игроку."
+  [iconBase]="meta()?.icon_base_url ?? ''"
+  (picked)="onPicked($event)"
+/>

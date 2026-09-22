@@ -1,0 +1,76 @@
+<section class="page-head">
+  <div class="head-left">
+    <a class="forge-btn is-ghost is-compact back" [routerLink]="['/loot/creatures']">
+      <app-icon tone="plain" name="caret-right" [size]="12" />К списку
+    </a>
+    <h1>{{ detail()?.creature?.name_ru ?? 'Существо' }}</h1>
+  </div>
+</section>
+
+@if (loadingDetail()) {
+  <p class="muted">Загружаем добычу…</p>
+} @else if (detail(); as loot) {
+  <section class="forge-panel is-subtle creature-card">
+    <p class="hint">
+      номер {{ loot.creature.entry }} · уровень {{ loot.creature.level }} ·
+      {{ loot.creature.rank_name }}{{ loot.creature.subname ? ' · ' + loot.creature.subname : '' }}
+    </p>
+    @if (!loot.loot.length) {
+      <p class="empty">У этого существа нет ни одной таблицы добычи.</p>
+    }
+  </section>
+
+  @for (part of loot.loot; track part.table) {
+    <article class="card">
+      <h3>
+        <span class="part">{{ part.label }}</span>
+        <app-loot-name-tag
+          [tableId]="part.table"
+          [entry]="part.entry"
+          kind="entry"
+          [label]="part.tree.label"
+          [fallback]="'запись ' + part.entry"
+          [canEdit]="canLabel()"
+        />
+        <small>запись {{ part.entry }}</small>
+      </h3>
+
+      @if (!part.own_entry) {
+        <p class="warn">
+          Номер записи не совпадает с номером существа: добыча живёт под {{ part.entry }}.
+        </p>
+      }
+      @if (part.shared.length) {
+        <p class="warn">
+          Эту же запись используют ещё {{ part.shared.length }} — правка заденет всех:
+          @for (other of part.shared.slice(0, 8); track other.entry) {
+            <span class="listed"
+              ><a [routerLink]="['/loot/creatures', other.entry]"
+                >{{ other.name_ru }} ({{ other.entry }})</a
+              ></span
+            >
+          }
+          @if (part.shared.length > 8) {
+            <small> и ещё {{ part.shared.length - 8 }}</small>
+          }
+        </p>
+      }
+
+      <app-loot-tree
+        [tree]="part.tree"
+        [iconBase]="meta()?.icon_base_url ?? ''"
+        [canEditRows]="canEditRows()"
+        [canLabel]="canLabel()"
+        (changed)="loadDetail()"
+        (noticed)="onNotice($event)"
+      />
+    </article>
+  }
+
+  <p class="hint footnote">
+    Дроп надетого (mod-worn-drops) сюда не входит: он раздаётся кодом при убийстве, а не таблицами,
+    и в базе его нет.
+  </p>
+} @else {
+  <p class="empty big">Существо не выбрано — вернитесь к списку и выберите строку.</p>
+}
