@@ -1,0 +1,50 @@
+{
+  "_comment": "Пути - от корня репозитория. workdir не в git: там 92 МБ DBC.",
+  "workdir": "client-patch",
+  "archive": "patch-ruRU-X.MPQ",
+  "_comment_variants": "base: true - вариант, из которого берётся общий слой. У остальных при bootstrap сохраняются только файлы, отличающиеся от базы.",
+  "variants": {
+    "regular": {
+      "label": "Обычный клиент",
+      "cdn": "launcher/cdn/files/regular",
+      "bootstrap": "launcher/cdn/files/regular/patch-ruRU-X.MPQ",
+      "base": true
+    },
+    "hd": {
+      "label": "HD клиент",
+      "cdn": "launcher/cdn/files/hd",
+      "bootstrap": "launcher/cdn/files/hd/patch-ruRU-X.MPQ"
+    }
+  },
+  "_comment_sources": "Оверлеи из репозитория. Кроме них сборщик сам подхватывает client-patch/overlay/<Таблица>/*.csv. Порядок применения: сначала этот список, потом найденные файлы по алфавиту. enabled: false - файл известен, но пока не применяется.",
+  "sources": [
+    {
+      "table": "Spell",
+      "csv": ".claude/dbc/Spell_custom.csv",
+      "note": "панель, кнопка «Экспорт в клиент»; сверено - 551 строка совпадает с патчем"
+    },
+    {
+      "table": "Item",
+      "csv": ".claude/dbc/Item_custom.csv",
+      "note": "worn-drops и прочие генераторы; новее патча: +3664 строки"
+    },
+    {
+      "table": "ItemDisplayInfo",
+      "csv": ".claude/dbc/ItemDisplayInfo_custom.csv",
+      "note": "новее патча: +511 строк"
+    },
+    {
+      "table": "SpellItemEnchantment",
+      "csv": ".claude/dbc/SpellItemEnchantment_custom.csv",
+      "enabled": false,
+      "note": "ОТКЛЮЧЁН: CSV от 28.05, а SpellItemEnchantment.dbc правился 29.05 - три строки 90030-90032 откатились бы назад. Включать после сверки EffectArg_1"
+    }
+  ],
+  "_comment_patch": "Дельты для лаунчера. history - локальный склад прошлых версий файлов, из них считаются дельты; keep - сколько версий держать (игрок, отставший больше чем на keep обновлений, скачает архив целиком).",
+  "patch": {
+    "enabled": true,
+    "keep": 3,
+    "dir": "launcher/cdn/files/patches",
+    "fragment": "launcher/cdn/patch-parts.json"
+  }
+}
