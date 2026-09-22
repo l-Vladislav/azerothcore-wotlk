@@ -30,3 +30,16 @@
 data/sql/*    linguist-documentation
 *.dbc -text
 *.MPQ -text
+*.dll -text
+
+# Binaries: "* text eol=lf" above would mangle them on add
+*.png -text
+*.jpg -text
+*.jpeg -text
+*.gif -text
+*.ico -text
+*.tga -text
+*.blp -text
+*.zip -text
+*.exe -text
+*.ttf -text

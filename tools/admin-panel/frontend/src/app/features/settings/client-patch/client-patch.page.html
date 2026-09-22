@@ -1,0 +1,124 @@
+<section class="page-head"></section>
+
+@if (loading()) {
+  <p class="waiting">Загружаем состояние сборщика…</p>
+} @else if (status(); as current) {
+  <section class="forge-panel status">
+    @if (current.configured) {
+      <div class="state-row">
+        <p class="state">
+          <i class="forge-dot" [class]="dotClass(current)"></i>
+          <strong>{{ stateLabel(current) }}</strong>
+          @if (current.command) {
+            <code>{{ current.command }}</code>
+          }
+        </p>
+        <p class="timestamps">
+          @if (current.started) {
+            <span>Начата: {{ formatTime(current.started) }}</span>
+          }
+          @if (current.finished) {
+            <span>Завершена: {{ formatTime(current.finished) }}</span>
+          }
+        </p>
+      </div>
+      @if (!current.reachable) {
+        <p class="warn">{{ current.error ?? 'Сборщик не отвечает.' }}</p>
+      } @else if (missing(current).length) {
+        <p class="warn">
+          Не готовы: {{ missing(current).join(', ') }}.
+          @if (current.health?.base_ready === false) {
+            Сначала снимите базу DBC заново.
+          }
+        </p>
+      }
+    } @else {
+      <p class="warn">Сборщик клиентского патча не подключён к этой панели.</p>
+    }
+  </section>
+
+  @if (current.configured) {
+    <!-- Сырьё для сборки. Стоит ПЕРЕД кнопками не случайно: собранный из
+         устаревших CSV патч выглядит удачным, а у игрока всё по-старому. -->
+    <section class="forge-panel sources">
+      <h2 class="forge-panel-title">Файлы для клиента</h2>
+      <ul class="rows">
+        @for (item of clientFiles(); track item.key) {
+          <li class="row">
+            <div class="what">
+              <strong>{{ item.label }}</strong>
+              <code class="detail">{{ item.path }}</code>
+              <span class="who">
+                выгружено {{ exportTime(item.written_at) }}
+                @if (behind(item); as text) {
+                  · <b class="behind">{{ text }}</b>
+                }
+              </span>
+            </div>
+            @if (canBuild()) {
+              <button
+                type="button"
+                class="forge-btn is-compact"
+                (click)="exportArtefact(item)"
+                [disabled]="exporting() !== null"
+              >
+                Выгрузить
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+
+    @if (canBuild()) {
+      <section class="actions" aria-label="Действия со сборкой">
+        <button type="button" class="forge-btn" (click)="build('check')" [disabled]="disabled()">
+          Проверить
+        </button>
+        <button type="button" class="forge-btn" (click)="build('local')" [disabled]="disabled()">
+          Собрать без публикации
+        </button>
+        <button
+          type="button"
+          class="forge-btn is-primary"
+          (click)="build('publish')"
+          [disabled]="disabled()"
+        >
+          Собрать и опубликовать
+        </button>
+        <button
+          type="button"
+          class="forge-btn is-danger"
+          (click)="bootstrap()"
+          [disabled]="disabled()"
+        >
+          Снять базу заново
+        </button>
+      </section>
+    } @else {
+      <p class="waiting">Запускать сборку может только владелец панели.</p>
+    }
+
+    <!-- Лог закрыт: это сотни строк, из-за которых страницу приходилось
+         прокручивать мимо них к чему угодно ещё. Пока идёт сборка - открыт
+         сам: тогда он и есть то, ради чего сюда зашли. -->
+    <details class="forge-panel is-subtle log-panel" [open]="current.running">
+      <summary>
+        <span class="summary-title">Лог сборки</span>
+        <span class="summary-hint">
+          @if (current.running) {
+            обновляется раз в три секунды
+          } @else {
+            последние строки
+          }
+        </span>
+      </summary>
+      <div class="log-tools">
+        <button type="button" class="forge-btn is-ghost is-compact" (click)="showFullLog()">
+          Весь лог
+        </button>
+      </div>
+      <pre class="log">{{ fullLog() ?? current.log_tail ?? 'Лог ещё пуст.' }}</pre>
+    </details>
+  }
+}

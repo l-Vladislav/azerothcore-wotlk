@@ -39,8 +39,8 @@ REPO_ROOT = _env("ADMIN_REPO_ROOT", "/repo")
 MODULE_DIR = os.path.join(REPO_ROOT, "modules", "mod-environmental-effects")
 MANIFEST_CSV = os.path.join(MODULE_DIR, "docs", "client_manifest.csv")
 AREATABLE_CSV = os.path.join(REPO_ROOT, ".claude", "dbc", "AreaTable.csv")
-# Client-side Spell.dbc source that the spell workshop patches; the MPQ rebuild
-# which consumes it stays a manual step.
+# Client-side Spell.dbc source that the spell workshop patches. The dedicated
+# patch-builder service consumes the overlay when an owner starts a build.
 SPELL_CUSTOM_CSV = os.path.join(REPO_ROOT, ".claude", "dbc", "Spell_custom.csv")
 # The ruRU client's Spell.dbc as CSV. The binary DBCs the server reads were
 # extracted from an enUS client, so Russian names and descriptions for the
@@ -49,6 +49,17 @@ SPELL_CSV = os.path.join(REPO_ROOT, ".claude", "dbc", "Spell.csv")
 # Icons the MPQ adds beyond the stock SpellIcon.dbc.
 SPELL_ICON_CUSTOM_CSV = os.path.join(REPO_ROOT, ".claude", "dbc",
                                      "SpellIcon_custom.csv")
+# The client half of an item: its row in Item.dbc inside the MPQ, which is
+# where the client gets the 3D look, the sheath and the material from. The
+# item catalogue writes here; the patch builder reads it as an overlay.
+ITEM_CUSTOM_CSV = os.path.join(REPO_ROOT, ".claude", "dbc", "Item_custom.csv")
+
+# --- client patch builder -------------------------------------------------
+# The panel does not build the patch itself: that needs StormLib and the right
+# to write into launcher/cdn, i.e. into what players download. It asks
+# ac-patch-builder instead. Empty URL = the button is simply absent.
+PATCH_BUILDER_URL = _env("ADMIN_PATCH_BUILDER_URL", "")
+PATCH_BUILDER_TOKEN = _env("ADMIN_PATCH_BUILDER_TOKEN", "")
 
 # --- client data volume (read-only) ---------------------------------------
 # The same `ac-client-data-v2` volume the worldserver mounts: these are the

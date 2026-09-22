@@ -98,15 +98,25 @@
       <a href="/spells.html">Мастерская</a>
       <a href="/dex.html">Каталог</a>
       <a class="active" href="/items.html">Предметы</a>
+      <a href="/loot.html">Добыча</a>
       <a href="/envfx.html">Окружение</a>
       <a href="/weather.html">Погода</a>
       <a href="/italents.html">Таланты</a>
+      <a href="/aprof.html">Профессии</a>
       <a href="/api/docs">API</a>
     </nav>
     <div class="spacer"></div>
     <button id="btn-export" class="btn ghost"
             title="Выгрузить блоки панели в data/sql/updates/pending_db_world/admin_panel_items.sql">
       Выгрузить в SQL
+    </button>
+    <!-- Две половины предмета выгружаются РАЗДЕЛЬНО и в разные места: числа и
+         имена уезжают в миграцию, а вид, ножны и материал - в клиентский
+         оверлей Item.dbc внутри MPQ. Одной кнопкой их не свести: серверную
+         половину применяет worldserver, клиентскую - сборка патча. -->
+    <button id="btn-export-client" class="btn ghost"
+            title="Выгрузить вид, ножны и материал в .claude/dbc/Item_custom.csv — клиентскую половину блоков панели и заготовок пула">
+      Выгрузить в клиент
     </button>
   </header>
 

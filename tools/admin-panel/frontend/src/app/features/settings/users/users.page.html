@@ -1,0 +1,344 @@
+<section class="page-head">
+  <button
+    type="button"
+    class="forge-btn is-primary is-compact"
+    (click)="openInvite()"
+    [disabled]="pending()"
+  >
+    Пригласить
+  </button>
+</section>
+
+@if (loading()) {
+  <p class="waiting">Загружаем профили…</p>
+} @else {
+  <section class="roles" aria-label="Роли">
+    @for (role of roles(); track role.id) {
+      <article class="forge-panel is-subtle">
+        <span>{{ role.label }}</span>
+        <strong>{{ activeCount(role.id) }}</strong>
+        <p>{{ roleHelp(role.id) }}</p>
+      </article>
+    }
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Профили</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            @for (column of userColumns; track column.id) {
+              <th>
+                <button
+                  type="button"
+                  class="sort"
+                  [class.is-on]="userSort().by === column.id"
+                  (click)="sortUsers(column.id)"
+                >
+                  {{ column.label }}
+                  <app-icon
+                    class="arrow"
+                    tone="plain"
+                    [name]="arrow(userSort(), column.id)"
+                    [size]="11"
+                  />
+                </button>
+              </th>
+            }
+            <th><span class="sr-only">Действия</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of shownUsers(); track user.id) {
+            <tr [class.disabled]="user.disabled">
+              <td>
+                <strong>{{ displayName(user) }}</strong>
+                <small>{{ user.login }}</small>
+              </td>
+              <td>
+                <select
+                  class="forge-field is-select"
+                  [ngModel]="user.role"
+                  (ngModelChange)="changeRole(user, $event)"
+                  [disabled]="isCurrentUser(user) || pending()"
+                  [attr.aria-label]="'Роль ' + displayName(user)"
+                >
+                  @for (role of roles(); track role.id) {
+                    <option [value]="role.id">{{ role.label }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <span
+                  class="forge-state"
+                  [class]="user.disabled ? 'forge-state is-offline' : 'forge-state is-online'"
+                >
+                  <i class="forge-dot" [class]="user.disabled ? 'is-offline' : 'is-online'"></i>
+                  {{ user.disabled ? 'отключён' : 'активен' }}
+                </span>
+              </td>
+              <td>{{ formatDate(user.last_seen) }}</td>
+              <td>{{ user.sessions }}</td>
+              <td>{{ user.invited_by || '—' }}</td>
+              <td class="tools">
+                <div class="actions">
+                  @if (!isCurrentUser(user)) {
+                    <button
+                      type="button"
+                      class="forge-btn is-compact"
+                      (click)="toggleUser(user)"
+                      [disabled]="pending()"
+                    >
+                      {{ user.disabled ? 'Включить' : 'Отключить' }}
+                    </button>
+                    @if (user.sessions) {
+                      <button
+                        type="button"
+                        class="forge-btn is-ghost is-compact"
+                        (click)="closeSessions(user)"
+                        [disabled]="pending()"
+                      >
+                        Закрыть сессии
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      class="forge-btn is-danger is-compact"
+                      (click)="deleteUser(user)"
+                      [disabled]="pending()"
+                    >
+                      Удалить
+                    </button>
+                  } @else {
+                    <span class="self">Вы</span>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="empty">Профилей пока нет — выдайте первое приглашение.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-table-pager
+      [total]="sortedUsers().length"
+      [page]="userPage()"
+      [perPage]="userPerPage()"
+      [sizes]="pageSizes"
+      (pageChange)="userPage.set($event)"
+      (perPageChange)="setUserPerPage($event)"
+    />
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Приглашения</h2>
+      <span>Действующих: {{ liveInvites() }}</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            @for (column of inviteColumns; track column.id) {
+              <th>
+                <button
+                  type="button"
+                  class="sort"
+                  [class.is-on]="inviteSort().by === column.id"
+                  (click)="sortInvites(column.id)"
+                >
+                  {{ column.label }}
+                  <app-icon
+                    class="arrow"
+                    tone="plain"
+                    [name]="arrow(inviteSort(), column.id)"
+                    [size]="11"
+                  />
+                </button>
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (invite of shownInvites(); track invite.id) {
+            <tr [class.disabled]="invite.state !== 'live'">
+              <td>#{{ invite.id }}</td>
+              <td>{{ roles().find((role) => role.id === invite.role)?.label ?? invite.role }}</td>
+              <td>{{ invite.note || '—' }}</td>
+              <td>
+                <span class="state-cell">
+                  <span class="forge-state" [class]="'forge-state ' + inviteDot(invite)">
+                    <i class="forge-dot" [class]="inviteDot(invite)"></i>
+                    {{ inviteState(invite) }}
+                  </span>
+                  @if (invite.state === 'live') {
+                    <button
+                      type="button"
+                      class="forge-btn is-danger is-compact"
+                      (click)="revokeInvite(invite)"
+                      [disabled]="pending()"
+                    >
+                      Отозвать
+                    </button>
+                  }
+                </span>
+              </td>
+              <td>{{ invite.uses }} / {{ invite.max_uses }}</td>
+              <td>{{ formatDate(invite.expires_at) }}</td>
+              <td>{{ invite.created_by || '—' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="empty">Ссылок пока не выдавалось.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-table-pager
+      [total]="sortedInvites().length"
+      [page]="invitePage()"
+      [perPage]="invitePerPage()"
+      [sizes]="pageSizes"
+      (pageChange)="invitePage.set($event)"
+      (perPageChange)="setInvitePerPage($event)"
+    />
+  </section>
+}
+
+@if (inviteOpen()) {
+  <div class="modal-backdrop" (mousedown)="closeInvite()">
+    <section
+      class="modal forge-panel is-thick"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="invite-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <header>
+        <h2 id="invite-title">Новое приглашение</h2>
+        <button
+          type="button"
+          class="forge-btn is-ghost is-compact"
+          aria-label="Закрыть"
+          (click)="closeInvite()"
+        >
+          ×
+        </button>
+      </header>
+      <div class="modal-body">
+        <label>
+          <span>Роль</span>
+          <select class="forge-field is-select" [(ngModel)]="invite.role">
+            @for (role of roles(); track role.id) {
+              <option [value]="role.id">{{ role.label }}</option>
+            }
+          </select>
+        </label>
+        <p class="hint">{{ roleHelp(invite.role) }}</p>
+        <label>
+          <span>Подпись — для кого</span>
+          <input
+            class="forge-field"
+            [(ngModel)]="invite.note"
+            maxlength="120"
+            placeholder="например: Дима, погода"
+          />
+        </label>
+        <div class="form-grid">
+          <label>
+            <span>Срок, часов</span>
+            <input
+              class="forge-field"
+              [(ngModel)]="invite.expires_hours"
+              type="number"
+              min="1"
+              max="720"
+            />
+          </label>
+          <label>
+            <span>Использований</span>
+            <input
+              class="forge-field"
+              [(ngModel)]="invite.max_uses"
+              type="number"
+              min="1"
+              max="20"
+            />
+          </label>
+        </div>
+      </div>
+      <footer>
+        <button
+          type="button"
+          class="forge-btn is-ghost is-compact"
+          (click)="closeInvite()"
+          [disabled]="pending()"
+        >
+          Отмена
+        </button>
+        <button
+          type="button"
+          class="forge-btn is-primary is-compact"
+          (click)="createInvite()"
+          [disabled]="pending()"
+        >
+          Выдать ссылку
+        </button>
+      </footer>
+    </section>
+  </div>
+}
+
+@if (issuedInvite(); as invite) {
+  <div class="modal-backdrop" (mousedown)="closeIssuedInvite()">
+    <section
+      class="modal forge-panel is-thick"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="link-title"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <header>
+        <h2 id="link-title">Ссылка готова</h2>
+        <button
+          type="button"
+          class="forge-btn is-ghost is-compact"
+          aria-label="Закрыть"
+          (click)="closeIssuedInvite()"
+        >
+          ×
+        </button>
+      </header>
+      <div class="modal-body">
+        <p class="hint">
+          Ссылка показывается только сейчас. После закрытия окна её нельзя восстановить.
+        </p>
+        <textarea
+          class="forge-field"
+          [value]="invite.url"
+          readonly
+          rows="3"
+          aria-label="Ссылка приглашения"
+        ></textarea>
+        <p class="hint">
+          Годна до {{ formatDate(invite.expires_at) }}, использований: {{ invite.max_uses }}.
+        </p>
+      </div>
+      <footer>
+        <button type="button" class="forge-btn is-ghost is-compact" (click)="closeIssuedInvite()">
+          Закрыть
+        </button>
+        <button type="button" class="forge-btn is-primary is-compact" (click)="copyInvite()">
+          Скопировать
+        </button>
+      </footer>
+    </section>
+  </div>
+}

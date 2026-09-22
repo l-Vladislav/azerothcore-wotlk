@@ -5,8 +5,8 @@ A custom spell has two halves and the panel can only own one of them outright:
   * the **server half** is a row in `spell_dbc` (acore_world_ptr). That is what
     makes the spell do something, and it is what this module reads and writes.
   * the **client half** is the row inside the MPQ's Spell.dbc — name,
-    description, icon. The panel can emit the CSV line for it (see
-    `export_client()`), but rebuilding the MPQ stays a manual step.
+    description, icon. The panel emits its CSV overlay (see `export_client()`),
+    and the dedicated patch-builder service turns it into an MPQ on request.
 
 Two facts shape the whole design:
 
@@ -774,7 +774,10 @@ LIST_COLUMNS = ["ID", "Name_Lang_ruRU", "Name_Lang_enUS", "SchoolMask",
 # familiar ranges fell off the end of the sidebar — including all 86 row-5
 # proc spells — which looked exactly like "этих спеллов нет".
 def list_spells(block: str | None = None, module: str | None = None,
-                q: str | None = None, limit: int = 2000) -> list[dict]:
+                q: str | None = None, school: int | None = None,
+                effect: int | None = None, aura: int | None = None,
+                proc_min: int | None = None, proc_max: int | None = None,
+                limit: int = 2000) -> list[dict]:
     where, args = [], []
     if block and block in BLOCK_BY_ID:
         blk = BLOCK_BY_ID[block]
@@ -791,6 +794,21 @@ def list_spells(block: str | None = None, module: str | None = None,
         else:
             where.append("(`Name_Lang_ruRU` LIKE %s OR `Name_Lang_enUS` LIKE %s)")
             args += ["%" + q + "%"] * 2
+    if school is not None:
+        where.append("(`SchoolMask` & %s) != 0")
+        args.append(school)
+    if effect is not None:
+        where.append("(`Effect_1` = %s OR `Effect_2` = %s OR `Effect_3` = %s)")
+        args.extend([effect, effect, effect])
+    if aura is not None:
+        where.append("(`EffectAura_1` = %s OR `EffectAura_2` = %s OR `EffectAura_3` = %s)")
+        args.extend([aura, aura, aura])
+    if proc_min is not None:
+        where.append("`ProcChance` >= %s")
+        args.append(proc_min)
+    if proc_max is not None:
+        where.append("`ProcChance` <= %s")
+        args.append(proc_max)
     sql = ("SELECT %s FROM `%s` WHERE %s ORDER BY `ID` LIMIT %d"
            % (", ".join("`%s`" % c for c in LIST_COLUMNS), TABLE,
               " AND ".join(where), int(limit)))
@@ -817,6 +835,31 @@ def list_spells(block: str | None = None, module: str | None = None,
             "proc_chance": int(row["ProcChance"] or 0),
         })
     return out
+
+
+def search_spells(block: str | None = None, module: str | None = None,
+                  q: str | None = None, school: int | None = None,
+                  effect: int | None = None, aura: int | None = None,
+                  proc_min: int | None = None, proc_max: int | None = None,
+                  offset: int = 0, limit: int = 20) -> dict:
+    """A page for the new workshop without changing the legacy list endpoint.
+
+    The workshop's rows occupy the authored ID blocks rather than the whole
+    Spell.dbc catalogue. `list_spells` also applies per-spell panel metadata
+    for the module filter, so page only after that pass; counting in SQL first
+    would make the counter and the visible rows disagree.
+    """
+    matches = list_spells(
+        block=block, module=module, q=q, school=school, effect=effect,
+        aura=aura, proc_min=proc_min, proc_max=proc_max, limit=10000)
+    skip = max(0, int(offset))
+    page_size = max(1, min(int(limit), 200))
+    return {
+        "total": len(matches),
+        "offset": skip,
+        "limit": page_size,
+        "items": matches[skip:skip + page_size],
+    }
 
 
 def resolved_icon_texture(spell_id: int, icon_id: int) -> str:
@@ -1260,30 +1303,6 @@ def delete_spell(spell_id: int) -> bool:
 
 # --- pending restart ------------------------------------------------------
 
-# `.server info` answers e.g. "Server uptime: 1 hour(s) 41 minute(s) 59
-# second(s)". Each unit is matched on its own: a single regex with every group
-# optional would happily match the empty string and report zero.
-UPTIME_UNITS = ((r"(\d+)\s*day", 86400), (r"(\d+)\s*hour", 3600),
-                (r"(\d+)\s*minute", 60), (r"(\d+)\s*second", 1))
-
-
-def _uptime_seconds() -> int | None:
-    """Worldserver uptime via SOAP `.server info`, or None if unavailable."""
-    try:
-        text = soap.execute("server info", timeout=8.0)
-    except Exception:
-        return None
-    line = re.search(r"uptime[^\r\n]*", text, re.I)
-    if not line:
-        return None
-    total = 0
-    for pattern, multiplier in UPTIME_UNITS:
-        match = re.search(pattern, line.group(0), re.I)
-        if match:
-            total += int(match.group(1)) * multiplier
-    return total or None
-
-
 def pending_restart() -> dict:
     """Spells saved since the worldserver started — they are not live yet.
 
@@ -1291,11 +1310,10 @@ def pending_restart() -> dict:
     it cannot get stuck showing a restart that already happened.
     """
     ensure_meta()
-    uptime = _uptime_seconds()
-    if uptime is None:
+    started = soap.started_at()
+    if started is None:
         return {"known": False, "count": 0,
                 "reason": "SOAP недоступен — не могу узнать аптайм PTR."}
-    started = _dt.datetime.now() - _dt.timedelta(seconds=uptime)
     with board.cursor() as cur:
         cur.execute("SELECT COUNT(*) AS n FROM spell_meta WHERE updated_at >= %s",
                     (started,))
@@ -1364,8 +1382,8 @@ def export_client(template_id: int = 107000) -> dict:
 
     A known-good row is cloned as the structural template so all 232 columns
     (masks, hidden trailing fields) stay in place; only id, attributes, icon,
-    name and description are overwritten. Rebuilding the MPQ from this CSV
-    remains a manual step.
+    name and description are overwritten. The dedicated patch-builder service
+    consumes this CSV when an owner starts a client-patch build.
     """
     import csv
 
@@ -1429,6 +1447,55 @@ def export_client(template_id: int = 107000) -> dict:
         writer.writerows(data)
     os.replace(tmp, path)
     return {"path": path, "written": written}
+
+
+def client_pending() -> dict:
+    """Чего из мастерской ещё нет в клиентском CSV или что там устарело."""
+    import csv
+
+    path = config.SPELL_CUSTOM_CSV
+    if not os.path.isfile(path):
+        return {"known": False, "reason": "Spell_custom.csv не примонтирован."}
+
+    ensure_meta()
+    with board.cursor() as cur:
+        cur.execute("SELECT spell_id FROM spell_meta")
+        wanted = sorted(int(r["spell_id"]) for r in cur.fetchall())
+    if not wanted:
+        return {"known": True, "missing": 0, "changed": 0, "total": 0}
+
+    with open(path, encoding="utf-8", newline="") as handle:
+        rows = list(csv.reader(handle))
+    by_id = {r[CSV_ID]: r for r in rows[1:] if r}
+
+    marks = ",".join(["%s"] * len(wanted))
+    db_rows = {int(r["ID"]): r for r in query(
+        "SELECT `ID`, `Attributes`, `SpellIconID`, `Name_Lang_enUS`, "
+        "`Name_Lang_ruRU`, `Description_Lang_ruRU` FROM `%s` WHERE `ID` IN (%s)"
+        % (TABLE, marks), tuple(wanted))}
+
+    desc_col = CSV_DESC_COLS[0] if CSV_DESC_COLS else None
+    missing, changed = 0, 0
+    for spell_id in wanted:
+        source = db_rows.get(spell_id)
+        if not source:
+            continue
+        row = by_id.get(str(spell_id))
+        if row is None:
+            missing += 1
+            continue
+        same = (
+            row[CSV_ATTR] == str(int(source["Attributes"] or 0))
+            and row[CSV_ICON] == str(int(source["SpellIconID"] or 1))
+            and row[CSV_NAME_EN] == (source["Name_Lang_enUS"] or "")
+            and row[CSV_NAME_RU] == (source["Name_Lang_ruRU"] or "")
+            and (desc_col is None or desc_col >= len(row)
+                 or row[desc_col] == (source["Description_Lang_ruRU"] or ""))
+        )
+        if not same:
+            changed += 1
+    return {"known": True, "missing": missing, "changed": changed,
+            "total": len(wanted)}
 
 
 def catalog() -> dict:

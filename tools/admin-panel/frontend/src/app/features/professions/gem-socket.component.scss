@@ -1,0 +1,37 @@
+:host {
+  display: inline-flex;
+}
+.socket {
+  align-items: center;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  font-size: 12px;
+  gap: 6px;
+  max-width: 170px;
+  padding: 3px 6px 3px 3px;
+  text-align: left;
+}
+.socket:hover:not(:disabled),
+.socket:focus-visible {
+  border-color: var(--border-accent);
+}
+.socket:disabled {
+  cursor: default;
+}
+:host(.is-empty) .socket {
+  border-style: dashed;
+  color: var(--muted);
+}
+img {
+  flex: none;
+}
+.nm {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

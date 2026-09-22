@@ -1,0 +1,193 @@
+// Shared skin of the three loot screens: head, banners, master-detail split.
+:host {
+  display: block;
+}
+
+.page-head {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+h1 {
+  margin: 0;
+}
+.page-head button {
+  white-space: nowrap;
+}
+
+// Плашки - из набора (`.forge-alert`), тут только отступ под ними.
+.forge-alert {
+  margin: 0 0 12px;
+}
+
+.hint,
+.muted,
+.empty {
+  color: var(--muted);
+  font-size: 12px;
+}
+.empty.big {
+  font-size: 13px;
+  padding: 28px 12px;
+  text-align: center;
+}
+.warn {
+  color: var(--text-warning);
+  font-size: 12px;
+  margin: 4px 0;
+}
+.warn a {
+  color: inherit;
+}
+
+// Перечисление через запятую: разделитель рисуем стилями, иначе шаблон
+// прибавляет к нему пробел слева и выходит «Плотояд (3) , Кто-то (4)».
+.listed:not(:last-of-type)::after {
+  content: ', ';
+}
+
+.split {
+  align-items: start;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+}
+@media (max-width: 900px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.list-side {
+  background-image: var(--texture-panel);
+  background-size: auto, 480px;
+  border: 3px ridge #62655c;
+  border-radius: 3px;
+  box-shadow: var(--frame-shadow);
+  padding: 10px;
+  position: sticky;
+  top: 12px;
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+// Поля и списки берут вид из набора; тут остаётся ширина колонки отбора.
+.filters input,
+.filters select {
+  width: 100%;
+}
+.filter-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.filter-row .check {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 12px;
+  gap: 6px;
+}
+.filter-row .count {
+  color: var(--muted);
+  font-size: 12px;
+  margin-left: auto;
+}
+.filters .level {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 12px;
+  gap: 5px;
+}
+.filters .level input {
+  min-width: 0;
+  width: 74px;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 260px);
+  overflow-y: auto;
+}
+.listrow {
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font: inherit;
+  gap: 2px;
+  padding: 6px 8px;
+  text-align: left;
+  text-shadow: none;
+}
+.listrow:hover {
+  background: var(--surface-accent-subtle);
+}
+.listrow.selected {
+  background: var(--surface-accent-muted);
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+.listrow b {
+  font-weight: 500;
+}
+.listrow small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.detail {
+  min-width: 0;
+}
+.card {
+  background-image: var(--texture-panel);
+  background-size: auto, 480px;
+  border: 3px ridge #62655c;
+  border-radius: 3px;
+  box-shadow: var(--frame-shadow);
+  margin-bottom: 14px;
+  padding: 12px 14px;
+}
+.creature-card {
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+}
+h2 {
+  color: var(--gold);
+  font: 22px var(--serif);
+  margin: 0 0 4px;
+}
+h3 {
+  align-items: center;
+  color: var(--gold);
+  display: flex;
+  flex-wrap: wrap;
+  font: 16px var(--serif);
+  gap: 8px;
+  margin: 0 0 8px;
+}
+h3 small {
+  color: var(--muted);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 11px;
+}
+.part {
+  color: var(--text);
+}
+.footnote {
+  margin-top: 16px;
+}

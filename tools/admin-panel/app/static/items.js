@@ -180,6 +180,17 @@ function renderEditor() {
 
   const actions = el('div', 'actions');
 
+  // Куда бы предмет ни попадал, вопрос «а откуда он вообще падает» задают тут
+  // же, глядя на его строку. Уводим на страницу добычи с уже подставленным
+  // номером - хешем, чтобы страница не перезагружалась при переходах внутри.
+  if (!CURRENT.draft) {
+    const where = el('a', 'btn ghost', 'Где падает');
+    where.href = '/loot.html#item=' + CURRENT.entry;
+    where.title = 'Все таблицы добычи, где встречается этот предмет, '
+      + 'с раскрытыми ссылками и шансом по цепочке.';
+    actions.appendChild(where);
+  }
+
   // Копировать можно что угодно, править — только своё. Поэтому кнопка копии
   // есть всегда, а сохранение появляется лишь у предметов из блоков панели.
   META.blocks.forEach(blk => {
@@ -376,6 +387,24 @@ async function boot() {
       toast(`Выгружено: ${res.items} предметов, ${res.locales} локалей.`, 'ok');
     } catch (e) { toast(e.message, 'err'); }
   });
+
+  // Клиентская половина. Спрашиваем подтверждение: выгрузка переписывает
+  // Item_custom.csv целиком, и после перенарезки пула разница бывает в десятки
+  // тысяч строк - такое лучше не запускать случайным щелчком.
+  document.getElementById('btn-export-client')
+    .addEventListener('click', async () => {
+      if (!confirm('Переписать .claude/dbc/Item_custom.csv? '
+                   + 'Строки блоков панели и заготовок пула будут заменены '
+                   + 'тем, что сейчас в базе. Чужие строки останутся на '
+                   + 'месте.')) {
+        return;
+      }
+      try {
+        const res = await api('/api/items/export/client', { method: 'POST' });
+        toast(`Выгружено в клиент: ${res.written} строк, всего в файле `
+              + `${res.total}. Дальше — сборка MPQ.`, 'ok');
+      } catch (e) { toast(e.message, 'err'); }
+    });
 
   window.addEventListener('beforeunload', ev => {
     if (DIRTY) { ev.preventDefault(); ev.returnValue = ''; }

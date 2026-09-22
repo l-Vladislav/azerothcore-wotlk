@@ -1,0 +1,34 @@
+@use './professions';
+
+table {
+  min-width: 1400px;
+}
+.sockets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.add-bar .picked {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  min-height: 27px;
+}
+.add-bar .picked b {
+  font-weight: 500;
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+// Счётчик эскизов: сколько их у основы есть и сколько уже разобрано. Стоит
+// отдельной строкой под полосой - в ряд с полями он её ломает.
+.counter {
+  color: var(--muted);
+  flex-basis: 100%;
+  font-size: 12px;
+  margin: 0;
+}
+.counter.warn {
+  color: var(--text-warning);
+}

@@ -1,0 +1,312 @@
+<section class="page-head">
+  <h1>Материалы</h1>
+</section>
+
+@if (loading()) {
+  <p class="empty">Загрузка материалов…</p>
+} @else if (!meta()?.available) {
+  <p class="forge-alert is-warning">
+    Таблицы модуля не найдены. Примените миграцию продвинутых профессий.
+  </p>
+} @else {
+  <p class="hint">
+    Признак у материала один, и какой - решает роль: у материала <b>на основу</b> род ячейки, у
+    <b>вставки</b> тип вставки. Границы уровня и качества читает только вставка: материал ячейки
+    кладут в схему, а не в готовую вещь.
+  </p>
+
+  @if (canEdit()) {
+    <div class="add-bar">
+      <label>
+        <span>предмет</span>
+        <span class="picked">
+          @if (draftItem(); as item) {
+            <b>{{ item.name_ru || item.name }} · id {{ item.entry }}</b>
+          } @else {
+            <span class="muted">не выбран</span>
+          }
+          <button type="button" class="forge-btn is-ghost is-compact" (click)="openPicker()">
+            Выбрать
+          </button>
+        </span>
+      </label>
+      <label>
+        <span>роль</span>
+        <select
+          class="forge-field is-select"
+          [ngModel]="draft().role"
+          (ngModelChange)="onDraftRole($event)"
+        >
+          @for (role of roles; track role[0]) {
+            <option [value]="role[0]">{{ role[1] }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>род / тип</span>
+        <select
+          class="forge-field is-select"
+          [ngModel]="draftKindId()"
+          (ngModelChange)="onDraftKind(+$event)"
+        >
+          @for (row of draft().role === 'base' ? partKinds() : insertTypes(); track row.id) {
+            @if (row.enabled) {
+              <option [ngValue]="row.id">{{ row.name_ru }}</option>
+            }
+          }
+        </select>
+      </label>
+      <label>
+        <span>стат</span>
+        <select
+          class="forge-field is-select"
+          [ngModel]="draft().stat_type"
+          (ngModelChange)="setDraft({ stat_type: +$event })"
+        >
+          @for (stat of stats(); track stat[0]) {
+            <option [ngValue]="+stat[0]">{{ stat[1] }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>величина</span>
+        <input
+          class="forge-field"
+          type="number"
+          min="0"
+          [ngModel]="draft().stat_value"
+          (ngModelChange)="setDraft({ stat_value: +$event || 0 })"
+          (keydown.enter)="add()"
+        />
+      </label>
+      <label>
+        <span>илвл от</span>
+        <input
+          class="forge-field"
+          type="number"
+          min="0"
+          [ngModel]="draft().ilvl_min"
+          (ngModelChange)="setDraft({ ilvl_min: +$event || 0 })"
+          (keydown.enter)="add()"
+        />
+      </label>
+      <label>
+        <span>илвл до</span>
+        <input
+          class="forge-field"
+          type="number"
+          min="0"
+          [ngModel]="draft().ilvl_max"
+          (ngModelChange)="setDraft({ ilvl_max: +$event || 0 })"
+          (keydown.enter)="add()"
+        />
+      </label>
+      <label>
+        <span>подпись</span>
+        <input
+          class="forge-field"
+          placeholder="необязательно"
+          [ngModel]="draft().name_ru"
+          (ngModelChange)="setDraft({ name_ru: $event })"
+          (keydown.enter)="add()"
+        />
+      </label>
+      <button type="button" class="forge-btn is-primary is-compact" [disabled]="busy()" (click)="add()">
+        Добавить
+      </button>
+    </div>
+  }
+
+  <app-prof-filters
+    [view]="view"
+    [picks]="picks()"
+    [total]="rows().length"
+    placeholder="поиск по имени, подписи или id"
+  />
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th appSort="Предмет" [view]="view">Предмет</th>
+          <th appSort="Роль" [view]="view">Роль</th>
+          <th appSort="Род / тип" [view]="view">Род / тип</th>
+          <th appSort="Стат" [view]="view">Стат</th>
+          <th appSort="Величина" [view]="view">Величина</th>
+          <th
+            appSort="Илвл от"
+            [view]="view"
+            title="Нижняя граница: вставка не идёт в предмет уровнем ниже. 0 - без ограничения."
+          >
+            Илвл от
+          </th>
+          <th
+            appSort="Илвл до"
+            [view]="view"
+            title="Верхняя граница: вставка не идёт в предмет уровнем выше. 0 - потолка нет."
+          >
+            Илвл до
+          </th>
+          <th
+            appSort="Кач. от"
+            [view]="view"
+            title="Пока обе границы пусты, действует строгое совпадение: камень идёт только в вещь СВОЕГО качества. Границы - это исключение, 0 значит «с этой стороны предела нет»."
+          >
+            Кач. от
+          </th>
+          <th appSort="Кач. до" [view]="view">Кач. до</th>
+          <th appSort="Подпись" [view]="view">Подпись</th>
+          <th appSort="Вкл" [view]="view">Вкл</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of view.rows(); track row.entry) {
+          <tr [class.off]="!row.enabled">
+            <td>
+              <app-prof-item [item]="row.item" [entry]="row.entry" [iconBase]="iconBase()" />
+            </td>
+            <td>
+              <select
+                class="forge-field is-select"
+                [ngModel]="row.role"
+                [disabled]="!canEdit()"
+                (ngModelChange)="onRole(row, $event)"
+              >
+                @for (role of roles; track role[0]) {
+                  <option [value]="role[0]">{{ role[1] }}</option>
+                }
+              </select>
+            </td>
+            <td>
+              <select
+                class="forge-field is-select"
+                [ngModel]="kindId(row)"
+                [disabled]="!canEdit()"
+                (ngModelChange)="onKind(row, +$event)"
+              >
+                @for (kind of kindRows(row); track kind.id) {
+                  <option [ngValue]="kind.id">
+                    {{ kind.name_ru }}{{ kind.enabled ? '' : ' (выкл)' }}
+                  </option>
+                }
+              </select>
+            </td>
+            <td>
+              <select
+                class="forge-field is-select"
+                [ngModel]="row.stat_type"
+                [disabled]="!canEdit()"
+                (ngModelChange)="patch(row, { stat_type: +$event })"
+              >
+                @for (stat of stats(); track stat[0]) {
+                  <option [ngValue]="+stat[0]">{{ stat[1] }}</option>
+                }
+              </select>
+            </td>
+            <td class="num">
+              <input
+                class="forge-field"
+                type="number"
+                min="0"
+                [ngModel]="row.stat_value"
+                [disabled]="!canEdit()"
+                (change)="patch(row, { stat_value: +$any($event.target).value || 0 })"
+              />
+            </td>
+            <td class="num" [class.dim]="!isInsert(row)">
+              <input
+                class="forge-field"
+                type="number"
+                min="0"
+                [ngModel]="row.ilvl_min"
+                [disabled]="!canEdit() || !isInsert(row)"
+                (change)="patch(row, { ilvl_min: +$any($event.target).value || 0 })"
+              />
+            </td>
+            <td class="num" [class.dim]="!isInsert(row)">
+              <input
+                class="forge-field"
+                type="number"
+                min="0"
+                [ngModel]="row.ilvl_max"
+                [disabled]="!canEdit() || !isInsert(row)"
+                (change)="patch(row, { ilvl_max: +$any($event.target).value || 0 })"
+              />
+            </td>
+            <td class="num" [class.dim]="!isInsert(row)">
+              <input
+                class="forge-field"
+                type="number"
+                min="0"
+                [ngModel]="row.quality_min"
+                [title]="strictHint(row)"
+                [disabled]="!canEdit() || !isInsert(row)"
+                (change)="patch(row, { quality_min: +$any($event.target).value || 0 })"
+              />
+            </td>
+            <td class="num" [class.dim]="!isInsert(row)">
+              <input
+                class="forge-field"
+                type="number"
+                min="0"
+                [ngModel]="row.quality_max"
+                [title]="strictHint(row)"
+                [disabled]="!canEdit() || !isInsert(row)"
+                (change)="patch(row, { quality_max: +$any($event.target).value || 0 })"
+              />
+            </td>
+            <td>
+              <input
+                class="forge-field"
+                [ngModel]="row.name_ru"
+                [disabled]="!canEdit()"
+                (change)="patch(row, { name_ru: $any($event.target).value })"
+              />
+            </td>
+            <td>
+              <input
+                class="forge-check"
+                type="checkbox"
+                [ngModel]="row.enabled"
+                [disabled]="!canEdit()"
+                (change)="patch(row, { enabled: $any($event.target).checked })"
+              />
+            </td>
+            <td class="act">
+              @if (canEdit()) {
+                <button
+                  type="button"
+                  class="forge-btn is-danger is-compact"
+                  [disabled]="busy()"
+                  (click)="remove(row)"
+                >
+                  Удалить
+                </button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="12" class="empty">Материалов не найдено.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <app-table-pager
+    [total]="view.found().length"
+    [page]="view.page()"
+    [perPage]="view.perPage()"
+    [sizes]="[25, 50, 100, 200]"
+    (pageChange)="view.page.set($event)"
+    (perPageChange)="view.perPage.set($event); view.page.set(1)"
+  />
+
+  <app-item-picker
+    title="Материал верстака"
+    [iconBase]="iconBase()"
+    (picked)="onPicked($event)"
+  />
+}

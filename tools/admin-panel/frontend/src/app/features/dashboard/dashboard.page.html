@@ -1,0 +1,98 @@
+@if (error()) {
+  <p class="empty">Не удалось загрузить состояние панели — подробности в плашке внизу.</p>
+} @else if (loading()) {
+  <div class="forge-alert">Загружаем состояние панели…</div>
+} @else if (health(); as current) {
+  @if (!current.files_ok) {
+    <div class="forge-alert is-warning">
+      <div class="problems">
+        <strong>Проверьте подключённые файлы.</strong>
+        @for (problem of current.file_problems; track problem) {
+          <span>{{ problem }}</span>
+        }
+      </div>
+    </div>
+  }
+
+  <section class="stats" aria-label="Состояние сервисов">
+    <article class="forge-panel forge-stat">
+      <i class="forge-icon-tile"><app-icon name="records" [size]="26" /></i>
+      <div>
+        <span class="label">
+          База данных
+          <i class="forge-dot" [class]="dotClass(current.db.ok)"></i>
+        </span>
+        <strong class="value">{{ current.db.ok ? 'На связи' : 'Недоступна' }}</strong>
+        <small class="note" [title]="current.schema + ' · правил: ' + (current.db.rules ?? '—')"
+          >{{ current.schema }} · правил: {{ current.db.rules ?? '—' }}</small
+        >
+      </div>
+    </article>
+    <article class="forge-panel forge-stat">
+      <i class="forge-icon-tile"><app-icon name="server" [size]="26" /></i>
+      <div>
+        <span class="label">
+          Worldserver · SOAP
+          <i class="forge-dot" [class]="dotClass(current.soap.ok)"></i>
+        </span>
+        <strong class="value">{{ current.soap.ok ? 'Отвечает' : 'Недоступен' }}</strong>
+        <small class="note" [title]="current.soap.host ?? current.soap.error ?? '—'">{{
+          current.soap.host ?? current.soap.error ?? '—'
+        }}</small>
+      </div>
+    </article>
+    <article class="forge-panel forge-stat">
+      <i class="forge-icon-tile"><app-icon name="patch" [size]="26" /></i>
+      <div>
+        <span class="label">
+          CDN лаунчера
+          <i class="forge-dot" [class]="dotClass(cdnOk())"></i>
+        </span>
+        <strong class="value">{{ cdnState() }}</strong>
+        <small class="note" [title]="cdnHint()">{{ cdnHint() }}</small>
+      </div>
+    </article>
+    <article class="forge-panel forge-stat">
+      <i class="forge-icon-tile"><app-icon name="board" [size]="26" /></i>
+      <div>
+        <span class="label">
+          Доска
+          <i class="forge-dot" [class]="dotClass(true)"></i>
+        </span>
+        <strong class="value">{{ current.board.open ?? '—' }} открыто</strong>
+        <small class="note" [title]="'Всего карточек: ' + (current.board.total ?? '—')"
+          >Всего карточек: {{ current.board.total ?? '—' }}</small
+        >
+      </div>
+    </article>
+  </section>
+}
+
+<section class="site-map">
+  <div class="map-grid">
+    @for (section of sections(); track section.id) {
+      <article class="forge-panel is-subtle map-section">
+        <h3 class="forge-panel-title">
+          <app-icon [name]="section.icon ?? 'dot'" [size]="19" />{{ section.label }}
+        </h3>
+        @for (group of section.groups; track group.label) {
+          @if (group.label) {
+            <h4 class="module-title">{{ group.label }}</h4>
+          }
+          <ul>
+            @for (item of group.items; track item.route) {
+              <li>
+                <a [routerLink]="item.route"
+                  ><app-icon [name]="item.icon ?? 'dot'" [size]="15" />{{ item.label }}</a
+                >
+                @if (item.hint) {
+                  <small>{{ item.hint }}</small>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </article>
+    }
+  </div>
+</section>

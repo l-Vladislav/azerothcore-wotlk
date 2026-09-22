@@ -1,0 +1,115 @@
+<section class="filter-bar" aria-label="Отбор существ">
+  <input
+    class="forge-field grow"
+    type="search"
+    [ngModel]="query()"
+    (ngModelChange)="onQuery($event)"
+    placeholder="имя существа или его номер"
+    aria-label="Поиск существа"
+  />
+  <select
+    class="forge-field is-select"
+    [ngModel]="rank()"
+    (ngModelChange)="onRank($event)"
+    aria-label="Ранг существа"
+  >
+    <option value="">любой ранг</option>
+    @for (rank of ranks(); track rank[0]) {
+      <option [value]="rank[0]">{{ rank[1] }}</option>
+    }
+  </select>
+  <label class="level" title="«От 70» поймает и моба с полосой 68-72.">
+    <span>уровень</span>
+    <input
+      #from
+      class="forge-field"
+      type="number"
+      min="0"
+      max="83"
+      [ngModel]="levelMin()"
+      (ngModelChange)="levelMin.set($event)"
+      (change)="onLevel(from.value, to.value)"
+      placeholder="от"
+      aria-label="Уровень от"
+    />
+    <input
+      #to
+      class="forge-field"
+      type="number"
+      min="0"
+      max="83"
+      [ngModel]="levelMax()"
+      (ngModelChange)="levelMax.set($event)"
+      (change)="onLevel(from.value, to.value)"
+      placeholder="до"
+      aria-label="Уровень до"
+    />
+  </label>
+  <label class="check">
+    <input
+      class="forge-check"
+      type="checkbox"
+      [ngModel]="onlyLoot()"
+      (ngModelChange)="onOnlyLoot($event)"
+    />
+    <span>только с добычей</span>
+  </label>
+  @if (filtersUsed()) {
+    <button type="button" class="forge-btn is-ghost is-compact" (click)="resetFilters()">
+      Сбросить
+    </button>
+  }
+</section>
+
+@if (loading() && !creatures().length) {
+  <p class="muted">Ищем…</p>
+} @else if (!creatures().length) {
+  <p class="empty big">Никого не нашлось. Попробуйте номер существа или снимите отбор.</p>
+} @else {
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Существо</th>
+          <th class="num">Номер</th>
+          <th class="num">Уровень</th>
+          <th class="rank">Ранг</th>
+          <th class="kinds">Добыча</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (creature of creatures(); track creature.entry) {
+          <tr tabindex="0" (click)="open(creature.entry)" (keydown.enter)="open(creature.entry)">
+            <td class="who">
+              <strong>{{ creature.name_ru }}</strong>
+              @if (creature.subname) {
+                <small>{{ creature.subname }}</small>
+              }
+              @if (creature.name !== creature.name_ru) {
+                <small class="base">{{ creature.name }}</small>
+              }
+            </td>
+            <td class="num">{{ creature.entry }}</td>
+            <td class="num">{{ creature.level }}</td>
+            <td class="rank">{{ creature.rank_name }}</td>
+            <td class="kinds">
+              @for (kind of kinds(creature); track kind) {
+                <span class="kind">{{ kind }}</span>
+              } @empty {
+                <span class="muted">нет таблиц</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <app-table-pager
+    [total]="total()"
+    [page]="page()"
+    [perPage]="perPage()"
+    (pageChange)="goToPage($event)"
+    (perPageChange)="onPerPage($event)"
+  />
+}

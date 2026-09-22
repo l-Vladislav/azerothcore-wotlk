@@ -1,0 +1,14 @@
+:host {
+  display: grid;
+  gap: 4px;
+  min-width: 200px;
+}
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+.act {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}

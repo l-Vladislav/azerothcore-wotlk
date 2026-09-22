@@ -1,0 +1,21 @@
+# Образ собирается из requirements.txt, app/ и frontend/ - всё остальное в
+# контекст отправлять незачем. Главное здесь node_modules: без этих строк
+# docker тянет десятки тысяч файлов на каждую сборку и она встаёт.
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/angular-dev-server.log
+scripts/
+__pycache__/
+*.pyc
+README.md
+
+# Карты собираются локально (scripts/build-map-assets.ps1) и в git не лежат:
+# в образ они не едут, иначе его содержимое зависит от того, гонял ли кто-то
+# генератор. Обе страницы погоды это переживают - у них есть честная подпись
+# «карта не собрана».
+app/static/maps/
+frontend/public/maps/
+
+# Побочный след неудачной команды PowerShell, пустой каталог.
+app;C

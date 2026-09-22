@@ -1,0 +1,269 @@
+<section class="page-head">
+  @if (!canEdit()) {
+    <span class="read-only">Только чтение: править может владелец.</span>
+  }
+</section>
+
+@if (loading()) {
+  <p class="waiting">Читаем витрину…</p>
+} @else {
+  <section class="forge-panel block">
+    <div class="block-head">
+      <h2>Новости</h2>
+      <span class="hint">
+        В окне помещается {{ shownCount }} строк.
+        @if (sorted()) {
+          Порядок — по дате, свежие вперёд.
+        } @else {
+          Даты стоят не у всех, поэтому лаунчер оставит порядок как здесь.
+        }
+      </span>
+      @if (canEdit()) {
+        <span class="block-tools">
+          <button type="button" class="forge-btn is-ghost is-compact" (click)="addNews()">
+            + Новость
+          </button>
+          <button
+            type="button"
+            class="forge-btn is-primary is-compact"
+            (click)="saveNews()"
+            [disabled]="savingNews()"
+          >
+            Записать
+          </button>
+        </span>
+      }
+    </div>
+
+    @if (badDates()) {
+      <p class="warn">
+        Дат, которые лаунчер не прочтёт: {{ badDates() }}. Нужен вид 2026-09-17 или 17.09.2026 —
+        иначе вся лента останется в том порядке, в каком набрана.
+      </p>
+    }
+
+    @for (item of news(); track $index; let index = $index) {
+      <article class="item" [class.hidden-item]="index >= shownCount && sorted() === false">
+        <div class="item-row">
+          <label class="date">
+            <span>Дата</span>
+            <input
+              class="forge-field"
+              type="date"
+              [(ngModel)]="item.date"
+              [disabled]="!canEdit()"
+            />
+          </label>
+          <label class="grow">
+            <span>Заголовок</span>
+            <input
+              class="forge-field"
+              type="text"
+              [(ngModel)]="item.title"
+              [disabled]="!canEdit()"
+              maxlength="120"
+            />
+          </label>
+          @if (canEdit()) {
+            <span class="item-tools">
+              <button type="button" class="link" (click)="moveNews(index, -1)" title="Выше">
+                <app-icon name="arrow-up" [size]="14" />
+              </button>
+              <button type="button" class="link" (click)="moveNews(index, 1)" title="Ниже">
+                <app-icon name="arrow-down" [size]="14" />
+              </button>
+              <button type="button" class="link danger" (click)="removeNews(index)">удалить</button>
+            </span>
+          }
+        </div>
+        <div class="item-row">
+          <label class="grow">
+            <span>Текст</span>
+            <input
+              class="forge-field"
+              type="text"
+              [(ngModel)]="item.body"
+              [disabled]="!canEdit()"
+              maxlength="800"
+              placeholder="строка под заголовком; видна подсказкой"
+            />
+          </label>
+          <label class="grow">
+            <span>Ссылка</span>
+            <input
+              class="forge-field"
+              type="url"
+              [(ngModel)]="item.url"
+              [disabled]="!canEdit()"
+              placeholder="необязательно: клик по строке откроет её"
+            />
+          </label>
+        </div>
+      </article>
+    } @empty {
+      <p class="empty">Новостей нет. Лаунчер покажет пустую ленту.</p>
+    }
+  </section>
+
+  <section class="forge-panel block">
+    <div class="block-head">
+      <h2>Подписи окна</h2>
+      <span class="hint">Пустое поле = лаунчер возьмёт своё умолчание или спрячет кнопку.</span>
+      @if (canEdit()) {
+        <span class="block-tools">
+          <button
+            type="button"
+            class="forge-btn is-primary is-compact"
+            (click)="saveUi()"
+            [disabled]="savingUi()"
+          >
+            Записать
+          </button>
+        </span>
+      }
+    </div>
+
+    <div class="grid">
+      <label>
+        <span>Большая кнопка</span>
+        <input
+          class="forge-field"
+          type="text"
+          [(ngModel)]="ui().play!.text"
+          [disabled]="!canEdit()"
+          placeholder="ИГРАТЬ"
+        />
+      </label>
+      <label>
+        <span>Она же, когда есть обновление</span>
+        <input
+          class="forge-field"
+          type="text"
+          [(ngModel)]="ui().play!.updateText"
+          [disabled]="!canEdit()"
+          placeholder="ОБНОВИТЬ"
+        />
+      </label>
+      <label>
+        <span>Заголовок новостей</span>
+        <input
+          class="forge-field"
+          type="text"
+          [(ngModel)]="ui().news!.title"
+          [disabled]="!canEdit()"
+          placeholder="Новости"
+        />
+      </label>
+      <label>
+        <span>Ссылка «Все» у новостей</span>
+        <input
+          class="forge-field"
+          type="url"
+          [(ngModel)]="ui().news!.moreUrl"
+          [disabled]="!canEdit()"
+        />
+      </label>
+      <label>
+        <span>Кнопка в шапке</span>
+        <input
+          class="forge-field"
+          type="text"
+          [(ngModel)]="ui().header!.text"
+          [disabled]="!canEdit()"
+        />
+      </label>
+      <label>
+        <span>Её адрес</span>
+        <input
+          class="forge-field"
+          type="url"
+          [(ngModel)]="ui().header!.url"
+          [disabled]="!canEdit()"
+        />
+      </label>
+    </div>
+
+    <h3>
+      Сообщество
+      @if (canEdit()) {
+        <button type="button" class="forge-btn is-ghost is-compact" (click)="addCommunity()">
+          + Строка
+        </button>
+      }
+    </h3>
+    <label class="grow">
+      <span>Заголовок раздела</span>
+      <input
+        class="forge-field"
+        type="text"
+        [(ngModel)]="ui().community!.title"
+        [disabled]="!canEdit()"
+        placeholder="Сообщество"
+      />
+    </label>
+    @for (item of ui().community!.items!; track $index; let index = $index) {
+      <article class="item">
+        <div class="item-row">
+          <label class="grow">
+            <span>Название</span>
+            <input
+              class="forge-field"
+              type="text"
+              [(ngModel)]="item.title"
+              [disabled]="!canEdit()"
+            />
+          </label>
+          <label class="grow">
+            <span>Адрес</span>
+            <input class="forge-field" type="url" [(ngModel)]="item.url" [disabled]="!canEdit()" />
+          </label>
+          @if (canEdit()) {
+            <span class="item-tools">
+              <button type="button" class="link danger" (click)="removeCommunity(index)">
+                удалить
+              </button>
+            </span>
+          }
+        </div>
+        <label class="grow">
+          <span>Пояснение</span>
+          <input class="forge-field" type="text" [(ngModel)]="item.body" [disabled]="!canEdit()" />
+        </label>
+      </article>
+    }
+
+    <h3>
+      Кнопки нижней панели
+      @if (canEdit()) {
+        <button type="button" class="forge-btn is-ghost is-compact" (click)="addLink()">
+          + Кнопка
+        </button>
+      }
+    </h3>
+    @for (link of ui().links!; track $index; let index = $index) {
+      <div class="item-row">
+        <label class="grow">
+          <span>Подпись</span>
+          <input
+            class="forge-field"
+            type="text"
+            [(ngModel)]="link.text"
+            [disabled]="!canEdit()"
+            maxlength="60"
+          />
+        </label>
+        <label class="grow">
+          <span>Адрес</span>
+          <input class="forge-field" type="url" [(ngModel)]="link.url" [disabled]="!canEdit()" />
+        </label>
+        @if (canEdit()) {
+          <span class="item-tools">
+            <button type="button" class="link danger" (click)="removeLink(index)">удалить</button>
+          </span>
+        }
+      </div>
+    } @empty {
+      <p class="muted">Кнопок нет — ряд слева от «Играть» будет пустым.</p>
+    }
+  </section>
+}

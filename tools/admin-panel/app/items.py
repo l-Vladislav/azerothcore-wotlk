@@ -17,8 +17,8 @@
     клиент 3.3.5a спрашивает у сервера, а вот трёхмерный вид на персонаже,
     ножны и материал берёт из `Item.dbc` внутри MPQ. Копия существующего
     предмета переиспользует его `displayid`, так что арт уже есть, но строка в
-    `Item.dbc` нужна под НОВЫЙ id. Панель её выдаёт (`export_client`), сборка
-    MPQ остаётся ручной — ровно как со спеллами.
+    `Item.dbc` нужна под НОВЫЙ id. Панель синхронизирует её с клиентским
+    оверлеем, а отдельный сборщик собирает из него MPQ по запросу владельца.
 
 Диапазон id для панели — 120000-129999. Проверено по acore_world_ptr
 (2026-08-25): в нём ноль предметов, тогда как соседние заняты — 100000-119999
@@ -32,7 +32,9 @@
 По id блок виден сразу, без похода в другую таблицу.
 """
 
+import csv
 import os
+import re
 from typing import Any
 
 from pydantic import BaseModel
@@ -62,6 +64,44 @@ BLOCKS: list[Block] = [
     Block(id="world", name="Мировые предметы", lo=125000, hi=129999,
           summary="Те, что кладутся на карту и лутаются один раз. На них "
                   "ссылаются размещения, поэтому удалять их опаснее."),
+    # Разворот логики ковки (2026-09-02): рецепт отдаёт не вычисленный предмет,
+    # а готовую строку item_template. Заводит их вкладка «Рецепты», а правятся
+    # они здесь, обычным редактором предмета - иначе результат можно было бы
+    # только создать, но не подкрутить.
+    #
+    # Блоки панели идут вразрядку, и выгрузка ходит по ним по одному, а не
+    # одним диапазоном: между ними лежат чужие id. Ленивый пул модуля профессий
+    # живёт отдельно, в 1 100 000 - 3 199 999, и панель ведёт только
+    # КЛИЕНТСКУЮ его половину (см. pool_ranges ниже).
+    #
+    # Разворот 2026-09-07 (DESIGN §2.5): добыча становится основами, и блок
+    # 180000 - 184999 держит теперь не «результаты рецептов», а сами ОСНОВЫ -
+    # тип x качество x полоса уровня, 582 штуки на десять типов профессии,
+    # плюс поделки. Именные предметы новых id не стоят вовсе: это существующие
+    # предметы игры.
+    Block(id="professions", name="Основы и поделки", lo=180000, hi=184999,
+          summary="Основы: тип, качество и полоса уровня. Из основы куют или "
+                  "выбивают вещь, а доводка вставками достраивает её до "
+                  "именной. Здесь же серые поделки. На них ссылаются вещи в "
+                  "сумках игроков — удалять нельзя, только править."),
+    Block(id="materials", name="Материалы", lo=185000, hi=189999,
+          summary="Слитки, доски, кожа для ячеек схемы и камни для гнёзд "
+                  "доводки. Своими id заводятся только те, которых в игре "
+                  "нет: копии под нужное качество и полосу уровня."),
+    # Свои копии призов (2026-09-15). Ванильных вещей, годных в именные призы,
+    # не хватило: после запрета квестовых наград свободных на всю игру осталось
+    # 135, и лежали они не там, где нужно. Недостающие заводятся копиями - той
+    # же вещи, пересчитанной под свою полосу; оригинал и его задание остаются
+    # нетронутыми. Их пересобирает генератор эскизов на каждом прогоне, так что
+    # правки руками переживут только до следующего.
+    Block(id="prizes", name="Копии призов", lo=175000, hi=179999,
+          summary="Именные вещи, которых игра не дала: копия ванильного "
+                  "предмета с числами своей полосы. Имя - оригинала с уровнем "
+                  "в скобках. Пересобираются генератором эскизов."),
+    Block(id="books", name="Книги рецептов", lo=190000, hi=199999,
+          summary="Обучающие предметы: книга даёт рецепт основы, набора "
+                  "вставок или объединения. Угаданный рецепт книги не "
+                  "требует — она второй путь, а не единственный."),
 ]
 
 BLOCK_BY_ID = {b.id: b for b in BLOCKS}
@@ -76,6 +116,38 @@ def block_of(entry: int) -> Block | None:
         if block.lo <= entry <= block.hi:
             return block
     return None
+
+
+# --- слайсы пула профессий -------------------------------------------------
+# Заготовки ленивого пула (DESIGN §4) панель не редактирует: строки там
+# служебные, их заполняет сервер в памяти при выдаче. А вот КЛИЕНТСКУЮ их
+# половину вести приходится ей: без строки в Item.dbc доведённая вещь
+# приезжает игроку без трёхмерного вида - знаком вопроса.
+#
+# Границы живут у ОСНОВЫ (`ap_recipe_result.pool_lo/pool_hi`, v25), потому что
+# слайс у каждой основы свой и вид в его строках - свой: копия бронзового
+# клинка обязана брать id из бронзовых.
+POOL_LO = 1100000
+POOL_HI = 3199999
+
+
+def pool_ranges() -> list[tuple[int, int]]:
+    """Что панель считает пулом при выгрузке в клиент.
+
+    Блок целиком, а не поимённо по слайсам основ. Разница не косметическая: по
+    диапазону решается, какую строку прежнего CSV ВЫБРОСИТЬ, и узкий список
+    слайсов оставил бы навсегда всё, что осталось от прежней нарезки. Строк
+    сверх нужного это не добавит - выгрузка берёт только те id, у которых есть
+    строка `item_template`, а её заводит миграция.
+    """
+    return [(POOL_LO, POOL_HI)]
+
+
+def in_pool(entry: int, ranges: list[tuple[int, int]]) -> bool:
+    for lo, hi in ranges:
+        if lo <= entry <= hi:
+            return True
+    return False
 
 
 # --- иконки ---------------------------------------------------------------
@@ -332,8 +404,24 @@ def _decorate(rows: list[dict]) -> list[dict]:
     return out
 
 
-def search(q: str = "", block: str | None = None, limit: int = 60,
-           offset: int = 0) -> dict:
+def _fulltext_query(value: str) -> str | None:
+    """Turn a human query into MySQL boolean full-text prefix terms.
+
+    InnoDB does not index tokens below three characters by default. Those stay
+    on the compatible LIKE path, while ordinary name fragments such as
+    ``отме`` become ``+отме*`` and use the PTR-only catalogue indexes.
+    """
+    terms = re.findall(r"[^\W_]+", value, flags=re.UNICODE)
+    if not terms or any(len(term) < 3 for term in terms):
+        return None
+    return " ".join("+%s*" % term for term in terms)
+
+
+def search(q: str = "", block: str | None = None, quality: int | None = None,
+           item_class: int | None = None, inventory_type: int | None = None,
+           item_level_min: int | None = None, item_level_max: int | None = None,
+           required_level_min: int | None = None, required_level_max: int | None = None,
+           limit: int = 60, offset: int = 0) -> dict:
     """Поиск по имени или id.
 
     Русское имя ищется отдельным подзапросом по `item_template_locale`, а не
@@ -343,6 +431,8 @@ def search(q: str = "", block: str | None = None, limit: int = 60,
     cols = ", ".join("`%s`" % c for c in _LIST_COLS)
     where: list[str] = []
     args: list[Any] = []
+    fulltext: str | None = None
+    from_clause = "`%s`" % TABLE
 
     needle = (q or "").strip()
     if needle:
@@ -351,12 +441,28 @@ def search(q: str = "", block: str | None = None, limit: int = 60,
             where.append("`entry` = %s")
             args.append(int(as_id))
         else:
+            fulltext = _fulltext_query(needle)
             like = "%" + needle + "%"
-            where.append(
-                "(`name` LIKE %s OR `entry` IN "
-                "(SELECT `ID` FROM `%s` WHERE `locale` = %%s AND `Name` LIKE %%s))"
-                % ("%s", LOCALE_TABLE))
-            args.extend([like, RU, like])
+            if fulltext:
+                # An OR between MATCH expressions makes MySQL scan the item
+                # table. First obtain matching IDs from each full-text index,
+                # then join the small union to the catalogue rows.
+                from_clause = (
+                    "`%s` INNER JOIN ("
+                    "SELECT `entry` AS `id` FROM `%s` "
+                    "WHERE MATCH(`name`) AGAINST (%%s IN BOOLEAN MODE) "
+                    "UNION "
+                    "SELECT `ID` AS `id` FROM `%s` WHERE `locale` = %%s "
+                    "AND MATCH(`Name`) AGAINST (%%s IN BOOLEAN MODE)"
+                    ") AS `matches` ON `%s`.`entry` = `matches`.`id`"
+                    % (TABLE, TABLE, LOCALE_TABLE, TABLE))
+                args.extend([fulltext, RU, fulltext])
+            else:
+                where.append(
+                    "(`name` LIKE %s OR `entry` IN "
+                    "(SELECT `ID` FROM `%s` WHERE `locale` = %%s AND `Name` LIKE %%s))"
+                    % ("%s", LOCALE_TABLE))
+                args.extend([like, RU, like])
 
     if block == "custom":                     # всё, чем владеет панель
         where.append("`entry` BETWEEN %s AND %s")
@@ -366,15 +472,56 @@ def search(q: str = "", block: str | None = None, limit: int = 60,
         where.append("`entry` BETWEEN %s AND %s")
         args.extend([blk.lo, blk.hi])
 
+    if quality is not None:
+        where.append("`Quality` = %s")
+        args.append(quality)
+    if item_class is not None:
+        where.append("`class` = %s")
+        args.append(item_class)
+    if inventory_type is not None:
+        where.append("`InventoryType` = %s")
+        args.append(inventory_type)
+    if item_level_min is not None:
+        where.append("`ItemLevel` >= %s")
+        args.append(item_level_min)
+    if item_level_max is not None:
+        where.append("`ItemLevel` <= %s")
+        args.append(item_level_max)
+    if required_level_min is not None:
+        where.append("`RequiredLevel` >= %s")
+        args.append(required_level_min)
+    if required_level_max is not None:
+        where.append("`RequiredLevel` <= %s")
+        args.append(required_level_max)
+
     clause = (" WHERE " + " AND ".join(where)) if where else ""
 
-    total = query_one("SELECT COUNT(*) AS n FROM `%s`%s" % (TABLE, clause),
+    total = query_one("SELECT COUNT(*) AS n FROM %s%s" % (from_clause, clause),
                       tuple(args))
-    rows = query(
-        "SELECT %s FROM `%s`%s ORDER BY `entry` LIMIT %%s OFFSET %%s"
-        % (cols, TABLE, clause), tuple(args + [int(limit), int(offset)]))
 
-    return {"total": int(total["n"]) if total else 0, "items": _decorate(rows)}
+    # A full-text index matches word prefixes. Keep the old substring behaviour
+    # as a fallback for the uncommon case of a fragment in the middle of a word.
+    if fulltext and not (total and total["n"]):
+        like = "%" + needle + "%"
+        where.insert(0, (
+            "(`name` LIKE %s OR `entry` IN "
+            "(SELECT `ID` FROM `%s` WHERE `locale` = %%s AND `Name` LIKE %%s))"
+            % ("%s", LOCALE_TABLE)))
+        args = [like, RU, like] + args[3:]
+        from_clause = "`%s`" % TABLE
+        clause = " WHERE " + " AND ".join(where)
+        total = query_one("SELECT COUNT(*) AS n FROM %s%s" % (from_clause, clause),
+                          tuple(args))
+    rows = query(
+        "SELECT %s FROM %s%s ORDER BY `entry` LIMIT %%s OFFSET %%s"
+        % (cols, from_clause, clause), tuple(args + [int(limit), int(offset)]))
+
+    return {
+        "total": int(total["n"]) if total else 0,
+        "offset": int(offset),
+        "limit": int(limit),
+        "items": _decorate(rows),
+    }
 
 
 def get(entry: int) -> dict | None:
@@ -511,6 +658,17 @@ def save(entry: int, fields: dict[str, Any]) -> dict:
 
 def delete(entry: int) -> None:
     _guard(entry)
+
+    # Строка-результат рецепта, именной предмет или поделка - это обязательство
+    # перед игроком, у которого вещь лежит в сумке: удалить её значит превратить
+    # вещь в другую (DESIGN §4, решение 3). Импорт поздний - aprof сам берёт
+    # отсюда иконки, и на уровне модуля вышел бы круг.
+    from . import aprof
+    used = aprof.references_to_item(entry)
+    if used:
+        raise ValueError(
+            "Предмет %d занят крафтом: %s. Удалять нельзя - правьте строку "
+            "или снимите ссылку на вкладке «Рецепты»." % (entry, "; ".join(used)))
     with world_cursor(commit=True) as cur:
         cur.execute("DELETE FROM `%s` WHERE `entry` = %%s" % TABLE, (entry,))
         cur.execute("DELETE FROM `%s` WHERE `ID` = %%s" % LOCALE_TABLE, (entry,))
@@ -526,7 +684,7 @@ def _sql_literal(value: Any) -> str:
     return "'" + str(value).replace("\\", "\\\\").replace("'", "''") + "'"
 
 
-def _all_columns() -> list[str]:
+def all_columns() -> list[str]:
     rows = query("SHOW COLUMNS FROM `%s`" % TABLE)
     return [r["Field"] for r in rows]
 
@@ -540,12 +698,15 @@ def export_sql() -> dict:
     Пишется целиком и атомарно (временный файл плюс замена): оборванная на
     середине миграция хуже отсутствующей — она применится наполовину.
     """
-    cols = _all_columns()
+    cols = all_columns()
     col_list = ", ".join("`%s`" % c for c in cols)
 
-    locales = query("SELECT `ID`, `locale`, `Name`, `Description` FROM `%s` "
-                    "WHERE `ID` BETWEEN %%s AND %%s ORDER BY `ID`, `locale`"
-                    % LOCALE_TABLE, (BLOCK_LO, BLOCK_HI))
+    locales: list[dict] = []
+    for blk in BLOCKS:
+        locales.extend(query(
+            "SELECT `ID`, `locale`, `Name`, `Description` FROM `%s` "
+            "WHERE `ID` BETWEEN %%s AND %%s ORDER BY `ID`, `locale`"
+            % LOCALE_TABLE, (blk.lo, blk.hi)))
 
     lines = [
         "-- Предметы панели — выгружено админ-панелью (Каталог предметов).",
@@ -553,15 +714,20 @@ def export_sql() -> dict:
         % (BLOCK_LO, BLOCK_HI),
         "-- Правьте в панели, не здесь: следующая выгрузка перепишет файл.",
         "--",
-        "-- Клиентская половина (Item.dbc внутри MPQ) сюда не входит: её",
-        "-- выдаёт кнопка «Строка для Item.dbc», сборка MPQ ручная.",
-        "",
-        "DELETE FROM `item_template` WHERE `entry` BETWEEN %d AND %d;"
-        % (BLOCK_LO, BLOCK_HI),
-        "DELETE FROM `item_template_locale` WHERE `ID` BETWEEN %d AND %d;"
-        % (BLOCK_LO, BLOCK_HI),
+        "-- Клиентская половина (Item.dbc внутри MPQ) сюда не входит:",
+        "-- выгрузите её отдельно в клиентский оверлей и запустите сборку MPQ.",
         "",
     ]
+
+    # По блоку на DELETE, а не одним диапазоном BLOCK_LO..BLOCK_HI: блоки
+    # панели идут вразрядку, и общий диапазон снёс бы чужие id - в том числе
+    # заготовки ленивого пула, из которых уже выданы вещи игрокам.
+    for blk in BLOCKS:
+        lines.append("DELETE FROM `item_template` WHERE `entry` BETWEEN "
+                     "%d AND %d;" % (blk.lo, blk.hi))
+        lines.append("DELETE FROM `item_template_locale` WHERE `ID` BETWEEN "
+                     "%d AND %d;" % (blk.lo, blk.hi))
+    lines.append("")
 
     rows: list[dict] = []
     for blk in BLOCKS:
@@ -590,6 +756,7 @@ def export_sql() -> dict:
                    _sql_literal(row["Name"]), _sql_literal(row["Description"])))
 
     path = os.path.join(os.path.dirname(config.SEED_SQL), SQL_NAME)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8", newline="\n") as handle:
         handle.write("\n".join(lines) + "\n")
@@ -598,7 +765,13 @@ def export_sql() -> dict:
     return {"path": path, "items": len(rows), "locales": len(locales)}
 
 
-def export_client(entry: int) -> dict:
+CLIENT_COLUMNS = (
+    "ID", "ClassID", "SubclassID", "Sound_Override_Subclassid", "Material",
+    "DisplayInfoID", "InventoryType", "SheatheType",
+)
+
+
+def _client_row(entry: int) -> dict:
     """Строка для клиентского `Item.dbc` — восемь полей, как в Item.csv.
 
     Без неё предмет остаётся без трёхмерного вида на персонаже и без ножен:
@@ -618,7 +791,127 @@ def export_client(entry: int) -> dict:
 
     return {
         "entry": int(row["entry"]),
-        "header": ('"ID","ClassID","SubclassID","Sound_Override_Subclassid",'
-                   '"Material","DisplayInfoID","InventoryType","SheatheType"'),
-        "line": ",".join('"%s"' % v for v in values),
+        "values": [str(value) for value in values],
+    }
+
+
+def export_client(entry: int) -> dict:
+    """Return one Item.dbc row for inspection or copying."""
+    row = _client_row(entry)
+    if not row:
+        return {}
+    return {
+        "entry": row["entry"],
+        "header": ",".join('"%s"' % column for column in CLIENT_COLUMNS),
+        "line": ",".join('"%s"' % value for value in row["values"]),
+    }
+
+
+def _client_wanted(pool: list[tuple[int, int]]) -> list[list[str]]:
+    """Строки клиентского CSV, какими их видит база прямо сейчас."""
+    # Заготовки пула идут в выгрузку наравне с блоками панели: клиентская
+    # половина нужна и им, иначе доведённая вещь приезжает без вида.
+    spans = [(b.lo, b.hi) for b in BLOCKS] + pool
+    conditions = " OR ".join("`entry` BETWEEN %s AND %s" for _ in spans)
+    args = tuple(value for span in spans for value in span)
+    rows = query(
+        "SELECT `entry`, `class`, `subclass`, `SoundOverrideSubclass`, "
+        "`Material`, `displayid`, `InventoryType`, `sheath` FROM `%s` "
+        "WHERE %s ORDER BY `entry`" % (TABLE, conditions),
+        args,
+    )
+    return [[
+        str(row["entry"]), str(row["class"]), str(row["subclass"]),
+        str(row["SoundOverrideSubclass"]), str(row["Material"]),
+        str(row["displayid"]), str(row["InventoryType"]), str(row["sheath"]),
+    ] for row in rows]
+
+
+def _client_split(pool: list[tuple[int, int]]) -> tuple[list, dict]:
+    """Прочитать CSV: чужие строки отдельно, наши - по номеру предмета.
+
+    Чужие сохраняются как есть: в файле живут строки других генераторов, и
+    выгрузка предмета не имеет права их выбросить.
+    """
+    foreign: list[list[str]] = []
+    ours: dict[str, list[str]] = {}
+    path = config.ITEM_CUSTOM_CSV
+    if not os.path.isfile(path):
+        return foreign, ours
+    with open(path, encoding="utf-8-sig", newline="") as handle:
+        reader = csv.reader(handle)
+        header = next(reader, None)
+        if header != list(CLIENT_COLUMNS):
+            raise ValueError("Item_custom.csv имеет неизвестный заголовок.")
+        for line in reader:
+            try:
+                entry = int(line[0])
+            except (IndexError, ValueError):
+                foreign.append(line)
+                continue
+            if block_of(entry) is None and not in_pool(entry, pool):
+                foreign.append(line)
+            else:
+                ours[str(entry)] = line
+    return foreign, ours
+
+
+def client_pending() -> dict:
+    """Чего из панели ещё нет в клиентском CSV или что там устарело.
+
+    Счёт разделён: блоки панели правят руками и их единицы, а пул профессий
+    наполняет генератор и его сотни тысяч. В общем числе второе полностью
+    скрывает первое.
+    """
+    pool = pool_ranges()
+    try:
+        _, ours = _client_split(pool)
+    except (OSError, ValueError) as exc:
+        return {"known": False, "reason": str(exc)}
+
+    groups = {
+        "blocks": {"name": "Блоки панели", "missing": 0, "changed": 0, "total": 0},
+        "pool": {"name": "Пул профессий", "missing": 0, "changed": 0, "total": 0},
+    }
+    for row in _client_wanted(pool):
+        group = groups["blocks" if block_of(int(row[0])) else "pool"]
+        group["total"] += 1
+        if row[0] not in ours:
+            group["missing"] += 1
+        elif ours[row[0]] != row:
+            group["changed"] += 1
+
+    live = [g for g in groups.values() if g["total"]]
+    return {
+        "known": True,
+        "missing": sum(g["missing"] for g in live),
+        "changed": sum(g["changed"] for g in live),
+        "total": sum(g["total"] for g in live),
+        "groups": live,
+    }
+
+
+def export_client_csv() -> dict:
+    """Synchronise panel-owned items into the Item.dbc overlay.
+
+    The CSV can contain rows maintained by other generators. Only IDs belonging
+    to a panel block are replaced, so saving a workshop item cannot discard
+    unrelated client customisations. Removed panel items are omitted as well.
+    """
+    pool = pool_ranges()
+    path = config.ITEM_CUSTOM_CSV
+    existing, _ = _client_split(pool)
+    generated = _client_wanted(pool)
+
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(CLIENT_COLUMNS)
+        writer.writerows(existing)
+        writer.writerows(generated)
+    os.replace(tmp, path)
+    return {
+        "path": path,
+        "written": len(generated),
+        "total": len(existing) + len(generated),
     }

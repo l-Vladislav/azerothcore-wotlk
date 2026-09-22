@@ -1,0 +1,31 @@
+:host {
+  display: block;
+  margin-bottom: 10px;
+}
+.filters {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.filters input[type='search'] {
+  flex: 1;
+  min-width: 220px;
+  max-width: 420px;
+}
+// Счёт прижат к правому краю: он читается как итог полосы, а не как ещё один
+// её орган управления.
+.count {
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+}
+@media (max-width: 800px) {
+  .filters input[type='search'] {
+    max-width: none;
+  }
+  .count {
+    margin-left: 0;
+  }
+}

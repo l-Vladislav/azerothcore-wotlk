@@ -1,0 +1,141 @@
+<section class="page-head">
+  <h1>Справочники</h1>
+</section>
+
+@if (loading()) {
+  <p class="empty">Загрузка справочников…</p>
+} @else if (!meta()?.available) {
+  <p class="forge-alert is-warning">
+    Таблицы модуля не найдены. Примените миграцию продвинутых профессий.
+  </p>
+} @else {
+  @for (book of books(); track book.path) {
+    <section class="book">
+      <h2>{{ book.title }}</h2>
+      <p class="hint">{{ book.hint }}</p>
+
+      @if (canEdit()) {
+        <div class="add-bar">
+          <label>
+            <span>код</span>
+            <input
+              class="forge-field"
+              [placeholder]="book.codeSample"
+              [ngModel]="draft()[book.path].code"
+              (ngModelChange)="setDraft(book.path, { code: $event })"
+              (keydown.enter)="add(book.path)"
+            />
+          </label>
+          <label>
+            <span>имя</span>
+            <input
+              class="forge-field"
+              [placeholder]="book.nameSample"
+              [ngModel]="draft()[book.path].name_ru"
+              (ngModelChange)="setDraft(book.path, { name_ru: $event })"
+              (keydown.enter)="add(book.path)"
+            />
+          </label>
+          <label>
+            <span>порядок</span>
+            <input
+              class="forge-field"
+              type="number"
+              min="0"
+              [ngModel]="draft()[book.path].sort"
+              (ngModelChange)="setDraft(book.path, { sort: +$event || 0 })"
+              (keydown.enter)="add(book.path)"
+            />
+          </label>
+          <button
+            type="button"
+            class="forge-btn is-primary is-compact"
+            [disabled]="busy()"
+            (click)="add(book.path)"
+          >
+            Добавить
+          </button>
+        </div>
+      }
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Код</th>
+              <th>Имя</th>
+              <th>Порядок</th>
+              <th title="Сколько материалов ссылается на строку.">Материалов</th>
+              <th>Вкл</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of book.rows; track row.id) {
+              <tr [class.off]="!row.enabled">
+                <td>
+                  <input
+                    class="forge-field"
+                    [(ngModel)]="row.code"
+                    [disabled]="!canEdit()"
+                    (change)="save(book.path, row)"
+                  />
+                </td>
+                <td>
+                  <input
+                    class="forge-field"
+                    [(ngModel)]="row.name_ru"
+                    [disabled]="!canEdit()"
+                    (change)="save(book.path, row)"
+                  />
+                </td>
+                <td class="num">
+                  <input
+                    class="forge-field"
+                    type="number"
+                    min="0"
+                    [(ngModel)]="row.sort"
+                    [disabled]="!canEdit()"
+                    (change)="save(book.path, row)"
+                  />
+                </td>
+                <td class="num">{{ book.used(row) }}</td>
+                <td>
+                  <input
+                    class="forge-check"
+                    type="checkbox"
+                    title="Выключенная строка не предлагается в списках, но уже проставленная остаётся на месте."
+                    [(ngModel)]="row.enabled"
+                    [disabled]="!canEdit()"
+                    (change)="save(book.path, row)"
+                  />
+                </td>
+                <td class="act">
+                  @if (canEdit()) {
+                    <button
+                      type="button"
+                      class="forge-btn is-danger is-compact"
+                      [disabled]="busy() || book.used(row) > 0"
+                      [title]="
+                        book.used(row) > 0
+                          ? 'На строку ссылаются материалы - сперва переведите их.'
+                          : 'Убрать строку справочника.'
+                      "
+                      (click)="remove(book.path, row)"
+                    >
+                      Убрать
+                    </button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="empty">Справочник пуст.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+}

@@ -1,0 +1,77 @@
+@use './professions';
+
+.card {
+  background-image: var(--texture-panel);
+  border: 10px solid transparent;
+  border-image: url('/ui/frames/panel-subtle.png') 22 round;
+  border-image-width: 22px;
+  margin-bottom: 16px;
+  max-width: 1000px;
+  padding: 12px 14px 14px;
+}
+.row {
+  align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.row label {
+  color: var(--muted);
+  display: grid;
+  font-size: 11px;
+  gap: 3px;
+}
+.row select {
+  min-width: 170px;
+}
+.pair {
+  display: flex;
+  gap: 5px;
+}
+.pair .count {
+  text-align: right;
+  width: 58px;
+}
+.row input[type='number'] {
+  text-align: right;
+  width: 92px;
+}
+.actions {
+  margin-top: 12px;
+}
+.sub {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 14px 0 6px;
+}
+
+// Выкладка ответа - текстом, а не таблицей: читается она сверху вниз, как
+// рассказ о том, что произойдёт у верстака.
+.out p {
+  margin: 6px 0;
+}
+.out h2 {
+  margin-top: 14px;
+}
+ul.plain {
+  list-style: none;
+  margin: 6px 0;
+  padding: 0;
+}
+ul.plain li {
+  color: var(--text);
+  font-size: 13px;
+  padding: 2px 0;
+}
+.totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.totals span {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-size: 12px;
+  padding: 2px 7px;
+}

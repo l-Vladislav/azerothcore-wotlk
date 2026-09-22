@@ -59,7 +59,19 @@ const ROLE_LABEL = { viewer: 'смотрящий', editor: 'редактор', o
 
 function can(role) { return !!ME && RANK[ME.role] >= RANK[role]; }
 
-async function mountSession() {
+// Страницы со своим сценарием загрузки (aprof, items, worlditems) зовут
+// mountSession() сами, чтобы дождаться ME до первого запроса. Здесь же он
+// висит на DOMContentLoaded ради всех остальных — и получалось два прогона:
+// вторая шапка дорисовывала «Люди»/«Журнал» и плашку владельца по второму
+// разу. Промис запоминается, поэтому оба вызова разделяют один прогон.
+let SESSION = null;
+
+function mountSession() {
+  if (!SESSION) SESSION = mountSessionOnce();
+  return SESSION;
+}
+
+async function mountSessionOnce() {
   if (isOpenPage()) return null;
   let state;
   try {

@@ -1,0 +1,46 @@
+:host {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+img {
+  flex: none;
+  height: 28px;
+  width: 28px;
+}
+.nm {
+  display: grid;
+  min-width: 0;
+}
+b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.warn {
+  color: var(--text-warning);
+}
+.q0 {
+  color: var(--muted);
+}
+.q2 {
+  color: #1eff00;
+}
+.q3 {
+  color: #0070dd;
+}
+.q4 {
+  color: #b048f8;
+}
+.q5 {
+  color: #ff8000;
+}
+.q6,
+.q7 {
+  color: #e5cc80;
+}

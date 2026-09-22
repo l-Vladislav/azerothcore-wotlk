@@ -1,0 +1,95 @@
+<header class="topbar">
+  <a class="brand" routerLink="/" aria-label="Панель управления">
+    <img class="brand-mark" src="/brand/azeroth-core-earth.png" alt="" width="44" height="44" />
+    <span class="brand-title">AzerothCore<small>Панель управления</small></span>
+  </a>
+  <nav class="legacy-nav" aria-label="Основная навигация">
+    <a
+      class="forge-tab is-compact"
+      routerLink="/"
+      routerLinkActive="is-active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      >Обзор</a
+    >
+    @for (section of sections(); track section.id) {
+      <a
+        class="forge-tab is-compact"
+        [routerLink]="sectionRoute(section)"
+        [class.is-active]="activeSection()?.id === section.id"
+        >{{ section.label }}</a
+      >
+    }
+  </nav>
+  <button
+    type="button"
+    class="forge-btn is-compact find"
+    (click)="search.open()"
+    title="Поиск по панели (Ctrl+K)"
+  >
+    <app-icon name="search" /><span class="find-hint">Ctrl + K</span>
+  </button>
+  <div class="account">
+    <details class="settings-menu" #accountMenu>
+      <summary
+        class="forge-btn is-icon"
+        [class.has-waiting]="waiting() > 0"
+        aria-label="Меню пользователя"
+        [title]="waiting() ? waiting() + ' правок ждут живого сервера' : 'Меню пользователя'"
+      >
+        <span class="hamburger" aria-hidden="true"></span>
+      </summary>
+      <div>
+        <div class="account-heading">
+          <span class="account-caption">Вы вошли как</span>
+          <strong class="account-login">{{ auth.actor()?.login }}</strong>
+        </div>
+        <a
+          class="forge-btn is-compact deploy-link"
+          routerLink="/settings/server-patch"
+          (click)="closeAccountMenu()"
+          >Серверный патч@if (waiting()) {
+            <span class="waiting-count">{{ waiting() }}</span>
+          }</a
+        >
+        @if (isOwner()) {
+          <a
+            class="forge-btn is-compact"
+            routerLink="/settings/client-patch"
+            (click)="closeAccountMenu()"
+            >Клиентский патч</a
+          >
+          <a class="forge-btn is-compact" routerLink="/settings/users" (click)="closeAccountMenu()"
+            >Пользователи</a
+          >
+          <a class="forge-btn is-compact" routerLink="/settings/audit" (click)="closeAccountMenu()"
+            >Журнал изменений</a
+          >
+        }
+        <button
+          type="button"
+          class="forge-btn is-compact menu-action"
+          (click)="closeAccountMenu(); password.open()"
+        >
+          Сменить пароль
+        </button>
+        <a class="forge-btn is-compact" href="/api/docs" (click)="closeAccountMenu()"
+          >Документация API</a
+        >
+        <button
+          type="button"
+          class="forge-btn is-compact is-danger logout"
+          (click)="closeAccountMenu(); logout()"
+        >
+          Выйти
+        </button>
+      </div>
+    </details>
+  </div>
+</header>
+<app-change-password #password />
+<app-quick-search #search />
+<app-toast-host />
+<div class="site-frame">
+  <app-site-sidebar [feature]="sidebarFeature()" [homeLinks]="homeLinks()" />
+  <main class="content"><router-outlet /></main>
+</div>

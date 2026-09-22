@@ -130,5 +130,167 @@ async function loadModules() {
   }
 }
 
+// --- клиентский патч ------------------------------------------------------
+// Кнопки сборки patch-ruRU-X.MPQ. Собирает не панель, а соседний контейнер
+// ac-patch-builder (см. app/patch.py): у него есть StormLib и право писать в
+// launcher/cdn. Раздела нет вовсе, если сборщик к панели не подключён -
+// пустой ADMIN_PATCH_BUILDER_URL значит «в этой установке его не бывает».
+
+const PATCH_CHECKS = {
+  build_py: 'build.py',
+  workdir: 'рабочий каталог',
+  base_ready: 'база DBC',
+  cdn: 'CDN',
+  stormlib: 'StormLib',
+};
+
+// Сборка идёт минутами, поэтому страница опрашивает состояние, пока она
+// живая, и перестаёт, как только та кончилась. Таймер один: его сбрасывает
+// каждый заход в loadPatch, иначе два нажатия дали бы две цепочки опроса.
+let patchTimer = null;
+
+function patchTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? iso : d.toLocaleString('ru-RU');
+}
+
+async function patchPost(path, body, question) {
+  if (question && !confirm(question)) return;
+  try {
+    await api(path, { method: 'POST', body: JSON.stringify(body) });
+    toast('Сборщик принял команду.', 'ok');
+  } catch (e) {
+    toast(e.message, 'err');
+  }
+  loadPatch();
+}
+
+function patchStateLine(st) {
+  const box = document.getElementById('patch-state');
+  box.innerHTML = '';
+  const add = (cls, text) => box.appendChild(el('span', cls, text));
+  if (!st.reachable) {
+    add('err', 'сборщик не отвечает');
+    return;
+  }
+  if (st.running) {
+    add('run', 'идёт сборка');
+    add('cmd', st.command || '');
+    add('muted', 'начата ' + patchTime(st.started));
+    return;
+  }
+  if (!st.finished) {
+    add('muted', 'сборка ни разу не запускалась');
+    return;
+  }
+  add(st.code === 0 ? 'ok' : 'err',
+      st.code === 0 ? 'успех' : 'код возврата ' + st.code);
+  add('cmd', st.command || '');
+  add('muted', 'завершена ' + patchTime(st.finished));
+}
+
+function patchActions(st) {
+  const box = document.getElementById('patch-actions');
+  box.innerHTML = '';
+  const log = document.getElementById('patch-log');
+
+  const add = (label, title, cls, fn) => {
+    const b = el('button', 'btn ' + cls, label);
+    b.title = title;
+    b.addEventListener('click', () => fn(b));
+    box.appendChild(b);
+    return b;
+  };
+
+  if (can('owner')) {
+    // Пока сборка идёт, вторая кнопка всё равно получит 409 от сборщика -
+    // гасим их сами, чтобы отказ не выглядел поломкой.
+    const off = st.running || !st.reachable;
+    const build = (label, title, cls, body, question) => {
+      const b = add(label, title, cls,
+                    () => patchPost('/api/patch/build', body, question));
+      b.disabled = off;
+    };
+    build('Проверить', 'build --dry-run: показать, что изменилось бы, ' +
+          'ничего не записывая', '', { dry_run: true });
+    build('Собрать и опубликовать',
+          'build: архив, копия на CDN, пересборка манифеста', 'primary', {},
+          'Собрать патч и выложить на CDN? Его скачают все игроки.');
+    build('Собрать без публикации',
+          'build --no-publish: архив собирается, CDN не трогаем', 'ghost',
+          { no_publish: true });
+    const boot = add('Снять базу заново',
+                     'bootstrap --force: взять базу DBC из нынешних архивов ' +
+                     'CDN. Нужно после смены самого клиента', 'ghost',
+                     () => patchPost('/api/patch/bootstrap', { force: true },
+                                     'Снять базу DBC заново с архивов CDN? ' +
+                                     'Нынешняя база будет перезаписана.'));
+    boot.disabled = off;
+  } else {
+    box.appendChild(el('span', 'hint', 'Сборку запускает владелец.'));
+  }
+
+  // Эти две работают всегда: посмотреть, что случилось, полезнее всего как
+  // раз тогда, когда сборка сломалась или сборщик замолчал.
+  add('Обновить', 'Перечитать состояние сборщика', 'ghost', () => loadPatch());
+  add('Весь лог', 'Лог последней сборки целиком', 'ghost', async () => {
+    try {
+      log.textContent = (await api('/api/patch/log')) || '(лог пуст)';
+      log.classList.remove('hidden');
+    } catch (e) {
+      toast(e.message, 'err');
+    }
+  });
+}
+
+function patchRender(st) {
+  const hint = document.getElementById('patch-hint');
+  const log = document.getElementById('patch-log');
+  const health = st.health || {};
+
+  if (!st.reachable) {
+    hint.className = 'hint err';
+    hint.textContent = st.error || 'Сборщик не отвечает.';
+  } else {
+    const missing = Object.keys(PATCH_CHECKS).filter(k => health[k] === false);
+    hint.className = missing.length ? 'hint err' : 'hint';
+    hint.textContent = missing.length
+      ? ('Сборщику не хватает: ' +
+         missing.map(k => PATCH_CHECKS[k]).join(', ') +
+         (health.base_ready === false
+           ? ' — начни со «Снять базу заново».' : ''))
+      : 'Оверлеи .claude/dbc → patch-ruRU-X.MPQ → CDN. Игроки получат патч ' +
+        'лаунчером при следующем запуске.';
+  }
+
+  patchStateLine(st);
+  patchActions(st);
+
+  const tail = st.log_tail || '';
+  log.textContent = tail;
+  log.classList.toggle('hidden', !tail);
+}
+
+async function loadPatch() {
+  const box = document.getElementById('patch');
+  if (!box) return;
+  clearTimeout(patchTimer);
+  let st;
+  try {
+    st = await api('/api/patch/status');
+  } catch (e) {
+    box.classList.add('hidden');
+    return;
+  }
+  if (!st.configured) { box.classList.add('hidden'); return; }
+  box.classList.remove('hidden');
+  patchRender(st);
+  if (st.running) patchTimer = setTimeout(loadPatch, 3000);
+}
+
 loadHealth();
 loadModules();
+// Ждём профиль: кнопки сборки видит только владелец, а can() до mountSession()
+// врёт всем «нет».
+mountSession().then(loadPatch);

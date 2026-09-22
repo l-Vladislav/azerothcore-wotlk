@@ -1,0 +1,151 @@
+// Только раскладка: рамки, поля и кнопки берут вид из набора, каретка «К
+// списку» - из него же (`styles/forge.scss`, правило `.page-head > .back`).
+.page-head {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.page-head .head-left {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+}
+
+.page-head h1 {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Паспорт предмета: иконка, строка фактов и замок.
+.item-card {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.item-card .hint {
+  margin: 0;
+}
+
+.item-card img,
+.item-card .no-icon {
+  background: var(--bg);
+  border-radius: 4px;
+  height: 40px;
+  width: 40px;
+}
+
+.item-card .no-icon {
+  color: var(--gold-dim);
+  display: grid;
+  place-items: center;
+}
+
+.item-card app-edit-lock {
+  margin-left: auto;
+}
+
+.read-only {
+  border-left: 2px solid var(--gold-dim);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0 0 12px;
+  padding-left: 9px;
+}
+
+.actions {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.actions label {
+  color: var(--muted);
+  display: grid;
+  font-size: 11px;
+  gap: 3px;
+}
+
+.client-row {
+  margin-bottom: 14px;
+}
+
+.client-row .hint {
+  margin: 0 0 6px;
+}
+
+.client-row pre {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-size: 11px;
+  margin: 0 0 8px;
+  overflow-x: auto;
+  padding: 8px;
+  white-space: pre;
+}
+
+.editor-groups {
+  display: grid;
+  gap: 12px;
+}
+
+.field-row {
+  align-items: end;
+  border-top: 1px dashed var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  padding: 6px 0;
+}
+
+.field-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.row-label {
+  color: var(--muted);
+  font-size: 12px;
+  min-width: 74px;
+  padding-bottom: 7px;
+}
+
+.field {
+  display: grid;
+  font-size: 11px;
+  gap: 3px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.field > span {
+  color: var(--muted);
+}
+
+.field input,
+.field select {
+  min-width: 110px;
+}
+
+.field input[type='number'] {
+  text-align: right;
+}
+
+.field.wide {
+  flex: 1 1 320px;
+}
+
+.field.wide input {
+  min-width: 0;
+  width: 100%;
+}

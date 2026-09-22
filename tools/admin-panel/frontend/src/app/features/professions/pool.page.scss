@@ -1,0 +1,30 @@
+@use './professions';
+
+.card {
+  background-image: var(--texture-panel);
+  border: 10px solid transparent;
+  border-image: url('/ui/frames/panel-subtle.png') 22 round;
+  border-image-width: 22px;
+  margin-bottom: 16px;
+  padding: 12px 14px 14px;
+}
+// Список без слайса - не сводка, а предупреждение: рамка это и показывает.
+.card.is-warning {
+  border-image-source: url('/ui/frames/panel-subtle.png');
+  box-shadow: inset 3px 0 0 var(--text-warning);
+}
+.card h2 {
+  margin-bottom: 8px;
+}
+.forge-alert,
+.hint {
+  margin: 10px 0 0;
+}
+td.num.warn {
+  color: var(--text-warning);
+}
+td.when {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}

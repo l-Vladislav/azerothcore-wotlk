@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Поправки к определениям WDBX Editor. Загружаются после основного файла и
+  заменяют одноимённые таблицы целиком.
+
+  SkillLineAbility: у WDBX 13 полей (есть TradeSkillCategoryID, нет
+  ExcludeRace/ExcludeClass) - это раскладка более поздних билдов. В клиенте
+  3.3.5a их 14, и ядро читает файл как "niiiixxiiiiixx"
+  (src/server/shared/DataStores/DBCfmt.h). Взято оттуда: x - поле, которое
+  сервер пропускает, но в файле оно есть и место занимает.
+-->
+<Definition>
+  <Table Name="SkillLineAbility" Build="12340">
+    <Field Name="ID" Type="int" IsIndex="true" />
+    <Field Name="SkillLine" Type="int" />
+    <Field Name="Spell" Type="int" />
+    <Field Name="RaceMask" Type="int" />
+    <Field Name="ClassMask" Type="int" />
+    <Field Name="ExcludeRace" Type="int" />
+    <Field Name="ExcludeClass" Type="int" />
+    <Field Name="MinSkillLineRank" Type="int" />
+    <Field Name="SupercededBySpell" Type="int" />
+    <Field Name="AcquireMethod" Type="int" />
+    <Field Name="TrivialSkillLineRankHigh" Type="int" />
+    <Field Name="TrivialSkillLineRankLow" Type="int" />
+    <Field Name="CharacterPoints" Type="int" ArraySize="2" />
+  </Table>
+</Definition>

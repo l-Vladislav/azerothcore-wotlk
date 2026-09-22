@@ -1,0 +1,289 @@
+:host {
+  display: block;
+}
+
+.empty,
+.hint,
+.muted,
+.group-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+.empty {
+  margin: 6px 0;
+}
+
+.group-head {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 2px;
+  padding-top: 8px;
+}
+.group-head.plain {
+  color: var(--muted);
+  font-size: 12px;
+}
+.group-tools {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.lootrow {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 10px;
+  padding: 4px 6px;
+}
+.lootrow:hover {
+  background: var(--surface-accent-subtle);
+}
+.lootrow.picked {
+  background: var(--surface-accent-muted);
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+.pick {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.chance {
+  align-items: center;
+  display: flex;
+  flex: 0 0 132px;
+  gap: 7px;
+}
+.chance .bar {
+  background: #0006;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  display: block;
+  flex: 1 1 auto;
+  height: 8px;
+  overflow: hidden;
+}
+.chance .bar i {
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  display: block;
+  height: 100%;
+}
+.chance .value {
+  flex: 0 0 56px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.name {
+  align-items: baseline;
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.name a {
+  text-decoration: none;
+}
+.name a:hover {
+  text-decoration: underline;
+}
+.name a.broken {
+  color: var(--text-warning);
+}
+.name .dead {
+  color: var(--muted);
+  font-weight: 500;
+}
+.name small {
+  font-size: 11px;
+}
+
+.fold {
+  align-items: baseline;
+  background: none;
+  border: none;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  gap: 6px;
+  padding: 0;
+  text-shadow: none;
+}
+.fold:hover b {
+  color: var(--gold-bright);
+}
+.fold b {
+  font-weight: 500;
+}
+.caret {
+  color: var(--gold-dim);
+  display: flex;
+  flex: none;
+}
+
+.count {
+  color: var(--muted);
+  flex: 0 0 auto;
+  font-size: 12px;
+}
+
+.marks {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+.mark {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--muted);
+  cursor: help;
+  font-size: 11px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+.mark.quest {
+  border-color: var(--gold-dim);
+  color: var(--gold-bright);
+}
+.mark.cond {
+  border-color: #6b8fb5;
+  color: #8fb6de;
+}
+.mark.mode {
+  border-color: #7a6ba8;
+  color: #a99ad0;
+}
+.mark.bad {
+  border-color: var(--border-danger);
+  color: var(--text-danger);
+}
+
+// Row actions stay out of the way until the row is touched, but a keyboard
+// must still reach them — and a touch screen has no hover at all.
+.tools {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  opacity: 0.35;
+}
+.lootrow:hover .tools,
+.tools:focus-within {
+  opacity: 1;
+}
+@media (hover: none) {
+  .tools {
+    opacity: 1;
+  }
+}
+
+.link {
+  background: none;
+  border: none;
+  box-shadow: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0;
+  text-decoration: underline dotted;
+  text-shadow: none;
+}
+.link:hover {
+  color: var(--gold-bright);
+}
+.link.danger:hover {
+  color: var(--text-danger);
+}
+
+.confirm,
+.inline-form,
+.pickbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.confirm {
+  background: var(--surface-danger);
+  border: 1px solid var(--border-danger);
+  border-radius: 4px;
+  font-size: 13px;
+  margin: 4px 0 8px;
+  padding: 7px 10px;
+}
+.inline-form {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: 12px;
+  margin: 4px 0 8px;
+  padding: 7px 10px;
+}
+.inline-form label {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  gap: 6px;
+}
+// Поля - из набора; тут только ширина в строке.
+.inline-form input,
+.pickbar input {
+  min-width: 0;
+  width: 88px;
+}
+.inline-form input[type='number'],
+.pickbar input[type='number'] {
+  width: 74px;
+}
+.pickbar input[type='text'] {
+  min-width: 210px;
+}
+
+.pickbar {
+  background: var(--panel-2);
+  border: 1px dashed var(--border-accent);
+  border-radius: 4px;
+  bottom: 8px;
+  font-size: 12px;
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  position: sticky;
+  z-index: 2;
+}
+.pickbar .inline-form {
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  cursor: pointer;
+}
+button.ghost,
+button.danger,
+.inline-form button,
+.pickbar button {
+  padding: 4px 9px;
+}
+.add {
+  margin-top: 10px;
+}
+
+// A reference gets its own frame: without it the chance of the reference and
+// the chance of the item inside it read as one number.
+.node {
+  border-left: 2px solid var(--gold-dim);
+  margin: 4px 0 8px 12px;
+  padding-left: 12px;
+}
+
+.error {
+  color: var(--text-danger);
+  font-size: 12px;
+}

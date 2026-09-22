@@ -1,0 +1,155 @@
+<section class="page-head">
+  <div class="head-left">
+    <a class="forge-btn is-ghost is-compact back" routerLink="/catalog/world-items">
+      <app-icon tone="plain" name="caret-right" [size]="12" />К списку
+    </a>
+    <h1>{{ title() }}</h1>
+  </div>
+</section>
+
+@if (loading()) {
+  <p class="muted">Загружаем размещение…</p>
+} @else if (row(); as placement) {
+  <section class="forge-panel is-subtle facts">
+    <span class="face">
+      <img [src]="iconUrl(placement)" alt="" (error)="useBlankIcon($event)" />
+    </span>
+    <dl>
+      <div>
+        <dt>Размещение</dt>
+        <dd>#{{ placement.id }}</dd>
+      </div>
+      <div>
+        <dt>Объект</dt>
+        <dd>{{ placement.go_entry }} · guid {{ placement.go_guid ?? '—' }}</dd>
+      </div>
+      <div>
+        <dt>Где</dt>
+        <dd>
+          карта {{ placement.map }}, зона {{ placement.zone }} ·
+          {{ coords(placement) }}
+        </dd>
+      </div>
+      <div>
+        <dt>Поставил</dt>
+        <dd>{{ placement.created_by || '—' }}</dd>
+      </div>
+      <div>
+        <dt>Забрали</dt>
+        <dd>
+          {{ placement.looted_by ?? 'счётчик недоступен' }}
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  @if (placement.item_missing) {
+    <p class="warn">
+      Предмета {{ placement.item_entry }} в базе больше нет: объект в мире стоит, но отдавать
+      ему нечего.
+    </p>
+  }
+
+  <section class="forge-panel editor">
+    <h2 class="forge-panel-title">Что лежит в объекте</h2>
+    <div class="grid">
+      <label
+        >Номер предмета
+        <input
+          class="forge-field"
+          type="number"
+          min="1"
+          [ngModel]="draft.item_entry"
+          (ngModelChange)="draft.item_entry = $event"
+          [disabled]="!canEdit() || saving()"
+        />
+      </label>
+      <label
+        >Количество
+        <input
+          class="forge-field"
+          type="number"
+          min="1"
+          [ngModel]="draft.item_count"
+          (ngModelChange)="draft.item_count = $event"
+          [disabled]="!canEdit() || saving()"
+        />
+      </label>
+      <label
+        >Респавн, секунд
+        <input
+          class="forge-field"
+          type="number"
+          min="0"
+          [ngModel]="draft.respawn_secs"
+          (ngModelChange)="draft.respawn_secs = $event"
+          [disabled]="!canEdit() || saving()"
+        />
+      </label>
+      <label class="check">
+        <input
+          class="forge-check"
+          type="checkbox"
+          [ngModel]="draft.one_per_char"
+          (ngModelChange)="draft.one_per_char = $event"
+          [disabled]="!canEdit() || saving()"
+        />
+        <span>один раз на персонажа</span>
+      </label>
+      <label class="check">
+        <input
+          class="forge-check"
+          type="checkbox"
+          [ngModel]="draft.enabled"
+          (ngModelChange)="draft.enabled = $event"
+          [disabled]="!canEdit() || saving()"
+        />
+        <span>размещение включено</span>
+      </label>
+      <label class="wide"
+        >Комментарий
+        <input
+          class="forge-field"
+          type="text"
+          maxlength="190"
+          [ngModel]="draft.comment"
+          (ngModelChange)="draft.comment = $event"
+          [disabled]="!canEdit() || saving()"
+          placeholder="зачем это здесь"
+        />
+      </label>
+    </div>
+
+    @if (canEdit()) {
+      <div class="actions">
+        <button
+          type="button"
+          class="forge-btn is-primary is-compact"
+          (click)="save()"
+          [disabled]="saving()"
+        >
+          Сохранить
+        </button>
+        <button
+          type="button"
+          class="forge-btn is-compact"
+          (click)="resetLoot()"
+          [disabled]="saving()"
+          title="Забыть всех, кто уже забрал предмет"
+        >
+          Забыть подобравших
+        </button>
+        <button
+          type="button"
+          class="forge-btn is-danger is-compact"
+          (click)="remove()"
+          [disabled]="saving()"
+        >
+          Удалить размещение
+        </button>
+      </div>
+    }
+  </section>
+} @else {
+  <p class="empty big">Такого размещения нет.</p>
+}

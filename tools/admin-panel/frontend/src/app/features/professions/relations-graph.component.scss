@@ -1,0 +1,80 @@
+:host {
+  display: block;
+}
+
+.bar,
+.filters {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.bar .muted,
+.filters .muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+.tools {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+// Чип отбора - плоская кнопка, а не эмаль набора: их тут под полсотни в ряд,
+// и стена красных плашек читалась бы хуже самой диаграммы.
+.chip {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+.chip:hover {
+  border-color: var(--line-strong);
+  color: var(--gold-bright);
+}
+.chip.is-on {
+  background: var(--gold-dim);
+  border-color: var(--gold-dim);
+  color: #10151b;
+  font-weight: 600;
+}
+.find {
+  min-width: 240px;
+}
+
+.wrap {
+  position: relative;
+}
+.canvas {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: grab;
+  display: block;
+  height: 620px;
+  width: 100%;
+}
+.canvas.is-dragging {
+  cursor: grabbing;
+}
+
+// Подсказка идёт за курсором, поэтому она вне потока и ничего не ловит мышью:
+// иначе собственная подсказка перекрывала бы узел под ней.
+.tip {
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  color: var(--text);
+  font-size: 12px;
+  max-width: 250px;
+  padding: 3px 7px;
+  pointer-events: none;
+  position: absolute;
+}

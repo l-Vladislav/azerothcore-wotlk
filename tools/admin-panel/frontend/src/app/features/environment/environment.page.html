@@ -1,0 +1,201 @@
+<section class="page-head">
+  <a class="forge-btn is-ghost is-compact back" routerLink="/environment">
+    <app-icon tone="plain" name="caret-right" [size]="12" />Ко всем зонам
+  </a>
+</section>
+
+<section class="layout">
+  <article class="editor">
+    @if (current(); as zone) {
+      <header class="editor-head">
+        <div>
+          <p class="where">
+            {{ zone.global ? 'Общие настройки' : 'Правила зоны' }} · ID {{ zone.zone_id }}
+          </p>
+          <h2>{{ zone.name }}</h2>
+        </div>
+        @if (dirty()) {
+          <span class="dirty">Есть несохранённые изменения</span>
+        }
+      </header>
+      <p class="explanation">
+        {{
+          zone.global
+            ? 'Глобальные правила подставляются только в пустые корзины зон. Собственные правила зоны никогда не смешиваются с глобальными.'
+            : 'Собственные правила важнее глобальных. Пустая корзина берётся из глобального пула, если он существует.'
+        }}
+      </p>
+      @if (problems().length) {
+        <div class="problems">
+          @for (problem of problems(); track $index) {
+            <p [class]="problem.level">{{ problem.message }}</p>
+          }
+        </div>
+      }
+      @if (canEdit()) {
+        <div class="editor-actions">
+          <button
+            type="button"
+            class="forge-btn is-primary is-compact"
+            (click)="save()"
+            [disabled]="!dirty() || pending() !== null"
+          >
+            Применить на PTR</button
+          ><button
+            type="button"
+            class="forge-btn is-danger is-compact"
+            (click)="removeAll()"
+            [disabled]="pending() !== null"
+          >
+            Удалить все правила
+          </button>
+        </div>
+      }
+      <div class="pools">
+        @for (pool of pools; track pool) {
+          <section class="pool" [class.debuffs]="pool === 'debuffs'">
+            <header>
+              <div>
+                <h3>{{ pool === 'buffs' ? 'Бафы' : 'Дебафы' }}</h3>
+                <p>
+                  {{
+                    pool === 'buffs'
+                      ? 'Активен один эффект, выбранный из подходящих по времени суток.'
+                      : 'Активен один эффект, подходящий под погоду и время суток.'
+                  }}
+                </p>
+              </div>
+              @if (canEdit()) {
+                <button type="button" class="forge-btn is-compact" (click)="addRule(pool)">
+                  <app-icon name="plus" [size]="13" />Добавить
+                </button>
+              }
+            </header>
+            <div class="rules">
+              @for (rule of zone[pool]; track $index; let index = $index) {
+                <article class="rule" [class.disabled]="!rule.enabled">
+                  <button
+                    type="button"
+                    class="spell"
+                    (click)="canEdit() && replaceRule(pool, index)"
+                    [disabled]="!canEdit()"
+                    [title]="'Спелл #' + rule.spell_id + ' - щёлкните, чтобы заменить'"
+                  >
+                    <app-game-icon
+                      [texture]="rule.spell?.icon_texture ?? ''"
+                      [base]="iconBase()"
+                      [size]="28"
+                    />
+                    <span>{{ rule.spell?.name_ru || 'Без имени' }}</span>
+                  </button>
+                  <p>{{ rule.spell?.description_ru || 'Описание отсутствует.' }}</p>
+                  @if (rule.spell?.in_spell_dbc === false) {
+                    <span class="missing">нет в spell_dbc</span>
+                  }
+                  <div class="rule-controls">
+                    @if (pool === 'debuffs') {
+                      <label
+                        >Погода<select
+                          class="forge-field is-select"
+                          [ngModel]="rule.trigger_type"
+                          (ngModelChange)="updateRule(pool, index, { trigger_type: $event })"
+                          [disabled]="!canEdit()"
+                        >
+                          <option [value]="0">{{ triggerLabel(0) }}</option>
+                          <option [value]="1">{{ triggerLabel(1) }}</option>
+                          <option [value]="2">{{ triggerLabel(2) }}</option>
+                          <option [value]="3">{{ triggerLabel(3) }}</option>
+                          <option [value]="4">{{ triggerLabel(4) }}</option>
+                          <option [value]="5">{{ triggerLabel(5) }}</option>
+                          <option [value]="6">{{ triggerLabel(6) }}</option>
+                          <option [value]="7">{{ triggerLabel(7) }}</option>
+                        </select></label
+                      >
+                    }
+                    <label
+                      >Время<select
+                        class="forge-field is-select"
+                        [ngModel]="rule.time_flag"
+                        (ngModelChange)="updateRule(pool, index, { time_flag: $event })"
+                        [disabled]="!canEdit()"
+                      >
+                        <option [value]="0">{{ timeLabel(0) }}</option>
+                        <option [value]="1">{{ timeLabel(1) }}</option>
+                        <option [value]="2">{{ timeLabel(2) }}</option>
+                      </select></label
+                    >
+                    @if (canEdit()) {
+                      <button
+                        type="button"
+                        class="forge-btn is-compact"
+                        [class.is-on]="rule.enabled"
+                        (click)="updateRule(pool, index, { enabled: !rule.enabled })"
+                      >
+                        {{ rule.enabled ? 'Включён' : 'Выключен' }}</button
+                      ><button
+                        type="button"
+                        class="forge-btn is-danger is-compact"
+                        (click)="removeRule(pool, index)"
+                      >
+                        Убрать
+                      </button>
+                    }
+                  </div>
+                </article>
+              } @empty {
+                <p class="empty">В этой корзине нет правил.</p>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    } @else {
+      <p class="empty editor-empty">Загружаем правила зоны…</p>
+    }
+  </article>
+</section>
+
+@if (picker(); as selection) {
+  <div class="modal-backdrop" (click)="picker.set(null)">
+    <section
+      class="forge-panel is-thick picker"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="selection.pool === 'buffs' ? 'Выбор бафа' : 'Выбор дебафа'"
+      (click)="$event.stopPropagation()"
+    >
+      <header>
+        <h2>{{ selection.pool === 'buffs' ? 'Выбор бафа' : 'Выбор дебафа' }}</h2>
+        <button
+          type="button"
+          class="forge-btn is-icon close"
+          aria-label="Закрыть"
+          (click)="picker.set(null)"
+        >
+          <app-icon name="close" [size]="13" />
+        </button>
+      </header>
+      <input
+        class="forge-field is-search"
+        type="search"
+        autofocus
+        [ngModel]="pickerQuery()"
+        (ngModelChange)="pickerQuery.set($event)"
+        placeholder="Название, описание или ID"
+      />
+      <div class="spell-list">
+        @for (spell of filteredSpells(); track spell.spell_id) {
+          <button type="button" class="spell-row" (click)="chooseSpell(spell)">
+            <app-game-icon [texture]="spell.icon_texture" [base]="iconBase()" [size]="30" />
+            <span class="about">
+              <strong>{{ spell.name_ru || 'Без имени' }}</strong>
+              <span>#{{ spell.spell_id }} · {{ spell.description_ru || 'без описания' }}</span>
+            </span>
+          </button>
+        } @empty {
+          <p class="empty">Ничего не найдено.</p>
+        }
+      </div>
+    </section>
+  </div>
+}

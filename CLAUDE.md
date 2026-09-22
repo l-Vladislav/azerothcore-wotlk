@@ -121,6 +121,14 @@ Type(Scope/Subscope): Short description (max 50 chars)
 
 ## PR Requirements
 
+- **Pull requests go to the fork `origin` (github.com/l-Vladislav/azerothcore-wotlk)
+  only — NEVER to `upstream` (azerothcore/azerothcore-wotlk).** No commits, no
+  pushes and no PRs against upstream, whatever the change looks like. Base
+  branch is `custom`, the production trunk.
+- **One commit per board card.** Squash before opening the PR: a card's work
+  arrives as a single commit carrying `[#N]`.
+- Commits carry no Claude authorship trailers (no `Co-Authored-By`, no
+  `Claude-Session`).
 - AI tool usage must be disclosed in PRs
 - In-game testing expected
 - Changes to generic code require regression testing of related systems

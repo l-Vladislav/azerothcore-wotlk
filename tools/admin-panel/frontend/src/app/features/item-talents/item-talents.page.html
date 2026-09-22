@@ -1,0 +1,942 @@
+<section class="page-head"></section>
+
+@if (loading()) {
+  <p class="empty">Загрузка редактора…</p>
+} @else if (!meta()?.installed) {
+  <section class="forge-alert is-warning">
+    Миграция редактора не применена: в базе нет таблиц <code>item_talent_category</code> и
+    <code>item_talent_category_rule</code>.
+  </section>
+} @else {
+  <nav class="tabs" aria-label="Разделы редактора">
+    @for (entry of tabs; track entry.id) {
+      <button
+        class="forge-tab is-compact"
+        type="button"
+        [class.is-active]="tab() === entry.id"
+        (click)="chooseTab(entry.id)"
+      >
+        {{ entry.label }}
+      </button>
+    }
+  </nav>
+  @if (problems().length) {
+    <div class="problems">
+      @for (problem of problems(); track $index) {
+        <p [class]="problem.level">{{ problem.message }}</p>
+      }
+    </div>
+  }
+
+  @if (tab() === 'categories') {
+    <p class="hint">
+      Категория задаёт меню перков, а правило определяет, каким предметам она достанется. Значение
+      −1 означает «любое».
+    </p>
+    @if (canEdit()) {
+      <div class="toolbar">
+        <button class="forge-btn is-compact" type="button" (click)="addCategory()">
+          <app-icon name="plus" [size]="12" />Категория</button
+        ><button class="forge-btn is-compact" type="button" (click)="addRule()">
+          <app-icon name="plus" [size]="12" />Правило</button
+        ><button
+          type="button"
+          class="forge-btn is-primary is-compact"
+          (click)="saveCategories()"
+          [disabled]="pending()"
+        >
+          Сохранить и применить
+        </button>
+      </div>
+    }
+    <h2>Категории</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Код</th>
+            <th>Название</th>
+            <th>Комментарий</th>
+            <th>Вкл.</th>
+            <th>Порядок</th>
+            <th>Вариантов</th>
+            <th>Предметов</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (category of categories(); track $index; let index = $index) {
+            <tr>
+              <td>
+                <input
+                  class="forge-field"
+                  [(ngModel)]="category.code"
+                  [disabled]="!canEdit()"
+                  maxlength="1"
+                />
+              </td>
+              <td>
+                <input class="forge-field" [(ngModel)]="category.name_ru" [disabled]="!canEdit()" />
+              </td>
+              <td>
+                <input class="forge-field" [(ngModel)]="category.comment" [disabled]="!canEdit()" />
+              </td>
+              <td>
+                <input
+                  class="forge-check"
+                  type="checkbox"
+                  [(ngModel)]="category.enabled"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="category.sort"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>{{ category.choices }}</td>
+              <td>{{ category.items }}</td>
+              <td>
+                @if (canEdit()) {
+                  <button
+                    type="button"
+                    class="forge-btn is-danger is-compact icon danger"
+                    (click)="removeCategory(index)"
+                    aria-label="Удалить категорию"
+                  >
+                    ×
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="empty">Категорий пока нет.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <h2>Правила подбора</h2>
+    <div class="table-wrap">
+      <table class="rules">
+        <thead>
+          <tr>
+            <th>Категория</th>
+            <th>Класс</th>
+            <th>Подкласс</th>
+            <th>Слот</th>
+            <th>Качество от</th>
+            <th>до</th>
+            <th>Entry от</th>
+            <th>до</th>
+            <th>Приоритет</th>
+            <th>Комментарий</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (rule of rules(); track $index; let index = $index) {
+            <tr>
+              <td>
+                <select
+                  class="forge-field is-select"
+                  [(ngModel)]="rule.code"
+                  [disabled]="!canEdit()"
+                >
+                  @for (category of categories(); track category.code) {
+                    <option [value]="category.code">
+                      {{ category.code }} — {{ category.name_ru }}
+                    </option>
+                  }
+                </select>
+              </td>
+              <td>
+                <select
+                  class="forge-field is-select"
+                  [(ngModel)]="rule.item_class"
+                  [disabled]="!canEdit()"
+                >
+                  <option [ngValue]="-1">любой</option>
+                  @for (itemClass of meta()?.item_classes | keyvalue; track itemClass.key) {
+                    <option [ngValue]="+itemClass.key">{{ itemClass.value }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="rule.subclass"
+                  [disabled]="!canEdit()"
+                  title="{{ subclassName(rule.item_class, rule.subclass) }}"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="rule.inv_type"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="rule.quality_min"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="rule.quality_max"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="rule.entry_lo"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="rule.entry_hi"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="rule.priority"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input class="forge-field" [(ngModel)]="rule.comment" [disabled]="!canEdit()" />
+              </td>
+              <td>
+                @if (canEdit()) {
+                  <button
+                    type="button"
+                    class="forge-btn is-danger is-compact icon danger"
+                    (click)="removeRule(index)"
+                    aria-label="Удалить правило"
+                  >
+                    ×
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (tab() === 'menus') {
+    <p class="hint">
+      Меню ряда действует на все предметы категории. Точный подкласс перекрывает меню с подклассом
+      −1.
+    </p>
+    <div class="category-picker">
+      @for (category of categories(); track category.code) {
+        <button
+          class="forge-btn is-compact"
+          type="button"
+          [class.active]="selectedCode() === category.code"
+          (click)="selectCategory(category.code)"
+        >
+          {{ category.code }} — {{ category.name_ru }}
+        </button>
+      }
+    </div>
+    @for (row of categoryRows(); track row.row) {
+      <article class="row-card">
+        <header>
+          <div>
+            <strong>Ряд {{ row.row }} — {{ row.name }}</strong
+            ><small>вариантов: {{ row.choices.length }}</small>
+          </div>
+          <label
+            >Роллится
+            <select
+              class="forge-field is-select"
+              [(ngModel)]="row.roll_count"
+              [disabled]="!canEdit()"
+            >
+              <option [ngValue]="1">1</option>
+              <option [ngValue]="2">2</option>
+              <option [ngValue]="3">3</option>
+            </select></label
+          ><label
+            ><input
+              class="forge-check"
+              type="checkbox"
+              [(ngModel)]="row.quality_enabled"
+              [disabled]="!canEdit()"
+            />
+            качество</label
+          ><span></span>
+          @if (canEdit()) {
+            <button class="forge-btn is-compact" type="button" (click)="addChoice(row)">
+              <app-icon name="plus" [size]="12" />Вариант</button
+            ><button
+              type="button"
+              class="forge-btn is-primary is-compact"
+              (click)="saveCategoryRow(row)"
+              [disabled]="pending()"
+            >
+              Сохранить ряд
+            </button>
+          }
+        </header>
+        <ng-container
+          [ngTemplateOutlet]="choices"
+          [ngTemplateOutletContext]="{ $implicit: row, subclass: true, ilvl: 200 }"
+        ></ng-container>
+      </article>
+    }
+  }
+
+  @if (tab() === 'items') {
+    <p class="hint">Персональный пул перекрывает меню категории только для выбранного предмета.</p>
+    <div class="items-layout">
+      <aside>
+        <div class="filters">
+          <input
+            class="forge-field"
+            type="search"
+            [ngModel]="itemQuery()"
+            (ngModelChange)="itemQuery.set($event)"
+            (keyup.enter)="searchItems()"
+            placeholder="Название или entry…"
+          /><select
+            class="forge-field is-select"
+            [ngModel]="qualityMin()"
+            (ngModelChange)="qualityMin.set($event); searchItems()"
+          >
+            @for (quality of meta()?.quality_names | keyvalue; track quality.key) {
+              <option [ngValue]="+quality.key">от {{ quality.value }}</option>
+            }</select
+          ><select
+            class="forge-field is-select"
+            [ngModel]="itemClass()"
+            (ngModelChange)="itemClass.set($event); searchItems()"
+          >
+            <option [ngValue]="-1">все классы</option>
+            @for (kind of meta()?.item_classes | keyvalue; track kind.key) {
+              <option [ngValue]="+kind.key">{{ kind.value }}</option>
+            }</select
+          ><label
+            ><input
+              class="forge-check"
+              type="checkbox"
+              [ngModel]="onlyCustom()"
+              (ngModelChange)="onlyCustom.set($event); searchItems()"
+            />
+            только свой пул</label
+          ><button class="forge-btn is-compact" type="button" (click)="searchItems()">Найти</button>
+        </div>
+        <div class="item-list">
+          @for (item of items(); track item.entry) {
+            <button
+              class="forge-btn is-compact"
+              type="button"
+              [class.active]="selectedItem()?.entry === item.entry"
+              (click)="selectItem(item.entry)"
+            >
+              <span [class]="'q' + item.quality">{{ item.name }}</span>
+              @if (item.own_choices) {
+                <em>свой пул</em>
+              }
+              <small>ilvl {{ item.ilvl }} · {{ item.entry }}</small>
+            </button>
+          } @empty {
+            <p class="empty">Ничего не найдено.</p>
+          }
+        </div>
+      </aside>
+      <section class="item-editor">
+        @if (selectedItem(); as item) {
+          <header>
+            <h2 [class]="'q' + item.quality">{{ item.name }}</h2>
+            <p>
+              entry {{ item.entry }} · ilvl {{ item.ilvl }} ·
+              {{ subclassName(item.class, item.subclass) }}
+            </p>
+            <p class="hint">
+              @if (item.category) {
+                Категория по правилам: {{ item.category }}. Открыто рядов: {{ item.rows_open }}.
+              } @else {
+                Для предмета не найдено подходящее правило.
+              }
+            </p>
+          </header>
+          @for (row of item.rows; track row.row) {
+            <article class="row-card" [class.inherited]="!row.own">
+              <header>
+                <div>
+                  <strong>Ряд {{ row.row }} — {{ row.name }}</strong
+                  ><small>{{ row.own ? 'персональный пул' : 'как в категории' }}</small>
+                </div>
+                <label
+                  >Роллится
+                  <select
+                    class="forge-field is-select"
+                    [(ngModel)]="row.roll_count"
+                    [disabled]="!canEdit()"
+                  >
+                    <option [ngValue]="1">1</option>
+                    <option [ngValue]="2">2</option>
+                    <option [ngValue]="3">3</option>
+                  </select></label
+                ><label
+                  ><input
+                    class="forge-check"
+                    type="checkbox"
+                    [(ngModel)]="row.quality_enabled"
+                    [disabled]="!canEdit()"
+                  />
+                  качество</label
+                ><span></span>
+                @if (canEdit()) {
+                  <button class="forge-btn is-compact" type="button" (click)="addChoice(row)">
+                    <app-icon name="plus" [size]="12" />Вариант</button
+                  ><button
+                    type="button"
+                    class="forge-btn is-primary is-compact"
+                    (click)="saveItemRow(row)"
+                    [disabled]="pending()"
+                  >
+                    Сохранить
+                  </button>
+                  @if (row.own) {
+                    <button
+                      type="button"
+                      class="forge-btn is-danger is-compact"
+                      (click)="clearItemRow(row)"
+                    >
+                      Сбросить
+                    </button>
+                  }
+                }
+              </header>
+              <ng-container
+                [ngTemplateOutlet]="choices"
+                [ngTemplateOutletContext]="{ $implicit: row, subclass: false, ilvl: item.ilvl }"
+              ></ng-container>
+            </article>
+          }
+        } @else {
+          <p class="empty">Выберите предмет слева.</p>
+        }
+      </section>
+    </div>
+  }
+
+  @if (tab() === 'procs') {
+    <p class="hint">
+      Перк с эффектом PROC ссылается на trigger spell через поле base; сила эффекта берётся из
+      per_ilvl.
+    </p>
+    @if (canEdit()) {
+      <div class="toolbar">
+        <button class="forge-btn is-compact" type="button" (click)="addProc()">+ Прок</button
+        ><button
+          type="button"
+          class="forge-btn is-primary is-compact"
+          (click)="saveProcs()"
+          [disabled]="pending()"
+        >
+          Сохранить и применить
+        </button>
+      </div>
+    }
+    <div class="table-wrap">
+      <table class="procs">
+        <thead>
+          <tr>
+            <th>Триггер</th>
+            <th>Видимый спелл</th>
+            <th>В DBC</th>
+            <th>Когда</th>
+            <th>Эффект</th>
+            <th>Шанс %</th>
+            <th>ICD, с</th>
+            <th>Коэф.</th>
+            <th>≈ ilvl 200</th>
+            <th>Длит., с</th>
+            <th>HP %</th>
+            <th>Школа</th>
+            <th>Используют</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (proc of procs(); track $index; let index = $index) {
+            <tr>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="proc.trigger_spell"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="proc.visible_spell"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                {{ proc.trigger_in_dbc ? 'триггер ✓' : 'триггер ×' }} /
+                {{ proc.visible_in_dbc ? 'видимый ✓' : 'видимый ×' }}
+              </td>
+              <td>
+                <select
+                  class="forge-field is-select"
+                  [(ngModel)]="proc.trigger_type"
+                  [disabled]="!canEdit()"
+                >
+                  @for (option of meta()?.proc_triggers; track option.code) {
+                    <option [value]="option.code">{{ option.label }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <select
+                  class="forge-field is-select"
+                  [(ngModel)]="proc.effect_type"
+                  [disabled]="!canEdit()"
+                >
+                  @for (option of meta()?.proc_effects; track option.code) {
+                    <option [value]="option.code">{{ option.label }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="proc.chance"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="proc.icd_secs"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  step="0.01"
+                  [(ngModel)]="proc.coef"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>{{ proc.coef * 200 | number: '1.0-0' }}</td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="proc.duration_secs"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="proc.hp_threshold"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="proc.school"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>{{ proc.perks.length ? proc.perks.join(', ') : '—' }}</td>
+              <td>
+                @if (canEdit()) {
+                  <button
+                    type="button"
+                    class="forge-btn is-danger is-compact icon danger"
+                    (click)="removeProc(index)"
+                  >
+                    ×
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (tab() === 'curves') {
+    <p class="hint">
+      Сколько убийств нужно для каждого уровня пробуждения. Побеждает строка с наибольшим
+      приоритетом.
+    </p>
+    @if (canEdit()) {
+      <div class="toolbar">
+        <button class="forge-btn is-compact" type="button" (click)="addCurve()">
+          <app-icon name="plus" [size]="12" />Строка</button
+        ><button
+          type="button"
+          class="forge-btn is-primary is-compact"
+          (click)="saveCurves()"
+          [disabled]="pending()"
+        >
+          Сохранить и применить
+        </button>
+      </div>
+    }
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Название</th>
+            <th>Качество от</th>
+            <th>до</th>
+            <th>ilvl от</th>
+            <th>до</th>
+            <th>ур. 1</th>
+            <th>ур. 2</th>
+            <th>ур. 3</th>
+            <th>ур. 4</th>
+            <th>ур. 5</th>
+            <th>Приоритет</th>
+            <th>Всего</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (curve of curves(); track $index; let index = $index) {
+            <tr>
+              <td>
+                <input class="forge-field" [(ngModel)]="curve.name" [disabled]="!canEdit()" />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="curve.quality_min"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="curve.quality_max"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="curve.ilvl_min"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="curve.ilvl_max"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="curve.lvl1"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="curve.lvl2"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="curve.lvl3"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="curve.lvl4"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="curve.lvl5"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="curve.priority"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>{{ curveTotal(curve) }}</td>
+              <td>
+                @if (canEdit()) {
+                  <button
+                    type="button"
+                    class="forge-btn is-danger is-compact icon danger"
+                    (click)="removeCurve(index)"
+                  >
+                    ×
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (tab() === 'library') {
+    <p class="hint">
+      Заготовки перков для меню категорий и персональных пулов. Ядро их не читает напрямую.
+    </p>
+    @if (canEdit()) {
+      <div class="toolbar">
+        <button class="forge-btn is-compact" type="button" (click)="addPerk()">+ Перк</button
+        ><button
+          type="button"
+          class="forge-btn is-primary is-compact"
+          (click)="saveLibrary()"
+          [disabled]="pending()"
+        >
+          Сохранить
+        </button>
+      </div>
+    }
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Название</th>
+            <th>Описание ({{ '{' }}N{{ '}' }} — значение)</th>
+            <th>Эффект</th>
+            <th>base</th>
+            <th>за ilvl</th>
+            <th>≈ ilvl 200</th>
+            <th>Теги</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (perk of library(); track $index; let index = $index) {
+            <tr>
+              <td>
+                <input class="forge-field" [(ngModel)]="perk.name_ru" [disabled]="!canEdit()" />
+              </td>
+              <td>
+                <input class="forge-field" [(ngModel)]="perk.desc_ru" [disabled]="!canEdit()" />
+              </td>
+              <td>
+                <select
+                  class="forge-field is-select"
+                  [(ngModel)]="perk.effect"
+                  [disabled]="!canEdit()"
+                >
+                  @for (effect of meta()?.effects; track effect.code) {
+                    <option [value]="effect.code">{{ effect.label }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  step="0.01"
+                  [(ngModel)]="perk.base"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  step="0.01"
+                  [(ngModel)]="perk.per_ilvl"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+              <td>{{ effectValue(perk, 200) }}</td>
+              <td><input class="forge-field" [(ngModel)]="perk.tags" [disabled]="!canEdit()" /></td>
+              <td>
+                @if (canEdit()) {
+                  <button
+                    type="button"
+                    class="forge-btn is-danger is-compact icon danger"
+                    (click)="removePerk(index)"
+                  >
+                    ×
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+}
+
+<ng-template #choices let-row let-subclass="subclass" let-ilvl="ilvl">
+  <div class="table-wrap choices">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          @if (subclass) {
+            <th>Подкласс</th>
+          }
+          <th>Название</th>
+          <th>Описание ({{ '{' }}N{{ '}' }} — значение)</th>
+          <th>Эффект</th>
+          <th>base</th>
+          <th>за ilvl</th>
+          <th>≈ ilvl {{ ilvl }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (choice of row.choices; track $index; let index = $index) {
+          <tr>
+            <td>
+              <input
+                class="forge-field"
+                type="number"
+                [(ngModel)]="choice.choice"
+                [disabled]="!canEdit()"
+              />
+            </td>
+            @if (subclass) {
+              <td>
+                <input
+                  class="forge-field"
+                  type="number"
+                  [(ngModel)]="choice.subclass"
+                  [disabled]="!canEdit()"
+                />
+              </td>
+            }
+            <td>
+              <input class="forge-field" [(ngModel)]="choice.name_ru" [disabled]="!canEdit()" />
+            </td>
+            <td>
+              <input class="forge-field" [(ngModel)]="choice.desc_ru" [disabled]="!canEdit()" />
+            </td>
+            <td>
+              <select
+                class="forge-field is-select"
+                [(ngModel)]="choice.effect"
+                [disabled]="!canEdit()"
+              >
+                @for (effect of meta()?.effects; track effect.code) {
+                  <option [value]="effect.code">{{ effect.label }}</option>
+                }
+              </select>
+            </td>
+            <td>
+              <input
+                class="forge-field"
+                type="number"
+                step="0.01"
+                [(ngModel)]="choice.base"
+                [disabled]="!canEdit()"
+              />
+            </td>
+            <td>
+              <input
+                class="forge-field"
+                type="number"
+                step="0.01"
+                [(ngModel)]="choice.per_ilvl"
+                [disabled]="!canEdit()"
+              />
+            </td>
+            <td>{{ effectValue(choice, ilvl) }}</td>
+            <td>
+              @if (canEdit()) {
+                <button
+                  type="button"
+                  class="forge-btn is-danger is-compact icon danger"
+                  (click)="removeChoice(row, index)"
+                >
+                  ×
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    @if (canEdit() && library().length) {
+      <div class="choice-library">
+        <select class="forge-field is-select" #libraryPerk>
+          <option value="">Добавить вариант из библиотеки…</option>
+          @for (perk of library(); track perk.id) {
+            <option [value]="perk.id">{{ perk.name_ru }} ({{ perk.effect }})</option>
+          }
+        </select>
+        <button
+          class="forge-btn is-compact"
+          type="button"
+          (click)="addFromLibrary(row, libraryPerk.value)"
+        >
+          Добавить
+        </button>
+      </div>
+    }
+  </div>
+</ng-template>

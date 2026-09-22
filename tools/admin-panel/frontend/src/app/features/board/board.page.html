@@ -1,0 +1,267 @@
+<section class="toolbar" aria-label="Фильтры доски">
+  <input
+    class="forge-field is-search"
+    [(ngModel)]="filters.q"
+    [disabled]="moving()"
+    (ngModelChange)="scheduleLoad()"
+    type="search"
+    placeholder="Поиск по карточкам…"
+  />
+  <select
+    class="forge-field is-select"
+    [(ngModel)]="filters.module"
+    (ngModelChange)="load()"
+    [disabled]="moving()"
+  >
+    <option value="">Все модули</option>
+    @for (module of modules(); track module.id) {
+      <option [value]="module.id">{{ module.name }}</option>
+    }
+  </select>
+  <select
+    class="forge-field is-select"
+    [(ngModel)]="filters.kind"
+    (ngModelChange)="load()"
+    [disabled]="moving()"
+  >
+    <option value="">Все типы</option>
+    @for (kind of kinds; track kind.id) {
+      <option [value]="kind.id">{{ kind.label }}</option>
+    }
+  </select>
+  <button
+    type="button"
+    class="forge-btn is-compact"
+    [class.is-primary]="archived()"
+    (click)="toggleArchive()"
+    [disabled]="moving()"
+  >
+    {{ archived() ? 'На доску' : 'Архив' }}
+  </button>
+  @if (!archived()) {
+    <button type="button" class="forge-btn is-primary is-compact" (click)="newCard()">
+      Новая карточка
+    </button>
+  }
+</section>
+
+<p class="move-status" role="status">{{ moving() ? 'Сохраняем положение карточки…' : '' }}</p>
+
+@if (loading()) {
+  <div class="forge-alert">Загружаем доску…</div>
+} @else {
+  <main class="board" [class.archived]="archived()" [attr.aria-busy]="moving() || refreshing()">
+    @for (column of columns; track column.id) {
+      <section class="column" [class.drop-active]="dropTarget()?.status === column.id">
+        <header>
+          <h2>{{ column.label }}</h2>
+          <span>{{ cardsIn(column.id).length }}</span>
+          @if (!archived()) {
+            <button
+              type="button"
+              class="forge-btn is-icon add"
+              title="Новая карточка"
+              (click)="newCard(column.id)"
+            >
+              <app-icon name="plus" [size]="16" />
+            </button>
+          }
+        </header>
+        <div
+          class="card-list"
+          [class.insert-end]="insertionAtEnd(column.id)"
+          (dragover)="dragOver(column.id, $event)"
+          (dragleave)="dragLeave($event)"
+          (drop)="drop(column.id, $event)"
+        >
+          @for (card of cardsIn(column.id); track card.id) {
+            <article
+              class="card"
+              [class]="'card p' + card.priority"
+              [class.dragging]="dragging() === card.id"
+              [class.insert-before]="insertionBefore(column.id, card.id)"
+              [attr.data-card-id]="card.id"
+              [draggable]="!archived() && !moving() && !refreshing()"
+              tabindex="0"
+              role="button"
+              (keydown.enter)="openCard(card.id)"
+              (click)="openCard(card.id)"
+              (dragstart)="dragStart(card, $event)"
+              (dragend)="dragEnd()"
+            >
+              <div class="card-meta">
+                <app-icon class="kind" [name]="kind(card).icon" [size]="15" />
+                <small>#{{ card.id }}</small>
+              </div>
+              <strong>{{ card.title }}</strong>
+              <footer>
+                @if (card.module) {
+                  <span>{{ moduleName(card.module) }}</span>
+                }
+                @for (tag of card.tags; track tag) {
+                  <span class="tag">{{ tag }}</span>
+                }
+                @if (card.assignee) {
+                  <span>@{{ card.assignee }}</span>
+                }
+                @if (card.comments) {
+                  <span>💬 {{ card.comments }}</span>
+                }
+              </footer>
+            </article>
+          } @empty {
+            <p class="empty">пусто</p>
+          }
+        </div>
+      </section>
+    }
+  </main>
+}
+
+@if (modalOpen()) {
+  <div class="modal-backdrop" (mousedown)="closeModal()">
+    <section
+      class="modal"
+      [class]="'modal p' + form.priority"
+      role="dialog"
+      aria-modal="true"
+      (mousedown)="$event.stopPropagation()"
+    >
+      <header>
+        <h2>{{ form.id ? '#' + form.id + ' · ' + kind(form).label : 'Новая карточка' }}</h2>
+        <button type="button" class="forge-btn is-ghost is-compact" (click)="closeModal()">
+          Закрыть
+        </button>
+      </header>
+      <hr class="forge-rule" />
+      <div class="modal-body">
+        <label class="wide">
+          <span>Заголовок</span>
+          <input
+            class="forge-field"
+            [(ngModel)]="form.title"
+            placeholder="Что сломано или что нужно сделать"
+            autofocus
+          />
+        </label>
+        <div class="form-grid is-meta">
+          <label>
+            <span>Тип</span>
+            <select class="forge-field is-select" [(ngModel)]="form.kind">
+              @for (kind of kinds; track kind.id) {
+                <option [ngValue]="kind.id">{{ kind.label }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            <span>Приоритет</span>
+            <select class="forge-field is-select" [(ngModel)]="form.priority">
+              @for (priority of priorities; track priority.id) {
+                <option [ngValue]="priority.id">{{ priority.label }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            <span>Колонка</span>
+            <select class="forge-field is-select" [(ngModel)]="form.status">
+              @for (column of columns; track column.id) {
+                <option [ngValue]="column.id">{{ column.label }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            <span>Модуль</span>
+            <select class="forge-field is-select" [(ngModel)]="form.module">
+              <option value="">— без модуля —</option>
+              @for (module of modules(); track module.id) {
+                <option [value]="module.id">{{ module.name }}</option>
+              }
+            </select>
+          </label>
+        </div>
+        <label class="wide">
+          <span>Описание</span>
+          <textarea
+            class="forge-field"
+            [(ngModel)]="form.body"
+            rows="7"
+            placeholder="Шаги, ожидания, ссылки, ID предметов или заклинаний…"
+          ></textarea>
+        </label>
+        <div class="form-grid is-pair">
+          <label>
+            <span>Теги через запятую</span>
+            <input
+              class="forge-field"
+              [ngModel]="form.tags.join(', ')"
+              (ngModelChange)="setTags($event)"
+            />
+          </label>
+          <label>
+            <span>Исполнитель</span>
+            <input class="forge-field" [(ngModel)]="form.assignee" placeholder="кто делает" />
+          </label>
+        </div>
+
+        @if (form.id) {
+          <section class="comments">
+            <hr class="forge-rule" />
+            <h3>Комментарии</h3>
+            @for (comment of form.comments; track comment.id) {
+              <article>
+                <small>{{ comment.author || 'аноним' }} · {{ comment.created_at }}</small>
+                <p>{{ comment.body }}</p>
+              </article>
+            } @empty {
+              <p class="empty">Комментариев пока нет.</p>
+            }
+            <textarea
+              class="forge-field"
+              [(ngModel)]="commentText"
+              rows="2"
+              placeholder="Добавить комментарий"
+              (keydown.control.enter)="addComment()"
+              (keydown.meta.enter)="addComment()"
+            ></textarea>
+            <button
+              type="button"
+              class="forge-btn is-compact"
+              (click)="addComment()"
+              [disabled]="!commentText.trim() || saving()"
+            >
+              Добавить комментарий
+            </button>
+          </section>
+        }
+      </div>
+      <hr class="forge-rule" />
+      <footer>
+        <small>
+          @if (form.id) {
+            создано {{ form.created_at }} · изменено {{ form.updated_at }}
+          }
+        </small>
+        <div>
+          @if (form.id) {
+            <button
+              type="button"
+              class="forge-btn is-danger is-compact"
+              (click)="archiveOrRestore()"
+              [disabled]="saving()"
+            >
+              {{ form.archived ? 'Вернуть из архива' : 'В архив' }}
+            </button>
+          }
+          <button
+            type="button"
+            class="forge-btn is-primary is-compact"
+            (click)="save()"
+            [disabled]="saving()"
+          >
+            Сохранить
+          </button>
+        </div>
+      </footer>
+    </section>
+  </div>
+}

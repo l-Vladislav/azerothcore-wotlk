@@ -1,0 +1,145 @@
+<ng-template #sidebar>
+  <app-weather-zone-list
+    [zones]="store.zones()"
+    [continents]="store.overview()?.continents ?? []"
+    [selectedId]="store.selectedId()"
+    (picked)="store.select($event)"
+  />
+</ng-template>
+
+@if (store.overview(); as data) {
+  <app-weather-map
+    [zones]="data.zones"
+    [cyclones]="data.cyclones ?? []"
+    [selectedId]="store.selectedId()"
+    (zoneSelected)="store.select($event)"
+  >
+    <aside map-stats class="forge-panel is-subtle map-stats">
+      <div class="forge-stat">
+        <div>
+          <span class="label">Активных зон</span>
+          <strong class="value">{{ data.known_count }}</strong>
+        </div>
+      </div>
+      <div class="forge-stat">
+        <div>
+          <span class="label">Зон с игроками</span>
+          <strong class="value">{{ data.live_count }}</strong>
+        </div>
+      </div>
+      <div class="forge-stat">
+        <div>
+          <span class="label">Исходящих связей</span>
+          <strong class="value">{{ data.link_count }}</strong>
+        </div>
+      </div>
+      <div class="forge-stat">
+        <div>
+          <span class="label">Сезон</span>
+          <strong class="value">{{ seasonLabel(data.season) }}</strong>
+        </div>
+      </div>
+    </aside>
+
+    @if (store.canEdit() && store.hasManualOverrides()) {
+      <button
+        map-header-actions
+        type="button"
+        class="forge-btn is-compact"
+        (click)="releaseAll()"
+        [disabled]="store.pending() !== null"
+      >
+        Вернуть всё режиссёру
+      </button>
+    }
+
+    <aside map-tools class="forge-panel is-subtle map-zone-tools">
+      @if (store.selectedZone(); as zone) {
+        <header>
+          <strong>{{ zone.name }}</strong>
+          <span class="state-badge" [class]="'state-badge ' + zone.state_group">
+            {{ zone.state_label }}
+          </span>
+        </header>
+        <p>
+          {{ zone.state === 0 ? 'ясно' : zone.grade + '%' }} · {{ zone.source_label }} ·
+          {{ timeLeft(zone.seconds_left) }}
+        </p>
+        @if (store.canEdit()) {
+          <div class="map-state-groups">
+            @for (group of groupedStates(); track group[0]) {
+              <section class="map-state-group" [class]="'map-state-group is-' + group[0]">
+                <span>{{ groupLabel(group[0]) }}</span>
+                <div class="map-state-buttons">
+                  @for (state of group[1]; track state.id) {
+                    <button
+                      type="button"
+                      class="forge-btn is-icon state-button"
+                      [class.is-on]="draftFor(zone).state === state.id"
+                      (click)="applyState(zone, state.id)"
+                      [disabled]="store.pending() !== null"
+                      [title]="state.label"
+                      [attr.aria-label]="state.label"
+                    >
+                      <app-weather-state-icon [state]="state.id" />
+                    </button>
+                  }
+                </div>
+              </section>
+            }
+          </div>
+          <div class="map-settings" [class.inactive]="draftFor(zone).state === 0">
+            <label>
+              <span>Сила: {{ draftFor(zone).grade }}%</span>
+              <input
+                class="forge-range"
+                type="range"
+                [min]="data.grade_min"
+                max="99"
+                [ngModel]="draftFor(zone).grade"
+                (ngModelChange)="setGrade(zone, $event)"
+                [disabled]="draftFor(zone).state === 0 || store.pending() !== null"
+              />
+            </label>
+            <label>
+              <span>Держать, мин.</span>
+              <input
+                class="forge-field"
+                type="number"
+                min="0"
+                max="1440"
+                [ngModel]="draftFor(zone).minutes"
+                (ngModelChange)="setMinutes(zone, $event)"
+                [disabled]="store.pending() !== null"
+              />
+            </label>
+          </div>
+          <footer class="map-actions">
+            <button
+              type="button"
+              class="forge-btn is-primary is-compact"
+              (click)="save(zone)"
+              [disabled]="store.pending() !== null"
+            >
+              Применить
+            </button>
+            <button
+              type="button"
+              class="forge-btn is-compact"
+              (click)="pin(zone)"
+              [disabled]="store.pending() !== null || zone.source === 2"
+            >
+              {{ zone.source === 2 ? 'Закреплено' : 'Закрепить' }}
+            </button>
+          </footer>
+        } @else {
+          <p>Просмотр: для изменения погоды нужна роль редактора.</p>
+        }
+      } @else {
+        <p>Выберите зону на карте или в списке.</p>
+      }
+    </aside>
+  </app-weather-map>
+} @else if (store.loading()) {
+  <p class="forge-alert">Загружаем погоду…</p>
+}

@@ -1342,3 +1342,79 @@ a.chip:hover, button.chip:hover {
   color: var(--muted); white-space: pre-wrap; word-break: break-word;
 }
 .log-more { display: flex; justify-content: center; margin: 16px 0 0; }
+
+/* --- клиентский патч (главная) -------------------------------------------- */
+/* Раздел нарочно скучный: состояние, кнопки, лог. Плиток здесь нет - плитка
+   читается как «показатель», а тут всё про действие, у которого есть цена:
+   сборка пишет в launcher/cdn, то есть прямо в то, что качают игроки. */
+
+.patch { margin-top: 26px; }
+.patch-state {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline;
+  margin: 10px 0 12px; font-size: 13px;
+}
+.patch-state .ok { color: var(--buff); }
+.patch-state .err { color: var(--err); }
+.patch-state .run { color: var(--gold-bright); }
+.patch-state .muted { color: var(--muted); font-size: 12px; }
+.patch-state .cmd {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px; color: var(--gold);
+}
+.patch-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.patch-log {
+  margin: 12px 0 0; padding: 10px 12px; max-height: 320px; overflow: auto;
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: 4px;
+  font-family: ui-monospace, Consolas, monospace; font-size: 11px;
+  color: var(--muted); white-space: pre-wrap; word-break: break-word;
+}
+.hint.err { color: var(--err); }
+
+/* --- модальное окно и сетка выбора ---------------------------------------
+   Жило в inline-стилях страницы профессий, пока не понадобилось второй -
+   странице добычи. Скрипт выбора предмета скопирован в обе (см. README,
+   «известная двойня»), а вот стили держать в двух местах незачем: разъехались
+   бы при первой же правке одной из копий. Своё, специфичное для страницы -
+   гнёзда камней, листалка видов - осталось в её inline-блоке. */
+
+.ap-modal-back {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, .6);
+  display: flex; align-items: center; justify-content: center; z-index: 50;
+}
+.ap-modal {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 8px; padding: 14px; width: min(1120px, 94vw);
+  max-height: 86vh;
+  /* И по горизонтали тоже: широкая таблица внутри окна не должна обрезать
+     последнюю колонку - обрезанная кнопка выглядит как отсутствующая. */
+  overflow: auto;
+}
+.ap-modal h2 { font-size: 15px; margin: 0; color: var(--accent); }
+.ap-modal .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ap-modal input[type=search], .ap-modal input[type=text] {
+  background: var(--bg-2); color: var(--text); border: 1px solid var(--line);
+  border-radius: 3px; padding: 5px 8px; font: inherit;
+}
+.ap-modal select {
+  background: var(--bg-2); color: var(--text); border: 1px solid var(--line);
+  border-radius: 3px; padding: 5px 6px; font: inherit;
+}
+
+.look-icon { border-radius: 3px; background: var(--bg-2); flex: 0 0 auto; }
+.look-grid {
+  display: grid; gap: 6px; margin-top: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+}
+.look-cell {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: 4px; padding: 6px 2px; cursor: pointer;
+  color: var(--text); font: inherit;
+}
+.look-cell:hover { border-color: var(--accent); }
+/* Выбор предмета, а не вида: в ячейке не только иконка, но имя и id - по одной
+   иконке два похожих меча не различить. */
+.look-cell .nm { text-align: center; line-height: 1.25; }
+.look-cell .nm b { display: block; font-size: 11px; }
+.look-cell .nm small { color: var(--muted); font-size: 10px; }
+
