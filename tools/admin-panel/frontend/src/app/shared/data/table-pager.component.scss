@@ -1,0 +1,56 @@
+// Только раскладка: страничные кнопки и список - из набора.
+:host {
+  display: block;
+}
+
+.table-foot {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 12px 2px 0;
+}
+
+.pages {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+// Отдельного значка «влево» в наборе нет - разворачиваем каретку.
+.back {
+  transform: rotate(180deg);
+}
+
+.pages .forge-page-btn {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.gap {
+  color: var(--muted);
+  padding: 0 2px;
+}
+
+.summary {
+  color: var(--muted);
+  font-size: 12px;
+  margin-right: auto;
+}
+
+// «по 10» вместо «10 на странице»: у списка из набора правый срез широкий
+// (56 против 14), и длинная подпись уходила под стрелку. Что это строки на
+// странице, сказано в `aria-label` - глазу довольно короткого.
+select {
+  width: 104px;
+}
+
+@media (max-width: 700px) {
+  .summary {
+    margin-right: 0;
+    order: 3;
+  }
+}

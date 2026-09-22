@@ -1,0 +1,295 @@
+// Только раскладка. Вид кнопок, полей, плашек и панелей - из набора
+// (styles/forge.scss); своих фонов и кромок тут нет, иначе стиль страницы
+// снова разойдётся с остальной панелью.
+:host {
+  display: block;
+}
+
+.page-head,
+.section-head,
+.modal header,
+.modal footer,
+.actions,
+.form-grid {
+  align-items: center;
+  display: flex;
+}
+
+.page-head {
+  gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+}
+
+.section-head > span,
+small,
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+}
+// Ячейки на листе набраны обычным кеглем, а не мелким служебным.
+td {
+  font-size: 13px;
+}
+
+h1 {
+  margin: 0;
+}
+
+h2 {
+  font-size: 19px;
+  margin: 0;
+}
+
+// Об удачах и отказах говорят всплывающие плашки (ToastService) - на странице
+// остаётся только тихая строка ожидания.
+.waiting {
+  color: var(--muted);
+  margin: 14px 0;
+}
+
+.roles {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 22px;
+}
+
+.roles article {
+  display: grid;
+  gap: 5px;
+  min-height: 120px;
+}
+
+// Карточка показателя с листа 6 («Stat Card»): подпись ЗОЛОТОМ, число
+// БЕЛЫМ. У нас было наоборот - тихое золото на подписи и светлое на числе.
+.roles span {
+  color: var(--gold);
+  font-size: 13px;
+}
+
+.roles strong {
+  color: #fff;
+  font: 28px var(--serif);
+}
+
+.roles p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.section {
+  margin-bottom: 22px;
+}
+
+.section-head {
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  min-width: 900px;
+  width: 100%;
+}
+
+th,
+td {
+  padding: 9px 10px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+// Шапка на листе набрана обычным кеглем и без капса - только цвет светлее.
+// Размеры и капс были от прежнего скина страницы.
+th {
+  font-size: 13px;
+}
+
+td strong,
+td small {
+  display: block;
+}
+
+td strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+tr.disabled {
+  opacity: 0.55;
+}
+
+td select {
+  min-width: 150px;
+}
+
+// ВАЖНО: кнопки лежат в `div.actions` ВНУТРИ ячейки, а не в самой ячейке.
+// `display: flex` на `<td>` выбивает его из табличной модели: колонка
+// перестаёт быть колонкой, и в таблице приглашений линии строк обрывались на
+// последнем столбце, а разделитель колонок шёл через раз.
+.actions {
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 235px;
+}
+
+// У приглашений отдельной колонки действий НЕТ: кнопка там одна и только у
+// действующих ссылок, а пустая колонка забирала себе треть ширины таблицы и
+// выглядела обрубком. «Отозвать» стоит прямо в ячейке состояния - рядом с
+// тем, что она отменяет.
+.state-cell {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.self {
+  color: var(--gold-dim);
+}
+
+.empty {
+  padding: 25px;
+  text-align: center;
+}
+
+.modal-backdrop {
+  align-items: center;
+  background: rgb(0 0 0 / 70%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 30;
+}
+
+.modal {
+  box-shadow: 0 20px 60px var(--shadow-dialog);
+  max-width: 560px;
+  width: 100%;
+}
+
+.modal header,
+.modal footer {
+  justify-content: space-between;
+}
+
+.modal header {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+
+.modal footer {
+  border-top: 1px solid var(--line);
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 10px;
+}
+
+.modal-body {
+  display: grid;
+  gap: 10px;
+  padding: 14px 0;
+}
+
+label {
+  color: var(--gold-dim);
+  display: grid;
+  font-size: 12px;
+  gap: 5px;
+}
+
+.forge-field {
+  min-width: 0;
+  width: 100%;
+}
+
+.hint {
+  line-height: 1.45;
+  margin: 0;
+}
+
+.form-grid {
+  align-items: start;
+  gap: 10px;
+}
+
+.form-grid label {
+  flex: 1;
+}
+
+.sr-only {
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  width: 1px;
+}
+
+@media (max-width: 760px) {
+  .page-head {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .roles {
+    grid-template-columns: 1fr;
+  }
+}
+
+// --- шапка-сортировка и подвал таблицы ------------------------------------
+//
+// Тот же вид, что у таблицы на витрине кита (лист 8 стайлгайда): заголовок -
+// плоская кнопка со стрелкой, снизу листалка, подпись о числе строк и выбор
+// строк на странице.
+.sort {
+  align-items: center;
+  background: none;
+  border: 0;
+  // Цвет берётся от `th` - на листе заголовок белый. Классом `.link` его
+  // красить нельзя: тот теперь голубой, а голубое в стайлгайде значит
+  // ссылку, а не заголовок колонки.
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  gap: 6px;
+  padding: 0;
+}
+.sort .arrow {
+  // Стальная, как на листе (#9bb8ce), а не серая. Значок берёт этот цвет
+  // сам: он нарисован `tone="plain"`, то есть в цвет текста.
+  color: #9bb8ce;
+  display: flex;
+}
+.sort.is-on .arrow {
+  color: #fff;
+}
+.table-foot {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+.table-foot .pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.table-foot .summary {
+  color: var(--muted);
+  font-size: 13px;
+  margin-left: auto;
+}
+.table-foot .forge-field {
+  width: auto;
+}

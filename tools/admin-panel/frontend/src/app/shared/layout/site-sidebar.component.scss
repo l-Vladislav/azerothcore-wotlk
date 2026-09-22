@@ -1,0 +1,205 @@
+:host {
+  display: block;
+  height: 100%;
+  position: relative;
+  transition: width 0.18s ease;
+  width: 300px;
+}
+:host.collapsed {
+  width: 84px;
+}
+// Показывать нечего - панели нет совсем. `display: none` убирает её и из
+// сетки страницы, поэтому содержимое честно занимает всю ширину.
+:host.empty {
+  display: none;
+}
+// Боковые грани рамки без верхней кромки обрывались встык под прутом шапки.
+// Гасим им верх - но только грани: полоски по 22 пикселя слева и справа, а
+// середина не трогается, иначе тень легла бы на кнопку «Свернуть».
+:host::before {
+  background:
+    linear-gradient(#10141699, #10141600) left top / 22px 100% no-repeat,
+    linear-gradient(#10141699, #10141600) right top / 22px 100% no-repeat;
+  content: '';
+  height: 26px;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+:host.collapsed::before {
+  background:
+    linear-gradient(#10141699, #10141600) left top / 14px 100% no-repeat,
+    linear-gradient(#10141699, #10141600) right top / 14px 100% no-repeat;
+  height: 18px;
+}
+aside {
+  // У боковой панели свой камень - самый тёмный из набора: она стоит рядом
+  // со страницей и не должна сливаться с ней в одно пятно. Вуаль ровная, как
+  // у `--texture-panel`: с переходом сверху вниз полоса под кромкой снизу
+  // показывала бы соседнюю плитку и читалась чужим цветом.
+  background-image: linear-gradient(#07090cd9, #07090cd9), var(--texture-sidebar);
+  background-size: auto, 420px;
+  border: 22px solid transparent;
+  border-image: url('/ui/frames/sidebar-panel.png') 26 round;
+  // Верхней грани у рамки нет: панель начинается сразу под прутом шапки, и
+  // своя кромка сверху читалась бы второй чертой впритык к нему. Подвести
+  // панель ПОД прут нельзя - фон у него прозрачный, и кромка всё равно
+  // выглянула бы ниже полосы.
+  border-top-width: 0;
+  height: 100%;
+  overflow: hidden;
+  width: 300px;
+}
+// Свёрнутая колонка прокручивается сама: разделов может оказаться больше,
+// чем влезает в экран, и обрезать их молча нельзя.
+aside.collapsed {
+  border-width: 0 14px 14px;
+  overflow-y: auto;
+  width: 84px;
+}
+// Стрелка именно гильемет (« »), а не одиночная скобка (›): у той
+// боковые отступы разные, и в свёрнутой колонке она садится заметно
+// левее середины проёма. Всё остальное в наборе у `.forge-collapse-btn`.
+.toggle {
+  display: flex;
+  width: 100%;
+}
+.toggle:hover {
+  filter: brightness(1.16);
+}
+// В свёрнутой колонке у кнопки та же квадратная оправа, что и у соседних
+// значков. Широкая кромка «Свернуть» нарисована под кнопку с текстом: втисни
+// её в 56 пикселей - длинные боковины съедают всё, проём становится щелью, и
+// стрелка в нём читается не по центру.
+aside.collapsed .toggle {
+  border-image: url('/ui/buttons/icon.png') 20 fill round stretch;
+  border-width: 14px;
+  height: 50px;
+  margin: 0 auto;
+  padding: 0;
+  width: 50px;
+}
+// Гильемет сидит в строке ниже середины кегля - коробка отцентрована
+// честно, а сам значок выходит на два-три пикселя ниже центра. В широкой
+// кнопке это правильно (стрелка стоит на базовой линии подписи), а в квадратной
+// оправе сравнивать не с чем - только с проёмом. Поэтому правка только здесь.
+aside.collapsed .toggle .arrow {
+  transform: translateY(-0.14em);
+}
+.collapsed-navigation {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  padding: 10px 0 0;
+}
+.collapsed-feature-toggle[aria-expanded='true'],
+.collapsed-navigation a.is-active {
+  color: var(--gold-bright);
+  filter: brightness(1.2);
+}
+.collapsed-feature-items {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+}
+.sidebar-body {
+  height: calc(100% - 52px);
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 14px 0 0;
+}
+.sidebar-body h2 {
+  color: var(--gold-bright);
+  font: 600 18px var(--serif);
+  margin: 0 0 15px;
+}
+.sidebar-body p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.feature-navigation {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 14px;
+  min-width: 0;
+  padding: 0 0 14px;
+}
+// Раздел от раздела отделяет полоса из набора, а не линия в один пиксель.
+.feature-navigation + .feature-navigation {
+  border-top: 0 solid transparent;
+  border-image-repeat: round stretch;
+  border-image-slice: 0 60 fill;
+  border-image-source: url('/ui/dividers/line-thin.png');
+  border-image-width: 24px 60px 0;
+  padding-top: 18px;
+}
+.feature-toggle {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--gold-bright);
+  cursor: pointer;
+  display: flex;
+  font: 600 18px var(--serif);
+  justify-content: space-between;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+}
+.feature-toggle span:last-child {
+  color: var(--gold);
+  font: 20px/1 system-ui;
+}
+.feature-items {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  min-width: 0;
+}
+.feature-items a {
+  font-size: 14px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
+  :host,
+  :host.collapsed,
+  :host:not(.collapsed) {
+    width: 100%;
+  }
+  aside,
+  aside.collapsed {
+    border-width: 0 14px 14px;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    width: 100%;
+  }
+  .sidebar-body {
+    max-height: 50dvh;
+  }
+  .collapsed-navigation,
+  .collapsed-feature-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+// Заголовок модуля в списке страниц раздела: страницы приходят от разных
+// модулей, и без подписи «Погода» и «Настройки» читались двумя случайными
+// соседями.
+.module-title {
+  color: var(--gold-dim);
+  font: 12px var(--serif);
+  letter-spacing: 0.4px;
+  margin: 10px 0 2px;
+}
+.module-title:first-child {
+  margin-top: 0;
+}

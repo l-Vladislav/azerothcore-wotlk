@@ -1,0 +1,479 @@
+<section class="page-head">
+  <h1>Кит стайлгайда</h1>
+  <p class="lead">
+    Всё нарезано со листов <code>AdminSiteStyleGuide_*.png</code> скриптом
+    <code>slice_style_guide.py</code> и лежит в <code>public/ui/</code>. Классы — в
+    <code>styles/forge.scss</code>.
+  </p>
+</section>
+
+<details class="kit-section" open>
+  <summary class="forge-section-title"><span>Панели</span></summary>
+
+  <div class="grid">
+    <div class="forge-panel">
+      <h3>Обычная панель</h3>
+      <p>Тонкая кромка — рабочая лошадка: годится и на карточку, и на длинный список.</p>
+    </div>
+    <div class="forge-panel is-thick">
+      <h3>Толстая</h3>
+      <p>Кованая полоса с заклёпками. Для разделов, которые надо выделить.</p>
+    </div>
+    <div class="forge-panel is-subtle">
+      <h3>Тихая</h3>
+      <p>Почти без золота — под таблицы и плотные экраны, где нарядность мешает.</p>
+    </div>
+    <div class="forge-panel is-inset">
+      <h3>Вложенная</h3>
+      <p>Стальной кант: панель внутри панели не спорит с внешней.</p>
+    </div>
+    <div class="forge-panel is-ornate tall">
+      <h3>Нарядная</h3>
+      <p>Крупные углы. Ниже 160 пикселей ставить нельзя — углы сойдутся.</p>
+    </div>
+    <div class="forge-panel is-large tall">
+      <h3>Большая</h3>
+      <p>Самая тяжёлая рамка — под целую страницу или витрину.</p>
+    </div>
+  </div>
+
+  <h3 class="kit-sub">Карточка показателя и заголовок панели</h3>
+  <div class="grid">
+    <div class="forge-panel forge-stat">
+      <i class="forge-icon-tile"><app-icon name="records" [size]="26" /></i>
+      <div>
+        <span class="label">
+          Подпись золотом
+          <i class="forge-dot is-online"></i>
+        </span>
+        <strong class="value">12 438</strong>
+        <small class="note">Тихая строка снизу</small>
+      </div>
+    </div>
+    <div class="forge-panel is-subtle">
+      <h3 class="forge-panel-title"><app-icon name="board" [size]="19" />Заголовок панели</h3>
+      <p>
+        Под заголовком внутри панели идёт стальная нить (<code>--line-title</code>) — она есть на
+        листе 6 у каждой карточки. С жёлтой полосой, которую со страниц убрали, не путать.
+      </p>
+    </div>
+  </div>
+</details>
+
+<details class="kit-section" open>
+  <summary class="forge-section-title"><span>Кнопки</span></summary>
+
+  <div class="row">
+    <button class="forge-btn is-primary" type="button">Главное действие</button>
+    <button class="forge-btn" type="button">Обычная</button>
+    <button class="forge-btn is-danger" type="button">Опасная</button>
+    <button class="forge-btn is-ghost" type="button">Тихая</button>
+    <button class="forge-btn" type="button" disabled>Недоступна</button>
+  </div>
+  <div class="row">
+    <button class="forge-btn is-small" type="button">Маленькая</button>
+    <button class="forge-btn" type="button">Средняя</button>
+    <button class="forge-btn is-large" type="button">Большая</button>
+    <button class="forge-btn is-menu" type="button">С меню ▼</button>
+    <button class="forge-btn is-icon" type="button" aria-label="Настройки">
+      <span class="forge-tile" style="background-image: url('/ui/icons/emblem-gear.png')"></span>
+    </button>
+  </div>
+  <button class="forge-btn is-wide" type="button">Действие во всю ширину »</button>
+</details>
+
+<details class="kit-section" open>
+  <summary class="forge-section-title"><span>Боковое меню</span></summary>
+
+  <div class="two-up">
+    <nav class="menu">
+      <button class="forge-collapse-btn" type="button">
+        Свернуть <span class="arrow">«</span>
+      </button>
+      <button class="forge-nav-item" type="button">
+        <span
+          class="forge-tile sm"
+          style="background-image: url('/ui/icons/tile-users.png')"
+        ></span>
+        Обычный пункт
+      </button>
+      <button class="forge-nav-item is-active" type="button">
+        <span class="forge-tile sm" style="background-image: url('/ui/icons/tile-book.png')"></span>
+        Открытая страница
+      </button>
+      <button class="forge-nav-item is-selected" type="button">
+        <span
+          class="forge-tile sm"
+          style="background-image: url('/ui/icons/tile-scroll.png')"
+        ></span>
+        Выбранный
+      </button>
+      <button class="forge-nav-item has-submenu" type="button">
+        <span
+          class="forge-tile sm"
+          style="background-image: url('/ui/icons/tile-chest.png')"
+        ></span>
+        С подменю
+      </button>
+      <button class="forge-nav-item" type="button" disabled>
+        <span class="forge-tile sm" style="background-image: url('/ui/icons/tile-help.png')"></span>
+        Недоступный
+      </button>
+    </nav>
+
+    <div>
+      <div class="row">
+        @for (t of ['Обзор', 'Люди', 'Настройки', 'Журнал']; track t) {
+          <button
+            class="forge-tab"
+            [class.is-active]="tab() === t"
+            type="button"
+            (click)="tab.set(t)"
+          >
+            {{ t }}
+          </button>
+        }
+        <span class="forge-chip">Активные <app-icon name="close" [size]="11" /></span>
+      </div>
+
+      <div class="row">
+        <button class="forge-page-btn is-prev" type="button">«</button>
+        @for (p of pages; track p) {
+          <button
+            class="forge-page-btn"
+            [class.is-current]="page() === p"
+            type="button"
+            (click)="page.set(p)"
+          >
+            {{ p }}
+          </button>
+        }
+        <button class="forge-page-btn is-next" type="button">»</button>
+      </div>
+
+      <div class="forge-rule-crest"></div>
+
+      <div class="row">
+        <div class="forge-progress" style="flex: 1"><i [style.width.%]="progress()"></i></div>
+        <span>{{ progress() }}%</span>
+      </div>
+    </div>
+  </div>
+</details>
+
+<details class="kit-section" open>
+  <summary class="forge-section-title"><span>Таблицы</span></summary>
+
+  <div class="forge-panel table-demo">
+    <h3>Люди</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            @for (column of columns; track column.id) {
+              <th>
+                <button
+                  type="button"
+                  class="sort"
+                  [class.is-on]="sort().by === column.id"
+                  (click)="sortBy(column.id)"
+                >
+                  {{ column.label }}
+                  <app-icon
+                    class="arrow"
+                    tone="plain"
+                    [name]="sort().by === column.id ? (sort().down ? 'caret' : 'caret-up') : 'sort'"
+                    [size]="11"
+                  />
+                </button>
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.id) {
+            <tr>
+              <td>{{ row.id }}</td>
+              <td>{{ row.name }}</td>
+              <td>
+                <span class="forge-state" [class]="'forge-state is-' + row.state">
+                  <i class="forge-dot" [class]="'forge-dot is-' + row.state"></i>
+                  {{ stateLabels[row.state] }}
+                </span>
+              </td>
+              <td>{{ row.role }}</td>
+              <td>{{ row.seen }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Витрина показывает НЕ свою вёрстку подвала, а тот же компонент, что
+         стоит под таблицами страниц: копия здесь однажды уже разошлась с
+         рабочей - у неё были все номера страниц подряд, без сворачивания. -->
+    <app-table-pager
+      [total]="42"
+      [page]="page()"
+      [perPage]="perPage()"
+      (pageChange)="page.set($event)"
+      (perPageChange)="perPage.set($event)"
+    />
+  </div>
+</details>
+
+<details class="kit-section" open>
+  <summary class="forge-section-title"><span>Поля</span></summary>
+
+  <div class="row">
+    <input class="forge-field" placeholder="Введите текст…" />
+    <input class="forge-field is-search" placeholder="Поиск…" />
+    <select class="forge-field is-select">
+      <option>Выберите…</option>
+      <option>Вариант 1</option>
+    </select>
+  </div>
+  <div class="row">
+    <textarea class="forge-field" placeholder="Сообщение подлиннее…" rows="3"></textarea>
+    <label class="pick"><input class="forge-check" type="checkbox" checked /> Отмечено</label>
+    <label class="pick"><input class="forge-check" type="checkbox" /> Не отмечено</label>
+    <label class="pick"
+      ><input class="forge-radio" name="demo" type="radio" checked /> Выбрано</label
+    >
+    <label class="pick"><input class="forge-radio" name="demo" type="radio" /> Не выбрано</label>
+    <label class="pick"><input class="forge-toggle" type="checkbox" checked /> Включено</label>
+    <label class="pick"><input class="forge-toggle" type="checkbox" /> Выключено</label>
+  </div>
+</details>
+
+<details class="kit-section" open>
+  <summary class="forge-section-title"><span>Состояния</span></summary>
+
+  <div class="row">
+    @for (b of badges; track b[0]) {
+      <span class="forge-badge" [class]="'forge-badge is-' + b[0]">{{ b[1] }}</span>
+    }
+  </div>
+  <div class="row">
+    @for (d of dots; track d[0]) {
+      <span class="pick"
+        ><i class="forge-dot" [class]="'forge-dot is-' + d[0]"></i> {{ d[1] }}</span
+      >
+    }
+  </div>
+
+  <div class="alerts">
+    <div class="forge-alert">Это сообщение к сведению.</div>
+    <div class="forge-alert is-success">Готово, всё прошло.</div>
+    <div class="forge-alert is-warning">Это предупреждение.</div>
+    <div class="forge-alert is-error">Ошибка. Попробуйте ещё раз.</div>
+  </div>
+
+  <div class="row">
+    <div class="forge-tooltip">
+      <b>Подсказка</b>
+      <p>Всплывающая подсказка с пояснением к элементу.</p>
+    </div>
+  </div>
+</details>
+
+<details class="kit-section" open>
+  <summary class="forge-section-title"><span>Разделители</span></summary>
+
+  <hr class="forge-rule" />
+  <hr class="forge-rule is-riveted" />
+  <div class="forge-rule-crest"></div>
+  <div class="forge-rule-crest is-star"></div>
+  <div class="forge-rule-crest is-lion"></div>
+</details>
+
+<details class="kit-section" open>
+  <summary class="forge-section-title"><span>Цвета</span></summary>
+
+  @for (group of colorGroups; track group.label) {
+    <div class="forge-panel palette">
+      <h3>{{ group.label }}</h3>
+      @if (group.hint) {
+        <p class="hint">{{ group.hint }}</p>
+      }
+      <div class="swatches">
+        @for (item of group.items; track item.what) {
+          <figure>
+            <span class="chip" [style.background]="swatch(item)"></span>
+            <figcaption>
+              <b>{{ item.what }}</b>
+              <code>{{ item.token ?? item.value }}</code>
+              @if (item.token) {
+                <small>{{ swatchValue(item) }}</small>
+              }
+            </figcaption>
+          </figure>
+        }
+      </div>
+
+      <div class="example">
+        @switch (group.label) {
+          @case ('Золото') {
+            <h3>Заголовок золотом</h3>
+            <button class="forge-btn is-primary is-compact" type="button">Главное действие</button>
+            <span class="dim">тихое золото подписи</span>
+          }
+          @case ('Поверхности и линии') {
+            <span class="forge-panel is-subtle inline">Панель на камне</span>
+            <hr class="rule" />
+            <span class="dim">слева от подписи - разделитель</span>
+          }
+          @case ('Текст') {
+            <b>Основной текст</b>
+            <span class="dim">подпись и пояснение</span>
+            <span class="warn">предупреждение</span>
+            <span class="bad">отказ 422</span>
+            <button class="link" type="button">ссылка</button>
+          }
+          @case ('Состояния') {
+            @for (d of dots; track d[0]) {
+              <span class="forge-state" [class]="'forge-state is-' + d[0]">
+                <i class="forge-dot" [class]="'forge-dot is-' + d[0]"></i>
+                {{ d[1] }}
+              </span>
+            }
+          }
+          @case ('Приоритет карточки') {
+            @for (p of priorityDemo; track p.cls) {
+              <span class="prio" [class]="'prio ' + p.cls">{{ p.label }}</span>
+            }
+          }
+          @case ('Таблица (замеры листа 8)') {
+            <table class="mini">
+              <thead>
+                <tr>
+                  <th>Кто</th>
+                  <th>Состояние</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Arthasx</td>
+                  <td><span class="forge-state is-online">В сети</span></td>
+                </tr>
+                <tr>
+                  <td>Jaina</td>
+                  <td><span class="forge-state is-offline">Не в сети</span></td>
+                </tr>
+              </tbody>
+            </table>
+          }
+          @case ('Качество предметов') {
+            <span class="q1">Рубашка рекрута</span>
+            <span class="q2">Гнутый посох</span>
+            <span class="q3">Клык вурдалака</span>
+            <span class="q4">Посох Джордана</span>
+            <span class="q5">Пламегор</span>
+          }
+        }
+      </div>
+    </div>
+  }
+</details>
+
+<details class="kit-section" open>
+  <summary class="forge-section-title"><span>Шрифты</span></summary>
+
+  <div class="fonts">
+    @for (face of faces; track face.token) {
+      <div class="forge-panel face">
+        <p class="sample" [style.font-family]="face.stack">{{ face.sample }}</p>
+        <h3>{{ face.label }}</h3>
+        <code>{{ face.token }}</code>
+        <p class="use">{{ face.use }}</p>
+      </div>
+    }
+  </div>
+
+  <div class="table-wrap sizes">
+    <table>
+      <thead>
+        <tr>
+          <th>Где</th>
+          <th>Гарнитура</th>
+          <th>Кегль</th>
+          <th>Начертание</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of fontSizes; track row.what) {
+          <tr>
+            <td>{{ row.what }}</td>
+            <td>{{ row.face }}</td>
+            <td>{{ row.size }}</td>
+            <td>{{ row.weight }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</details>
+
+<details class="kit-section" open>
+  <summary class="forge-section-title"><span>Фоны</span></summary>
+
+  <div class="textures">
+    @for (t of textures; track t.file) {
+      <figure>
+        <div
+          class="swatch"
+          [style.background-image]="'url(/ui/textures/' + t.file + '.jpg)'"
+          [style.background-size]="'220px'"
+        ></div>
+        <figcaption>
+          <b>{{ t.label }}</b>
+          <code>{{ t.token }}</code>
+          <small>{{ t.use }}</small>
+        </figcaption>
+      </figure>
+    }
+  </div>
+</details>
+
+<details class="kit-section" open>
+  <summary class="forge-section-title"><span>Значки</span></summary>
+
+  <p class="lead">
+    Набор ОДИН на всю панель и нарисован в языке листов: сетка 24, золото снято с плиток листа 10 —
+    блик <code>#ffe98c</code>, тело <code>#c8891a</code>, кант <code>#2e1b04</code>. Ставится как
+    <code>&lt;app-icon name="board" [size]="18" /&gt;</code>; где значок должен быть в цвет соседней
+    подписи, а не золотой (стрелка сортировки, каретка), — <code>tone="plain"</code>. У каждого два
+    вида: в рамке (<code>.forge-icon-tile</code>, плитка с листа 6) и просто значок.
+  </p>
+
+  @for (group of iconGroups; track group.label) {
+    <h3 class="kit-sub">{{ group.label }}</h3>
+    <div class="icon-grid">
+      @for (item of group.items; track item[0]) {
+        <figure>
+          <i class="forge-icon-tile"><app-icon [name]="item[0]" [size]="26" /></i>
+          <app-icon [name]="item[0]" [size]="22" />
+          <figcaption>
+            <b>{{ item[1] }}</b>
+            <code>{{ item[0] }}</code>
+          </figcaption>
+        </figure>
+      }
+    </div>
+  }
+
+  <h3 class="kit-sub">Гербы с листов</h3>
+  <p class="lead">
+    Это не значки, а готовые картинки для украшения: щит стоит в полосе заголовка раздела
+    (<code>.forge-section-title</code>), гербы сторон — там, где нужна геральдика. Пиктограммы с
+    листов в набор не идут: рисунок один, и рисуем его мы.
+  </p>
+  <div class="row">
+    @for (s of shields; track s) {
+      <span
+        class="forge-shield"
+        [style.background-image]="'url(/ui/icons/shield-' + s + '.png)'"
+      ></span>
+    }
+  </div>
+</details>

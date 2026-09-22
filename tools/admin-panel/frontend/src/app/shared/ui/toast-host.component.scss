@@ -1,0 +1,66 @@
+.toasts {
+  bottom: 24px;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  left: 0;
+  // Полоса тянется во всю ширину, поэтому мышь сквозь неё проходит: ловят
+  // клики только сами плашки.
+  pointer-events: none;
+  position: fixed;
+  right: 0;
+  z-index: 40;
+}
+// Плашка - баннер из набора (`public/ui/status/alert-*.png`), тот же, что у
+// `.forge-alert`. Своей рамки в один-два пикселя тут нет намеренно: рядом с
+// коваными кромками панели она читалась чужой деталью.
+.toast {
+  align-items: center;
+  animation: toast-in 0.18s ease-out;
+  background: none;
+  border: 14px solid transparent;
+  border-image: url('/ui/status/alert-success.png') 20 fill round stretch;
+  box-shadow: 0 6px 20px var(--shadow-floating);
+  color: #f4f0e4;
+  cursor: pointer;
+  display: flex;
+  font: 600 15px/1.35 var(--serif);
+  justify-content: center;
+  max-width: min(520px, calc(100vw - 32px));
+  min-height: 48px;
+  padding: 0 8px;
+  pointer-events: auto;
+  text-align: center;
+  text-shadow: 1px 1px 2px #000;
+}
+.toast.error {
+  border-image-source: url('/ui/status/alert-error.png');
+}
+.toast.fading {
+  animation: toast-out 0.4s ease-in forwards;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes toast-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast.fading {
+    animation-duration: 0.01ms;
+  }
+}

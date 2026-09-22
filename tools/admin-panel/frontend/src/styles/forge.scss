@@ -1,0 +1,1010 @@
+// Кит по нарезанному стайлгайду (`public/ui/`, режет
+// `scripts/slice_style_guide.py`). Тут только классы-заготовки: панель,
+// кнопка, пункт меню, вкладка, плашка, баннер, поле, разделитель, плитка.
+//
+// Как это устроено. Все кромки - `border-image` девяткой: картинка режется на
+// девять кусков, углы остаются как есть, стороны тянутся, и один и тот же
+// файл годится и на узкую кнопку, и на широкую панель. Число в
+// `border-image-slice` - это ширина кромки В ИСХОДНОЙ картинке (лежит в
+// `public/ui/manifest.json`), а `border-width` - сколько она займёт на
+// экране. Они НЕ обязаны совпадать: меньший `border-width` просто рисует ту
+// же кромку помельче, и ровно так кнопки листа (кромка под сотню пикселей)
+// доводятся до нормального роста.
+//
+// Почему `round`, а не `stretch`. Кромка на листе нарисована с частым
+// рисунком - заклёпки, фаска, блики. Растяни её на широкую панель, и
+// заклёпки разъезжаются в длинные мазки: кнопка на 60 пикселей и полоса на
+// 1300 тянут ОДИН И ТОТ ЖЕ кусок картинки. `round` вместо растяжения
+// укладывает кусок целое число раз, подгоняя размер, - шага рисунка это не
+// ломает, а шва не видно. У элементов с заливкой второе значение остаётся
+// `stretch`: по вертикали там градиент эмали, и повтори его - получишь
+// полосы.
+//
+// Третье число - `border-image-width`. Оно задаёт, какой РОСТ кромка займёт
+// на экране, и по умолчанию равно `border-width`, то есть месту в раскладке.
+// Разведи их - и кромка рисуется в свой полный рост, а в потоке резервирует
+// столько, сколько сама занимает чернилами. Панелям это и нужно: у тонкой
+// рамки нарисованных пикселей 5-6, а девятка у неё 26, и весь остаток - это
+// прозрачность, за которую содержимое честно отступало. Свисающая внутрь
+// часть картинки прозрачная, поэтому вид рамки от такой развязки не меняется
+// ни на пиксель - уходит только воздух.
+//
+// Где `fill`, а где нет. `fill` дорисовывает середину картинки - она нужна
+// там, где сама заливка и есть вид элемента (эмаль кнопки, цвет баннера,
+// плашка). Панелям и рамке шкалы `fill` не ставим: середину им даёт фон из
+// темы, иначе камень с листа растянется пятнами.
+//
+// Раскладку (ширину, поток, отступы страницы) кит не задаёт - это дело
+// страниц, как и в `warcraft.scss`.
+
+// --- панели --------------------------------------------------------------
+
+// У каждого варианта две цифры вместо одной: `border-width` - место в
+// раскладке, `border-image-width` - рост самой кромки. Второе оставлено
+// ровно таким, каким было раньше общее число, поэтому рамки рисуются
+// пиксель в пиксель как рисовались; первое посажено на толщину чернил,
+// снятую с ассета (тонкая 5-6, тихая 8-9, толстая и вложенная 15-17,
+// нарядная и большая - 10-14 после своего уменьшения) плюс пара пикселей
+// на просвет. Отсюда и `padding` один на всех: воздух до текста теперь
+// считается от кромки, а не от девятки.
+//
+// ВАЖЕН ПОРЯДОК: `border-image` - сокращение, оно сбрасывает
+// `border-image-width` в единицу. Ставить его только ПОСЛЕ сокращения,
+// иначе кромка снова схлопнется до `border-width` и станет мельче.
+.forge-panel {
+  background-image: var(--texture-panel);
+  border: 8px solid transparent;
+  border-image: url('/ui/frames/panel-thin.png') 26 round;
+  border-image-width: 26px;
+  border-radius: 0;
+  padding: 10px 12px;
+
+  &.is-thick {
+    border-width: 18px;
+    border-image-source: url('/ui/frames/panel-thick.png');
+  }
+  &.is-subtle {
+    border-width: 10px;
+    border-image: url('/ui/frames/panel-subtle.png') 22 round;
+    border-image-width: 22px;
+  }
+  // Нарядная рамка с крупными углами. Ниже примерно 160px в высоту её углы
+  // сходятся и рисунок ломается - на маленькие карточки не ставить.
+  &.is-ornate {
+    border-width: 14px;
+    border-image: url('/ui/frames/panel-ornate.png') 48 round;
+    border-image-width: 34px;
+  }
+  &.is-inset {
+    border-width: 15px;
+    border-image: url('/ui/frames/panel-inset.png') 34 round;
+    border-image-width: 28px;
+  }
+  &.is-large {
+    border-width: 16px;
+    border-image: url('/ui/frames/panel-large.png') 56 round;
+    border-image-width: 40px;
+  }
+}
+
+// Заголовок раздела: щит слева, золотая полоса вправо. Щит - отдельная
+// картинка, чтобы он не растягивался вместе с полосой.
+.forge-section-title {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+
+  &::before {
+    background: url('/ui/icons/shield-gold.png') center / contain no-repeat;
+    content: '';
+    flex: none;
+    height: 42px;
+    width: 42px;
+  }
+
+  > span {
+    border-style: solid;
+    border-color: transparent;
+    border-width: 12px 34px 12px 12px;
+    border-image: url('/ui/frames/section-title-bar.png') 16 44 16 16 fill round stretch;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    color: var(--gold);
+    flex: 1;
+    font-family: var(--serif);
+    font-size: 17px;
+    letter-spacing: 1px;
+    padding: 2px 14px;
+    text-shadow: 0 1px 0 #000;
+  }
+}
+
+// --- кнопки --------------------------------------------------------------
+
+.forge-btn {
+  align-items: center;
+  background: none;
+  border: 14px solid transparent;
+  border-image: url('/ui/buttons/secondary.png') 18 fill round stretch;
+  // Подпись на кнопке БЕЛАЯ, и это замер, а не вкус: на листе 3 у
+  // «Secondary» #fbfcfd, у «Small»/«Large»/«Menu» чистый #ffffff, и только у
+  // «Primary» золото (#ffe10c). Прежний #e9e4d6 был кремовый - рядом с
+  // холодной синей эмалью подпись отдавала в жёлтое.
+  color: #fbfcfd;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--serif);
+  font-size: 15px;
+  gap: 8px;
+  justify-content: center;
+  list-style: none;
+  min-height: 46px;
+  padding: 0 12px;
+  position: relative;
+  text-decoration: none;
+  text-shadow: 1px 1px 2px #000;
+
+  // Сланцевая крупинка поверх эмали. Кладёт её CSS, а не нарезчик: середину
+  // картинки `border-image` растягивает под размер кнопки, и рисунок,
+  // запечённый в ассет, растянулся бы вместе с ней - на узкой кнопке сжался,
+  // на широкой поплыл. Тут плитка своего постоянного размера и от ширины
+  // кнопки не зависит. Накрывает ровно ту область, где лежит заливка
+  // (`fill`), то есть всю эмаль до самой кромки.
+  &::before {
+    background: var(--texture-slate) center / 96px;
+    content: '';
+    // Плитку уводим в серый и к середине яркости: `overlay` не трогает то,
+    // что ровно посередине, поэтому эмаль остаётся своего цвета, а от камня
+    // берётся только рельеф. Без этого тёмный сланец просто гасил кнопку.
+    filter: grayscale(1) brightness(2.6) contrast(0.5);
+    inset: 0;
+    mix-blend-mode: overlay;
+    opacity: 0.32;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.16);
+  }
+  &:active:not(:disabled) {
+    filter: brightness(0.92);
+    transform: translateY(1px);
+  }
+  &:disabled {
+    border-image-source: url('/ui/buttons/disabled.png');
+    color: #909295;
+    cursor: default;
+    text-shadow: none;
+  }
+
+  &.is-primary {
+    border-image-source: url('/ui/buttons/primary.png');
+    color: var(--gold);
+  }
+  // Выбранная кнопка в группе выбора (состояние погоды, вид списка). Берёт
+  // золотую оправу «главного действия» с листа 3 - другой «зажжённой»
+  // кнопки там нет.
+  &.is-on {
+    border-image-source: url('/ui/buttons/primary.png');
+    color: var(--gold);
+  }
+  &.is-danger {
+    border-image-source: url('/ui/buttons/danger.png');
+    color: #fffce1;
+  }
+  &.is-ghost {
+    border-image-source: url('/ui/buttons/ghost.png');
+    color: #d8dce3;
+  }
+  // ВНИМАНИЕ: цвет и этот размер вместе не живут. `border-image` -
+  // сокращение, и оно сбрасывает источник, а `is-small` идёт ниже цветных
+  // вариантов, поэтому `is-danger is-small` рисуется обычной эмалью.
+  // Маленькая цветная кнопка - это `is-compact`: он трогает только рост и
+  // толщину кромки, а картинку оставляет ту, что задал цвет.
+  &.is-small {
+    border-width: 11px;
+    border-image: url('/ui/buttons/small.png') 14 fill round stretch;
+    font-size: 13px;
+    min-height: 38px;
+  }
+  // Срез 40, а не 18-20 как у прочих кнопок: в углу большой нарисована
+  // скоба шириной под сорок пикселей, и рейка входит в неё изгибом, а не
+  // встык. Срез по 20 резал скобу пополам - на кнопке это читалось
+  // золотыми зажимами по углам, мимо которых идут рейки. Нарезчику срез
+  // задан там же (`slice_style_guide.py`, CUTS), иначе вторую половину
+  // скобы затрёт `flatten_edges`.
+  &.is-large {
+    border-width: 20px;
+    border-image: url('/ui/buttons/large.png') 40 fill round stretch;
+    color: var(--gold);
+    font-size: 19px;
+    min-height: 62px;
+    padding: 0 16px;
+  }
+  // Кнопка на всю ширину - у неё своя, более тяжёлая кромка.
+  &.is-wide {
+    border-width: 22px;
+    border-image: url('/ui/buttons/wide.png') 32 fill round stretch;
+    color: var(--gold);
+    display: flex;
+    font-size: 19px;
+    min-height: 58px;
+    width: 100%;
+  }
+  &.is-menu {
+    border-width: 16px;
+    border-image: url('/ui/buttons/menu.png') 20 fill round stretch;
+    color: #ffffff;
+    min-height: 52px;
+  }
+  // Ряд в шапке ниже страничного: там кнопки стоят в одну строку с меню.
+  &.is-compact {
+    border-width: 11px;
+    font-size: 13px;
+    min-height: 38px;
+    padding: 0 8px;
+  }
+  // Квадратная кнопка под одну иконку.
+  &.is-icon {
+    border-width: 14px;
+    border-image: url('/ui/buttons/icon.png') 20 fill round stretch;
+    height: 50px;
+    padding: 0;
+    width: 50px;
+  }
+}
+
+// --- пункты бокового меню ------------------------------------------------
+
+.forge-nav-item {
+  align-items: center;
+  background: none;
+  border: 13px solid transparent;
+  border-image: url('/ui/nav/item-default.png') 16 fill round stretch;
+  // Подпись пункта меню - холодная и почти белая (замер листа 1: #e9eaeb у
+  // обычного, #d8d8e1 у выбранного, золото только у активного).
+  color: #e9eaeb;
+  cursor: pointer;
+  display: flex;
+  font-family: var(--serif);
+  font-size: 16px;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 8px;
+  text-align: left;
+  text-decoration: none;
+  width: 100%;
+
+  &:hover:not(:disabled, .is-active) {
+    border-image-source: url('/ui/nav/item-hover.png');
+    color: #fff;
+  }
+  // Открытая сейчас страница - золотой кант.
+  &.is-active {
+    border-image-source: url('/ui/nav/item-active.png');
+    color: var(--gold);
+  }
+  // Выбранный с клавиатуры или мышью, но ещё не открытый.
+  &.is-selected {
+    border-image-source: url('/ui/nav/item-selected.png');
+    color: #fff;
+  }
+  &:disabled {
+    border-image-source: url('/ui/nav/item-disabled.png');
+    color: #7c7c7c;
+    cursor: default;
+  }
+  // Мелкий пункт - для боковой панели. Полноразмерный годится для меню в
+  // пять строк; у нас их девять, и колонка из кнопок ростом под полсотни
+  // пикселей занимала весь экран.
+  &.is-compact {
+    border-width: 10px;
+    font-size: 14px;
+    min-height: 34px;
+    padding: 0 6px;
+  }
+  &.has-submenu::after {
+    color: var(--gold-dim);
+    content: '\25B6';
+    font-size: 11px;
+    margin-left: auto;
+  }
+}
+
+// Набирается как «Действие во всю ширину»: золотая антиква по центру
+// и гильемет ПОСЛЕ подписи.
+.forge-collapse-btn {
+  align-items: center;
+  border: 13px solid transparent;
+  border-image: url('/ui/nav/collapse-button.png') 16 fill round stretch;
+  color: var(--gold);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--serif);
+  font-size: 17px;
+  gap: 8px;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 10px;
+
+  .arrow {
+    font-size: 18px;
+    line-height: 1;
+  }
+}
+
+// --- вкладки, чипы, страницы ---------------------------------------------
+
+.forge-tab {
+  align-items: center;
+  background: none;
+  border: 13px solid transparent;
+  // Растяжение, а не `round`. У вкладки ширина дробная - её задаёт текст
+  // («Справочники» 125.00, «Мир» 70.33), - а `round` подгоняет кусок под целое
+  // число повторов и на дробной ширине кладёт правый угол на пол-пикселя:
+  // рейка у угла двоилась и не сходилась с боковой. Бока у вкладки ровные,
+  // растягивать в них нечего, поэтому шва от `stretch` не видно.
+  border-image: url('/ui/tabs/tab-idle.png') 16 fill stretch;
+  // Подпись вкладки БЕЛАЯ в обоих состояниях - так на листе 8: выбранную
+  // отличает золотая оправа и подсвеченная заливка, а не цвет букв.
+  color: #eef2f7;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--serif);
+  font-size: 15px;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 14px;
+  text-decoration: none;
+
+  &:hover {
+    filter: brightness(1.18);
+  }
+
+  &.is-active {
+    border-image-source: url('/ui/tabs/tab-active.png');
+    color: #ffffff;
+  }
+  &.is-compact {
+    border-width: 11px;
+    font-size: 13px;
+    min-height: 38px;
+    padding: 0 10px;
+  }
+}
+
+.forge-chip {
+  align-items: center;
+  border: 13px solid transparent;
+  border-image: url('/ui/tabs/chip-filter.png') 16 fill round stretch;
+  color: #e8eaee;
+  display: inline-flex;
+  font-family: var(--serif);
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 8px;
+}
+
+.forge-page-btn {
+  background: none;
+  border: 11px solid transparent;
+  border-image: url('/ui/tabs/page-idle.png') 14 fill round stretch;
+  color: #eef2f7;
+  cursor: pointer;
+  font-family: var(--serif);
+  min-height: 42px;
+  min-width: 44px;
+  padding: 0 2px;
+
+  &.is-current {
+    border-image-source: url('/ui/tabs/page-current.png');
+    color: var(--gold-bright);
+  }
+  &.is-prev {
+    border-image-source: url('/ui/tabs/page-prev.png');
+  }
+  &.is-next {
+    border-image-source: url('/ui/tabs/page-next.png');
+  }
+}
+
+// --- поля ----------------------------------------------------------------
+
+.forge-field {
+  background: none;
+  border: 12px solid transparent;
+  border-image: url('/ui/forms/input-text.png') 14 fill round stretch;
+  box-shadow: none;
+  color: var(--text);
+  height: 44px;
+  padding: 0 8px;
+
+  // Системное кольцо фокуса ложится поверх нарисованной кромки ровным
+  // прямоугольником - поперёк её скруглённых углов и заклёпок. Гасим его, но
+  // фокус оставляем видимым: кромка наливается светом.
+  &:focus,
+  &:focus-visible {
+    filter: brightness(1.22);
+    outline: none;
+  }
+
+  &.is-search {
+    border-image-source: url('/ui/forms/input-search.png');
+  }
+  // Уголок берётся из самой картинки, а не рисуется поверх: срез у списка
+  // несимметричный (справа 56 вместо 14), поэтому уголок целиком попадает в
+  // ПРАВЫЙ кусок девятки - рисуется один раз и по ширине не тянется. Так же
+  // сделана полоса заголовка раздела. Нарезчик этот край не вычищает.
+  &.is-select {
+    appearance: none;
+    border-image: url('/ui/forms/select-closed.png') 14 56 14 14 fill round stretch;
+    border-width: 12px 44px 12px 12px;
+    cursor: pointer;
+    // Кромка съедает 56 пикселей ширины, и длинное значение в узкое поле не
+    // влезает. Обрубленная на полубукве строка выглядит опечаткой - пусть
+    // обрывается многоточием, а целиком её показывает раскрытое меню.
+    overflow: hidden;
+    padding-right: 2px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Пока меню раскрыто, поле светится - как у нажатой кнопки.
+  &.is-select.is-open {
+    filter: brightness(1.22);
+  }
+}
+
+textarea.forge-field {
+  border-image-source: url('/ui/forms/textarea.png');
+  height: auto;
+  min-height: 92px;
+  padding: 4px 8px;
+  resize: vertical;
+}
+
+// Флажок и радио: свою отрисовку браузера убираем, вместо неё - картинка.
+.forge-check,
+.forge-radio {
+  appearance: none;
+  background: center / contain no-repeat;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+  height: 26px;
+  margin: 0;
+  width: 26px;
+}
+.forge-check {
+  background-image: url('/ui/forms/checkbox-off.png');
+  &:checked {
+    background-image: url('/ui/forms/checkbox-on.png');
+  }
+}
+.forge-radio {
+  background-image: url('/ui/forms/radio-off.png');
+  &:checked {
+    background-image: url('/ui/forms/radio-on.png');
+  }
+}
+
+// Тумблер - тот же флажок, но широкий.
+.forge-toggle {
+  appearance: none;
+  background: url('/ui/forms/toggle-off.png') center / contain no-repeat;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+  height: 26px;
+  margin: 0;
+  width: 54px;
+
+  &:checked {
+    background-image: url('/ui/forms/toggle-on.png');
+  }
+}
+
+// --- плашки и огоньки ----------------------------------------------------
+
+.forge-badge {
+  align-items: center;
+  border: 10px solid transparent;
+  border-image: url('/ui/status/badge-new.png') 16 fill round stretch;
+  color: #eee9db;
+  display: inline-flex;
+  font-family: var(--serif);
+  font-size: 13px;
+  min-height: 34px;
+  padding: 0 6px;
+  text-shadow: 1px 1px 2px #000;
+
+  &.is-published {
+    border-image-source: url('/ui/status/badge-published.png');
+  }
+  &.is-scheduled {
+    border-image-source: url('/ui/status/badge-scheduled.png');
+  }
+  &.is-draft {
+    border-image-source: url('/ui/status/badge-draft.png');
+  }
+  &.is-beta {
+    border-image-source: url('/ui/status/badge-beta.png');
+  }
+  &.is-maintenance {
+    border-image-source: url('/ui/status/badge-maintenance.png');
+  }
+  &.is-deprecated {
+    border-image-source: url('/ui/status/badge-deprecated.png');
+  }
+  &.is-featured {
+    border-image-source: url('/ui/status/badge-featured.png');
+  }
+}
+
+.forge-dot {
+  background: url('/ui/status/dot-unknown.png') center / contain no-repeat;
+  display: inline-block;
+  height: 18px;
+  vertical-align: -3px;
+  width: 18px;
+
+  &.is-online {
+    background-image: url('/ui/status/dot-online.png');
+  }
+  &.is-offline {
+    background-image: url('/ui/status/dot-offline.png');
+  }
+  &.is-away {
+    background-image: url('/ui/status/dot-away.png');
+  }
+  &.is-busy {
+    background-image: url('/ui/status/dot-busy.png');
+  }
+  &.is-maintenance {
+    background-image: url('/ui/status/dot-maintenance.png');
+  }
+}
+
+.forge-alert {
+  align-items: center;
+  border: 14px solid transparent;
+  border-image: url('/ui/status/alert-info.png') 20 fill round stretch;
+  color: #f2f7fb;
+  display: flex;
+  font-size: 14px;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 6px;
+  text-shadow: 1px 1px 2px #000;
+
+  &.is-success {
+    border-image-source: url('/ui/status/alert-success.png');
+  }
+  &.is-warning {
+    border-image-source: url('/ui/status/alert-warning.png');
+  }
+  &.is-error {
+    border-image-source: url('/ui/status/alert-error.png');
+  }
+}
+
+// Шкала: рамка и пустой жёлоб с листа, а золото внутри - своё, иначе
+// налитое с картинки растянулось бы на любую долю. Жёлоб нарезчик опустошает
+// (`empty_track`), на листе шкала снята налитой на 68%.
+//
+// `fill` тут обязателен: без него середина ассета - то есть сам жёлоб - не
+// рисуется вовсе, и под долей зияет фон панели. И `stretch`, а не `round`:
+// жёлоб ровный, повторять в нём нечего, а `round` подгоняет ширину куска и
+// у коротких шкал уводит уголки.
+.forge-progress {
+  border: 12px solid transparent;
+  border-image: url('/ui/status/progress-bar.png') 16 fill stretch;
+  height: 42px;
+  padding: 0;
+
+  > i {
+    background: linear-gradient(#f3d07a, #c8901f 55%, #8a5f14);
+    box-shadow: inset 0 1px 0 #ffeebb88;
+    display: block;
+    height: 100%;
+  }
+}
+
+// Ползунок. Отдельного ползунка на листах нет, зато есть шкала (лист 9):
+// тёмный жёлоб со стальным кантом и золото внутри. Ползунок собран из неё -
+// тот же жёлоб, а бегунок отлит из золота шкалы.
+.forge-range {
+  appearance: none;
+  background: linear-gradient(#04070b, #0b131b);
+  border: 1px solid #2b3a47;
+  height: 16px;
+  padding: 0 2px;
+  width: 100%;
+
+  &::-webkit-slider-runnable-track {
+    background: none;
+    height: 12px;
+  }
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    background: linear-gradient(#f3d07a, #c8901f 55%, #8a5f14);
+    border: 1px solid #3a2a08;
+    box-shadow: inset 0 1px 0 #ffeebb88;
+    height: 18px;
+    margin-top: -4px;
+    width: 12px;
+  }
+
+  &::-moz-range-track {
+    background: none;
+    height: 12px;
+  }
+
+  &::-moz-range-thumb {
+    background: linear-gradient(#f3d07a, #c8901f 55%, #8a5f14);
+    border: 1px solid #3a2a08;
+    border-radius: 0;
+    height: 18px;
+    width: 12px;
+  }
+
+  &:disabled {
+    filter: grayscale(0.7);
+    opacity: 0.55;
+  }
+}
+
+.forge-tooltip {
+  border: 18px solid transparent;
+  border-image: url('/ui/status/tooltip.png') 20 fill round stretch;
+  color: var(--text);
+  max-width: 340px;
+  padding: 0 6px;
+}
+
+// --- разделители ---------------------------------------------------------
+//
+// Тройка по горизонтали: концы (60px) остаются как есть, середина тянется.
+// `border-image-width` больше нулевой `border-width` - так и задумано:
+// картинка рисуется поверх содержимого, а места в потоке не занимает сверх
+// высоты самой полосы.
+// Годятся только полосы с РОВНОЙ серединой: у `deco-*` посередине самоцвет,
+// и растяжение превращает его в веретено - такие собираются ниже, накладкой.
+.forge-rule {
+  border: 0 solid transparent;
+  border-image-repeat: round stretch;
+  border-image-slice: 0 60 fill;
+  border-image-source: url('/ui/dividers/line-thin.png');
+  border-image-width: 0 60px;
+  height: 24px;
+  margin: 10px 0;
+  width: 100%;
+
+  &.is-riveted {
+    border-image-source: url('/ui/dividers/line-riveted.png');
+    height: 36px;
+  }
+}
+
+// Разделитель с самоцветом посередине. Самоцвет - отдельной картинкой:
+// растяни его вместе с полосой, и он поплывёт.
+.forge-rule-crest {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin: 12px 0;
+  position: relative;
+
+  &::before {
+    border: 0 solid transparent;
+    border-image-repeat: round stretch;
+    border-image-slice: 0 60 fill;
+    border-image-source: url('/ui/dividers/line-thin.png');
+    border-image-width: 0 60px;
+    content: '';
+    height: 24px;
+    width: 100%;
+  }
+  &::after {
+    background: url('/ui/icons/accent-diamond-gold.png') center / contain no-repeat;
+    content: '';
+    height: 26px;
+    position: absolute;
+    width: 26px;
+  }
+
+  &.is-star::after {
+    background-image: url('/ui/icons/accent-star.png');
+    height: 30px;
+    width: 30px;
+  }
+  &.is-lion::after {
+    background-image: url('/ui/icons/emblem-lion.png');
+    height: 38px;
+    width: 38px;
+  }
+}
+
+// Заголовок ВНУТРИ панели: золотая антиква и стальная нить под ней. Нить с
+// листа 6 - там она идёт под каждым заголовком карточки («Content Panel»,
+// «Stat Card», «Badges / Pills»). С жёлтыми полосами, которые мы со страниц
+// убрали, её путать не надо: те были золотым градиентом поперёк панели, а
+// эта - стальная нить в один пиксель, часть самой панели.
+.forge-panel-title {
+  align-items: center;
+  border-bottom: 1px solid var(--line-title);
+  color: var(--gold);
+  display: flex;
+  font: 17px var(--serif);
+  gap: 8px;
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+}
+
+// Плитка под значок - ОПРАВА С ЛИСТА, не нарисованная нами коробка. Ассет
+// `frames/icon-tile` вырезан из ряда «Icon Tiles (Small)» (лист 10) кольцом:
+// от плитки взята только оправа - тонкая золотая рейка со стальной нитью и
+// гнутые уголки, - а нутро выбито насквозь, и внутрь кладётся наш значок.
+//
+// Нутро задаёт CSS, поэтому в `border-image` нет `fill`. Цвет замерен на той
+// же плитке: #01101a, холодный тёмно-синий; сланец под вуалью оставляет
+// крупинку, без него плитка выглядит вырезанной из бумаги.
+//
+// Рамка рисуется мельче своего среза (9 против 16): в сорока шести пикселях
+// уголки в полный рост сомкнулись бы, и рейки между ними не осталось.
+.forge-icon-tile {
+  align-items: center;
+  background-image: linear-gradient(#01101ae8, #01101ae8), var(--texture-slate);
+  border: 7px solid transparent;
+  border-image: url('/ui/frames/icon-tile.png') 16 round;
+  border-image-width: 9px;
+  color: var(--gold);
+  display: inline-flex;
+  flex: none;
+  height: 46px;
+  justify-content: center;
+  width: 46px;
+}
+
+// Карточка показателя с листа 6: плитка со значком слева, справа золотая
+// подпись, крупное белое значение и тихая строка снизу. Порядок цветов
+// именно такой - золото у ПОДПИСИ, белое у ЗНАЧЕНИЯ; наоборот выходит
+// «жёлтое число», какого на листах нет.
+.forge-stat {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+
+  > div {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  // Огонёк состояния уходит к правому краю карточки: на листе на его месте
+  // стоит строка прироста, и подпись с ним в обнимку читается теснее, чем
+  // надо.
+  .label {
+    align-items: center;
+    color: var(--gold);
+    display: flex;
+    font-size: 13px;
+    gap: 8px;
+
+    > .forge-dot {
+      margin-left: auto;
+    }
+  }
+
+  .value {
+    color: var(--text-strong);
+    font: 600 24px var(--serif);
+    line-height: 1.15;
+  }
+
+  .note {
+    color: var(--muted);
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// --- плитки и эмблемы ----------------------------------------------------
+
+.forge-tile {
+  background: center / contain no-repeat;
+  display: inline-block;
+  height: 44px;
+  width: 44px;
+}
+
+.forge-emblem {
+  background: center / contain no-repeat;
+  display: inline-block;
+  height: 48px;
+  width: 48px;
+}
+
+.forge-shield {
+  background: center / contain no-repeat;
+  display: inline-block;
+  height: 60px;
+  width: 60px;
+}
+
+// --- качество предмета ----------------------------------------------------
+//
+// Цвета игровые, те же, что в тултипе. Живут в ките, а не на странице: каталог
+// предметов, размещения в мире и добыча красят имена одинаково, и три копии
+// этих восьми строк успели бы разойтись. Вес `:root app-root` - тот же приём,
+// что и у таблиц ниже: правило должно перебивать стили компонента.
+:root app-root {
+  .quality-0 { color: #9d9d9d; }
+  .quality-1 { color: #ffffff; }
+  .quality-2 { color: #1eff00; }
+  .quality-3 { color: #50a0ee; }
+  .quality-4 { color: #c777ea; }
+  .quality-5 { color: #ff9800; }
+  .quality-6 { color: var(--gold-bright); }
+  .quality-7 { color: #4cdcf5; }
+}
+
+// --- таблицы -------------------------------------------------------------
+//
+// Тут, в отличие от остального кита, правила вешаются на САМИ теги внутри
+// `app-root`, а не на класс. Причина в весе: таблицы живут на шести
+// страницах, у каждой свои стили компонента, а те из-за атрибутов Angular
+// весят больше простого класса. Поднять вид всех таблиц разом, не трогая
+// шесть файлов, можно только так - тем же приёмом, что и в `warcraft.scss`.
+//
+// ЦВЕТА СНЯТЫ С ЛИСТА 8 ПИПЕТКОЙ, а не подобраны на глаз (2026-09-20):
+//   шапка          #0a1823   холодный тёмно-синий, НЕ бурый металл
+//   текст шапки    #ffffff   белый, не золото, и без капса
+//   стрелка        #9bb8ce   стальная
+//   строки         #040b11   почти чёрный синий, ровный, без зебры
+//   линия под шапкой #2e404e
+//   линии строк    #2c3a47   заметнее, чем между колонками
+//   линии колонок  #1d2b37
+//   рейка рамки    #6f8da4
+// Прежние бурo-золотые числа (#3e3722, #6b5a2e, --texture-metal) взялись из
+// общего скина панели, а не с листа, - от них таблица и выглядела чужой.
+:root app-root {
+  table {
+    // Обводка у таблицы - ТА ЖЕ РАМКА, ЧТО У ПАНЕЛЕЙ (`panel-subtle`, лист 7),
+    // теми же числами, что в `.forge-panel.is-subtle`. Своя рамка с листа 8
+    // (`frames/table-grid.png`) в девятку не уложилась: полосы кромки браузер
+    // подгоняет под длину стороны по-своему, и у таблицы переменной ширины
+    // углы не сходились - сверху рейка обрывалась в пяти пикселях от правого
+    // угла, а нижняя скоба отъезжала внутрь. У панельной рамки углы нарисованы
+    // целиком и держатся при любом размере, а вид у таблицы получается такой
+    // же, как у всего остального в панели.
+    //
+    // `separate` + нулевой `border-spacing` обязательны: при `collapse`
+    // браузер по спецификации не рисует `border-image` вовсе. Линии между
+    // строками ниже рисует тень, а не граница ячейки.
+    background: var(--table-row);
+    border: 10px solid transparent;
+    border-collapse: separate;
+    border-image: url('/ui/frames/panel-subtle.png') 22 round;
+    border-image-width: 22px;
+    border-spacing: 0;
+  }
+
+  th {
+    background: var(--table-head);
+    border-bottom: 0;
+    box-shadow: inset 0 -1px 0 var(--table-head-line);
+    color: var(--text-strong);
+    font-family: var(--serif);
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    text-shadow: 0 1px 0 #000;
+  }
+
+  td {
+    border-bottom: 0;
+    box-shadow: inset 0 -1px 0 var(--table-row-line);
+    color: var(--text-bright);
+  }
+
+  // Колонки на листе разделены нитью потемнее, чем строки. Тень, а не
+  // граница: при `border-collapse: separate` граница ячейки встала бы и по
+  // краю таблицы, второй линией поверх рейки.
+  th + th {
+    box-shadow:
+      inset 1px 0 0 var(--table-col-line),
+      inset 0 -1px 0 var(--table-head-line);
+  }
+  td + td {
+    box-shadow:
+      inset 1px 0 0 var(--table-col-line),
+      inset 0 -1px 0 var(--table-row-line);
+  }
+
+  tbody tr:last-child td {
+    box-shadow: none;
+  }
+  tbody tr:last-child td + td {
+    box-shadow: inset 1px 0 0 var(--table-col-line);
+  }
+  tbody tr:hover td {
+    background: #12293d80;
+  }
+}
+
+// Шапка страницы. Заголовка в ней больше нет - имя страницы и так стоит во
+// вкладке верхнего меню, в боковой панели и во вкладке браузера, - и остались
+// в ней только действия. Одинокий ряд кнопок прижимается вправо; там, где в
+// шапке есть что-то ещё (имя существа на карточке), раскладку задаёт сама
+// страница.
+:root app-root .page-head > :only-child {
+  margin-left: auto;
+}
+// ИСКЛЮЧЕНИЕ: возврат на список. Он читается как «шаг назад», и место ему у
+// начала строки, а не у правого края. Без этого правила каждая страница с
+// карточкой чинила прижатие у себя - к третьей копии они уже разошлись.
+:root app-root .page-head > .back,
+:root app-root .page-head > .head-left {
+  margin-left: 0;
+  margin-right: auto;
+}
+// Каретка кнопки возврата смотрит влево: значок в наборе один, поворачиваем.
+:root app-root .page-head .back app-icon {
+  transform: rotate(180deg);
+}
+// Пустая шапка (кнопка показывается только владельцу) не должна занимать
+// место отступом.
+:root app-root .page-head:empty {
+  display: none;
+}
+
+// Плоская текстовая кнопка-ссылка («править», «назвать», «Весь лог»). Цвет -
+// голубой из стайлгайда; опасные («удалить») остаются красными, их красит
+// своя страница. Вес селектора взят с запасом: у страниц свои `.link` с
+// атрибутом Angular, а они весят больше простого класса.
+:root app-root .link:not(.danger) {
+  color: var(--link);
+}
+:root app-root .link:not(.danger):hover {
+  color: #8beeff;
+}
+
+// Раскрывашка - это действие, а не заголовок: красим её тем же голубым, что
+// и ссылки. Там, где `summary` носит свой заголовок (полоса раздела витрины,
+// «Лог сборки»), цвет задан внутри и перебивает это правило.
+:root app-root details > summary {
+  color: var(--link);
+}
+
+// Подпись состояния рядом с огоньком. Цвета - те же, что у самих огоньков на
+// листе: зелёный #3afd5b, красный #ff6b58, жёлтый #fedc27.
+.forge-state {
+  align-items: center;
+  display: inline-flex;
+  gap: 7px;
+
+  &.is-online {
+    color: var(--state-online);
+  }
+  &.is-offline {
+    color: var(--state-offline);
+  }
+  &.is-away {
+    color: var(--state-away);
+  }
+  &.is-busy {
+    color: var(--state-offline);
+  }
+  &.is-maintenance {
+    color: var(--state-steel);
+  }
+}
