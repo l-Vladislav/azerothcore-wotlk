@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Добыча — админ-панель</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    /* Только то, чего нет в общей теме. Дерево добычи - главный элемент
+       страницы, и почти вся разметка здесь про него. */
+    .lt-main { padding: 0 16px 48px; }
+
+    .tabs {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      position: sticky; top: 52px; z-index: 4;
+      margin: 0 -16px 14px; padding: 9px 16px;
+      background: var(--bg); border-bottom: 1px solid var(--line);
+    }
+    .tabs button {
+      background: var(--panel-2); color: var(--text);
+      border: 1px solid var(--line); border-radius: 4px;
+      padding: 5px 12px; font: inherit; cursor: pointer; white-space: nowrap;
+    }
+    .tabs button:hover { border-color: var(--line-strong); color: var(--gold-bright); }
+    .tabs button.active {
+      background: var(--accent); color: #10151b; border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .searchbar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .searchbar input[type=search], .searchbar input[type=text] {
+      background: var(--bg-2); color: var(--text); border: 1px solid var(--line);
+      border-radius: 3px; padding: 5px 8px; font: inherit; min-width: 260px;
+    }
+
+    .split { display: flex; gap: 16px; align-items: flex-start; }
+    .col-list { flex: 0 0 380px; min-width: 300px; }
+    .col-body { flex: 1 1 auto; min-width: 0; }
+
+    .rows { max-height: calc(100vh - 260px); overflow-y: auto;
+            border: 1px solid var(--line); border-radius: 4px; }
+    /* Строка списка слева - СВОЙ класс, а не `.row`. Общий код (выбор
+       предмета, форма строки) понимает `.row` как обычный флекс-ряд, и на
+       общем имени модалка приезжала с рамкой снизу и курсором-пальцем. */
+    .listrow { display: flex; align-items: center; gap: 8px; padding: 5px 8px;
+           border-bottom: 1px solid var(--line); cursor: pointer; font-size: 13px; }
+    .listrow:last-child { border-bottom: none; }
+    .listrow:hover { background: var(--panel-2); }
+    .listrow.sel { background: var(--panel-2); box-shadow: inset 3px 0 0 var(--accent); }
+    .listrow .nm { flex: 1 1 auto; min-width: 0; }
+    .listrow .nm b { display: block; font-weight: 500; }
+    .listrow .nm small { color: var(--muted); }
+    .listrow .tag { flex: 0 0 auto; color: var(--muted); font-size: 11px; }
+
+    /* Тот же смысл, что на прочих страницах панели. */
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .row label { font-size: 12px; color: var(--muted); }
+
+    /* Дерево. Ссылка - это узел с вложенной таблицей, поэтому отступ слева и
+       кант: без них шанс ссылки и шанс предмета внутри неё стоят рядом и
+       читаются как один. */
+    .node { border-left: 2px solid var(--line); margin: 4px 0 4px 10px;
+            padding-left: 10px; }
+    .node.ref { border-left-color: var(--gold-dim); }
+    .lootrow { display: flex; align-items: center; gap: 10px; padding: 4px 6px;
+               border-bottom: 1px solid var(--line); font-size: 13px; }
+    .lootrow:hover { background: var(--panel-2); }
+    .lootrow .chance { flex: 0 0 68px; text-align: right; font-variant-numeric: tabular-nums; }
+    .lootrow .nm { flex: 1 1 auto; min-width: 0; }
+    .lootrow .cnt { flex: 0 0 auto; color: var(--muted); font-size: 12px; }
+    .lootrow .marks { flex: 0 0 auto; display: flex; gap: 4px; }
+
+    .mark { font-size: 11px; padding: 1px 5px; border-radius: 3px;
+            border: 1px solid var(--line); color: var(--muted); }
+    .mark.quest { border-color: var(--gold-dim); color: var(--gold-bright); }
+    .mark.cond  { border-color: #6b8fb5; color: #8fb6de; }
+    .mark.mode  { border-color: #7a6ba8; color: #a99ad0; }
+    .mark.bad   { border-color: #a05050; color: #e08080; }
+
+    .group-head { margin: 10px 0 2px; color: var(--muted); font-size: 12px; }
+    .card { border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px;
+            margin-bottom: 12px; background: var(--panel); }
+    .card h2 { margin: 0 0 8px; font-size: 15px; }
+    .card h3 { margin: 12px 0 4px; font-size: 13px; color: var(--muted); }
+
+    .q0 { color: #9d9d9d; } .q1 { color: #ffffff; } .q2 { color: #1eff00; }
+    .q3 { color: #0070dd; } .q4 { color: #a335ee; } .q5 { color: #ff8000; }
+    .q6 { color: #e6cc80; } .q7 { color: #00ccff; }
+
+    /* Подпись записи: имя, при нём кнопка правки, при правке - поля. Кнопка
+       выглядит ссылкой, а не кнопкой: она рядом с текстом и в потоке. */
+    .nametag { display: inline-flex; align-items: center; gap: 6px;
+               flex-wrap: wrap; }
+    .nametag input[type=text] {
+      background: var(--bg-2); color: var(--text); border: 1px solid var(--line);
+      border-radius: 3px; padding: 3px 6px; font: inherit;
+    }
+    .linkbtn {
+      background: none; border: none; padding: 0; font: inherit;
+      font-size: 11px; color: var(--muted); cursor: pointer;
+      text-decoration: underline dotted;
+    }
+    .linkbtn:hover { color: var(--gold-bright); }
+    .group-head .nametag b { color: var(--text); }
+
+    /* Полоса отбора и сортируемые заголовки - как на странице профессий. */
+    .filter-bar { display: flex; gap: 6px; align-items: center;
+                  flex-wrap: wrap; margin-bottom: 8px; }
+    .filter-bar .filter-q {
+      background: var(--bg-2); color: var(--text); border: 1px solid var(--line);
+      border-radius: 3px; padding: 4px 8px; font: inherit; min-width: 180px;
+    }
+    .filter-bar select {
+      background: var(--bg-2); color: var(--text); border: 1px solid var(--line);
+      border-radius: 3px; padding: 4px 6px; font: inherit;
+    }
+    .filter-count { color: var(--muted); font-size: 12px; margin-left: auto; }
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { color: var(--gold-bright); }
+    th.sorted { color: var(--gold-bright); }
+    .sort-arrow { margin-left: 4px; font-size: 10px; }
+    .searchbar input.lvl { min-width: 74px; }
+
+    /* Правка строки: форма разворачивается прямо под ней, не уводя со
+       страницы - строк за один заход правят несколько. */
+    .roweditor { border: 1px solid var(--gold-dim); border-radius: 4px;
+                 padding: 8px 10px; margin: 4px 0 8px; background: var(--bg-2);
+                 display: flex; flex-direction: column; gap: 6px; }
+    .roweditor .row { display: flex; gap: 8px; align-items: center;
+                      flex-wrap: wrap; }
+    .roweditor input[type=number] { width: 76px; }
+    .roweditor input[type=text], .roweditor input[type=number] {
+      background: var(--panel); color: var(--text); border: 1px solid var(--line);
+      border-radius: 3px; padding: 3px 6px; font: inherit;
+    }
+    .rowtools { flex: 0 0 auto; display: flex; gap: 8px; opacity: 0; }
+    .lootrow:hover .rowtools { opacity: 1; }
+    .addrow { margin: 8px 0 2px; }
+    /* Галочка выбора: видна всегда, а не по наведению, - иначе отмеченные
+       строки не отличить от прочих, когда курсор ушёл. */
+    .pickrow { flex: 0 0 auto; margin: 0 2px 0 0; }
+    .pickbar {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      margin: 10px 0 0; padding: 6px 8px; border-radius: 4px;
+      background: var(--bg-2); border: 1px dashed var(--line);
+      font-size: 12px;
+    }
+
+    .tabs button.apply {
+      margin-left: auto; border-color: var(--gold-dim); color: var(--gold-bright);
+    }
+
+    .chain { color: var(--muted); font-size: 12px; }
+    .chain b { color: var(--text); font-weight: 500; }
+    .warn { color: #e0b060; }
+    .hint { color: var(--muted); font-size: 12px; margin: 6px 0 10px; }
+    table.grid td, table.grid th { vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark">AC</span> Панель</a>
+    <nav class="nav">
+      <a href="/">Модули</a>
+      <a href="/board.html">Доска</a>
+      <a href="/spells.html">Мастерская</a>
+      <a href="/dex.html">Каталог</a>
+      <a href="/items.html">Предметы</a>
+      <a class="active" href="/loot.html">Добыча</a>
+      <a href="/envfx.html">Окружение</a>
+      <a href="/weather.html">Погода</a>
+      <a href="/italents.html">Таланты</a>
+      <a href="/aprof.html">Профессии</a>
+      <a href="/api/docs">API</a>
+    </nav>
+    <div class="spacer"></div>
+  </header>
+
+  <main class="lt-main">
+    <div class="tabs" id="tabs"></div>
+    <div id="view"><div class="empty">Загрузка…</div></div>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/common.js"></script>
+  <script src="/static/loot.js"></script>
+</body>
+</html>

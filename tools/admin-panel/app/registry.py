@@ -35,7 +35,7 @@ MODULES: list[ModuleInfo] = [
     ),
     ModuleInfo(
         id="items",
-        name="Каталог предметов",
+        name="Каталог",
         summary="Поиск по item_template, копии в собственных блоках id, "
                 "правка свойств и выгрузка в миграцию.",
         status="ready", url="/items.html", icon="cube",
@@ -119,10 +119,20 @@ MODULES: list[ModuleInfo] = [
         status="planned", icon="bot", tags=["боты"],
     ),
     ModuleInfo(
-        id="profession-minigames",
-        name="Мини-игры профессий",
-        summary="Ручное крафтовое мини-игровое окно, качество и возврат.",
-        status="planned", icon="hammer", tags=["профессии"],
+        id="loot",
+        name="Добыча",
+        summary="Кто что роняет и где что падает: тринадцать таблиц добычи, "
+                "ссылки раскрыты, шанс посчитан по цепочке.",
+        status="ready", url="/loot.html", icon="loot",
+        tags=["лут", "мобы", "предметы"],
+    ),
+    ModuleInfo(
+        id="advanced-professions",
+        name="Продвинутые профессии",
+        summary="Хардкорный крафт: основы со слотами, материалы, синергии "
+                "и веса качества.",
+        status="ready", url="/aprof.html", icon="hammer",
+        tags=["профессии", "крафт", "предметы"],
     ),
 ]
 
