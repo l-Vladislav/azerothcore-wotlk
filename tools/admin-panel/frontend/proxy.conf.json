@@ -1,7 +1,0 @@
-{
-  "/api": {
-    "target": "http://100.101.76.86:8091",
-    "secure": false,
-    "changeOrigin": true
-  }
-}
