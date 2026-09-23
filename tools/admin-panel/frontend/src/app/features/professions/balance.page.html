@@ -1,5 +1,5 @@
 <section class="page-head">
-  <h1>Баланс</h1>
+  <app-professions-tabs />
 </section>
 
 @if (loading()) {
@@ -11,10 +11,6 @@
 } @else {
   <section class="card">
     <h2>Качество изделия</h2>
-    <p class="hint">
-      Веса <b>глобальные</b> - одна таблица на модуль: подкрутка «стало слишком много эпиков»
-      правится в одном месте, а не по всем рецептам разом.
-    </p>
     <div class="table-wrap">
       <table>
         <thead>
@@ -31,7 +27,7 @@
               <td [class]="'q' + tier.quality">{{ tier.quality }}</td>
               <td>
                 <input
-                  class="forge-field"
+                  class="forge-field is-small"
                   [ngModel]="tier.name_ru"
                   [disabled]="!canEdit()"
                   (ngModelChange)="setQuality(tier.quality, { name_ru: $event })"
@@ -39,7 +35,7 @@
               </td>
               <td class="num">
                 <input
-                  class="forge-field"
+                  class="forge-field is-small"
                   type="number"
                   min="1"
                   [ngModel]="tier.slots"
@@ -49,7 +45,7 @@
               </td>
               <td class="num">
                 <input
-                  class="forge-field"
+                  class="forge-field is-small"
                   type="number"
                   min="0"
                   [ngModel]="weight(tier.quality)"
@@ -106,7 +102,7 @@
             <tr>
               <td class="num">
                 <input
-                  class="forge-field"
+                  class="forge-field is-small"
                   type="number"
                   min="1"
                   [ngModel]="row.ilvl_max"
@@ -116,7 +112,7 @@
               </td>
               <td class="num">
                 <input
-                  class="forge-field"
+                  class="forge-field is-small"
                   type="number"
                   min="1"
                   [ngModel]="row.req_level"
@@ -163,15 +159,11 @@
 
   <section class="card">
     <h2>Шанс успеха</h2>
-    <p class="hint">
-      Считается из чисел модуля ниже. Глазами по ним не видно, во что они складываются, - поэтому
-      кривая показана таблицей.
-    </p>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th>Разрыв навык − req_skill рецепта</th>
+            <th>Разрыв навык − req_skill основы</th>
             <th>Шанс успеха</th>
           </tr>
         </thead>
@@ -204,7 +196,7 @@
               <td class="name">{{ row.name }}</td>
               <td>
                 <input
-                  class="forge-field"
+                  class="forge-field is-small"
                   [ngModel]="settingValue(row)"
                   [disabled]="!canEdit()"
                   (ngModelChange)="setSetting(row.name, $event)"

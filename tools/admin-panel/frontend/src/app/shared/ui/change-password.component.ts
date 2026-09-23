@@ -13,7 +13,7 @@ import { ApiService } from '../../core/api.service';
   imports: [FormsModule, IconComponent],
   styleUrl: './change-password.component.scss',
   template: `
-    <dialog #dialog (close)="reset()">
+    <dialog #dialog class="forge-dialog" (close)="reset()">
       <form (submit)="save($event)">
         <header>
           <h2>Смена пароля</h2>
@@ -26,10 +26,6 @@ import { ApiService } from '../../core/api.service';
             <app-icon name="close" [size]="13" />
           </button>
         </header>
-        <p class="hint">
-          Пароль меняется у профиля, которым вы вошли. Остальные сессии после этого закроются — эта
-          останется.
-        </p>
         <label>
           <span>Текущий пароль</span>
           <input

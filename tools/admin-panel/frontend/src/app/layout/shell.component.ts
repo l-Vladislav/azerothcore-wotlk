@@ -12,6 +12,7 @@ import { SiteSidebarComponent } from '../shared/layout/site-sidebar.component';
 import { ChangePasswordComponent } from '../shared/ui/change-password.component';
 import { IconComponent } from '../shared/ui/icon.component';
 import { QuickSearchComponent } from '../shared/ui/quick-search.component';
+import { ItemTooltipHostComponent } from '../shared/ui/item-tooltip-host.component';
 import { ToastHostComponent } from '../shared/ui/toast-host.component';
 
 @Component({
@@ -22,6 +23,7 @@ import { ToastHostComponent } from '../shared/ui/toast-host.component';
     SiteSidebarComponent,
     ChangePasswordComponent,
     QuickSearchComponent,
+    ItemTooltipHostComponent,
     ToastHostComponent,
     IconComponent,
   ],

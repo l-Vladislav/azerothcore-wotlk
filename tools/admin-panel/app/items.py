@@ -64,8 +64,8 @@ BLOCKS: list[Block] = [
     Block(id="world", name="Мировые предметы", lo=125000, hi=129999,
           summary="Те, что кладутся на карту и лутаются один раз. На них "
                   "ссылаются размещения, поэтому удалять их опаснее."),
-    # Разворот логики ковки (2026-09-02): рецепт отдаёт не вычисленный предмет,
-    # а готовую строку item_template. Заводит их вкладка «Рецепты», а правятся
+    # Разворот логики ковки (2026-09-02): основа отдаёт не вычисленный предмет,
+    # а готовую строку item_template. Заводит их вкладка «Основы», а правятся
     # они здесь, обычным редактором предмета - иначе результат можно было бы
     # только создать, но не подкрутить.
     #
@@ -210,6 +210,25 @@ ITEM_CLASS = {
     14: "Разное", 15: "Разное", 16: "Символ",
 }
 
+# Подклассы по классу (ItemSubclass*, 3.3.5a) - для отбора в окнах выбора.
+# Только классы, где подкласс что-то говорит человеку: вид оружия, материал
+# брони, цвет самоцвета, род хозяйственного товара.
+ITEM_SUBCLASS = {
+    2: {0: "Топор (одноручный)", 1: "Топор (двуручный)", 2: "Лук",
+        3: "Огнестрельное", 4: "Дробящее (одноручное)", 5: "Дробящее (двуручное)",
+        6: "Древковое", 7: "Меч (одноручный)", 8: "Меч (двуручный)", 10: "Посох",
+        13: "Кистевое", 14: "Разное", 15: "Кинжал", 16: "Метательное",
+        17: "Копье", 18: "Арбалет", 19: "Жезл", 20: "Удочка"},
+    3: {0: "Красный", 1: "Синий", 2: "Желтый", 3: "Фиолетовый", 4: "Зеленый",
+        5: "Оранжевый", 6: "Особый", 7: "Простой", 8: "Радужный"},
+    4: {0: "Разное", 1: "Ткань", 2: "Кожа", 3: "Кольчуга", 4: "Латы",
+        6: "Щит", 7: "Манускрипт", 8: "Идол", 9: "Тотем", 10: "Печать"},
+    7: {0: "Хозяйственные товары", 1: "Детали", 2: "Взрывчатка", 3: "Устройства",
+        4: "Ювелирное дело", 5: "Ткань", 6: "Кожа", 7: "Металл и камень",
+        8: "Мясо", 9: "Трава", 10: "Стихии", 11: "Прочее", 12: "Наложение чар",
+        13: "Материалы", 14: "Улучшение доспехов", 15: "Улучшение оружия"},
+}
+
 # Типы характеристик (ItemModType). Список тот же, что в StatBooster.
 STAT_TYPE = {
     0: "-", 3: "Ловкость", 4: "Сила", 5: "Интеллект", 6: "Дух",
@@ -323,6 +342,7 @@ def enums() -> dict:
         "bonding": pairs(BONDING),
         "inventoryType": pairs(INVENTORY_TYPE),
         "itemClass": pairs(ITEM_CLASS),
+        "itemSubclass": {str(cls): pairs(subs) for cls, subs in ITEM_SUBCLASS.items()},
         "statType": pairs(STAT_TYPE),
     }
 
@@ -419,6 +439,7 @@ def _fulltext_query(value: str) -> str | None:
 
 def search(q: str = "", block: str | None = None, quality: int | None = None,
            item_class: int | None = None, inventory_type: int | None = None,
+           item_subclass: int | None = None,
            item_level_min: int | None = None, item_level_max: int | None = None,
            required_level_min: int | None = None, required_level_max: int | None = None,
            limit: int = 60, offset: int = 0) -> dict:
@@ -478,6 +499,9 @@ def search(q: str = "", block: str | None = None, quality: int | None = None,
     if item_class is not None:
         where.append("`class` = %s")
         args.append(item_class)
+    if item_subclass is not None:
+        where.append("`subclass` = %s")
+        args.append(item_subclass)
     if inventory_type is not None:
         where.append("`InventoryType` = %s")
         args.append(inventory_type)
@@ -659,7 +683,7 @@ def save(entry: int, fields: dict[str, Any]) -> dict:
 def delete(entry: int) -> None:
     _guard(entry)
 
-    # Строка-результат рецепта, именной предмет или поделка - это обязательство
+    # Строка-результат основы, именной предмет или поделка - это обязательство
     # перед игроком, у которого вещь лежит в сумке: удалить её значит превратить
     # вещь в другую (DESIGN §4, решение 3). Импорт поздний - aprof сам берёт
     # отсюда иконки, и на уровне модуля вышел бы круг.
@@ -668,7 +692,7 @@ def delete(entry: int) -> None:
     if used:
         raise ValueError(
             "Предмет %d занят крафтом: %s. Удалять нельзя - правьте строку "
-            "или снимите ссылку на вкладке «Рецепты»." % (entry, "; ".join(used)))
+            "или снимите ссылку на вкладке «Основы»." % (entry, "; ".join(used)))
     with world_cursor(commit=True) as cur:
         cur.execute("DELETE FROM `%s` WHERE `entry` = %%s" % TABLE, (entry,))
         cur.execute("DELETE FROM `%s` WHERE `ID` = %%s" % LOCALE_TABLE, (entry,))

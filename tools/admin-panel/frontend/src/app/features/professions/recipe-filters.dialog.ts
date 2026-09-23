@@ -22,93 +22,101 @@ import { apiError, dictName, qualityName, statName } from './professions.model';
   imports: [FormsModule, IconComponent, ProfItemComponent],
   styleUrl: './recipe-dialog.scss',
   template: `
-    <dialog #dialog (close)="closed.emit()">
+    <dialog #dialog class="forge-dialog" (close)="shown.set(false); closed.emit()">
       <header>
         <h2>Гнёзда: {{ recipe()?.name_ru }}</h2>
-        <button type="button" class="forge-btn is-icon close" aria-label="Закрыть" (click)="close()">
+        <button
+          type="button"
+          class="forge-btn is-icon close"
+          aria-label="Закрыть"
+          (click)="close()"
+        >
           <app-icon name="close" [size]="14" />
         </button>
       </header>
 
-      <div class="body">
-        @if (error(); as text) {
-          <p class="forge-alert is-danger">{{ text }}</p>
-        }
-
-        <table>
-          <thead>
-            <tr>
-              <th>Ступень</th>
-              <th>Гнёзд</th>
-              <th>Подходит камней</th>
-              <th>Эскизов</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (step of recipe()?.inlay ?? []; track step.quality) {
-              <tr [class.off]="step.slots && !step.gems">
-                <td>{{ tierName(step.quality) }}</td>
-                <td class="num">{{ step.slots }}</td>
-                <td class="num">{{ step.gems }}</td>
-                <td class="num">{{ step.patterns }}</td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="4" class="empty">У рецепта нет изделий - гнёзда считать не от чего.</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-
-        <h3>Типы вставки</h3>
-        <p class="hint">
-          Массовое правило на семейство основ. Пока в поимённом списке есть хоть один камень, типы
-          не читаются вовсе.
-        </p>
-        <div class="checks">
-          @for (type of insertTypes(); track type.id) {
-            <label [class.is-off]="named().length">
-              <input
-                class="forge-check"
-                type="checkbox"
-                [checked]="types().includes(type.id)"
-                [disabled]="!canEdit() || !!named().length"
-                (change)="toggleType(type.id, $any($event.target).checked)"
-              />
-              {{ type.name_ru }}
-            </label>
+      <!-- Тело рисуется только в открытом окне: поимённый список - это все
+           вставки модуля (~500 строк, 11 тысяч узлов), и закрытое окно
+           держало их в каждой открытой странице основ. -->
+      @if (shown()) {
+        <div class="body">
+          @if (error(); as text) {
+            <p class="forge-alert is-error">{{ text }}</p>
           }
-        </div>
 
-        <h3>Поимённый список</h3>
-        <table>
-          <tbody>
-            @for (mat of inserts(); track mat.entry) {
-              <tr [class.off]="!mat.enabled">
-                <td class="pick">
-                  <input
-                    class="forge-check"
-                    type="checkbox"
-                    [checked]="named().includes(mat.entry)"
-                    [disabled]="!canEdit()"
-                    (change)="toggleNamed(mat.entry, $any($event.target).checked)"
-                  />
-                </td>
-                <td>
-                  <app-prof-item [item]="mat.item" [entry]="mat.entry" [iconBase]="iconBase()" />
-                </td>
-                <td class="muted">{{ typeName(mat.insert_type_id) }}</td>
-                <td class="muted">{{ tierName(mat.quality || 0) }}</td>
-                <td class="muted">{{ statLabel(mat.stat_type) }} +{{ mat.stat_value }}</td>
-              </tr>
-            } @empty {
+          <table>
+            <thead>
               <tr>
-                <td colspan="5" class="empty">Вставок не заведено.</td>
+                <th>Ступень</th>
+                <th>Гнёзд</th>
+                <th>Подходит камней</th>
+                <th>Эскизов</th>
               </tr>
+            </thead>
+            <tbody>
+              @for (step of recipe()?.inlay ?? []; track step.quality) {
+                <tr [class.off]="step.slots && !step.gems">
+                  <td>{{ tierName(step.quality) }}</td>
+                  <td class="num">{{ step.slots }}</td>
+                  <td class="num">{{ step.gems }}</td>
+                  <td class="num">{{ step.patterns }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="empty">
+                    У основы нет изделий - гнёзда считать не от чего.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          <h3>Типы вставки</h3>
+          <div class="checks">
+            @for (type of insertTypes(); track type.id) {
+              <label [class.is-off]="named().length">
+                <input
+                  class="forge-check"
+                  type="checkbox"
+                  [checked]="types().includes(type.id)"
+                  [disabled]="!canEdit() || !!named().length"
+                  (change)="toggleType(type.id, $any($event.target).checked)"
+                />
+                {{ type.name_ru }}
+              </label>
             }
-          </tbody>
-        </table>
-      </div>
+          </div>
+
+          <h3>Поимённый список</h3>
+          <table>
+            <tbody>
+              @for (mat of inserts(); track mat.entry) {
+                <tr [class.off]="!mat.enabled">
+                  <td class="pick">
+                    <input
+                      class="forge-check"
+                      type="checkbox"
+                      [checked]="named().includes(mat.entry)"
+                      [disabled]="!canEdit()"
+                      (change)="toggleNamed(mat.entry, $any($event.target).checked)"
+                    />
+                  </td>
+                  <td>
+                    <app-prof-item [item]="mat.item" [entry]="mat.entry" [iconBase]="iconBase()" />
+                  </td>
+                  <td class="muted">{{ typeName(mat.insert_type_id) }}</td>
+                  <td class="muted">{{ tierName(mat.quality || 0) }}</td>
+                  <td class="muted">{{ statLabel(mat.stat_type) }} +{{ mat.stat_value }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="empty">Вставок не заведено.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     </dialog>
   `,
 })
@@ -125,8 +133,10 @@ export class RecipeFiltersDialogComponent {
   readonly types = signal<number[]>([]);
   readonly named = signal<number[]>([]);
   readonly error = signal<string | null>(null);
+  readonly shown = signal(false);
 
   open(recipe: Recipe): void {
+    this.shown.set(true);
     this.recipe.set(recipe);
     this.types.set([...recipe.insert_types]);
     this.named.set([...recipe.materials]);
@@ -186,7 +196,7 @@ export class RecipeFiltersDialogComponent {
         }),
       );
       this.error.set(null);
-      // Числа гнёзд считает сервер - перечитываем сам рецепт, а не свой снимок.
+      // Числа гнёзд считает сервер - перечитываем саму основу, а не свой снимок.
       const fresh = (await firstValueFrom(this.api.recipes())).recipes.find(
         (row) => row.id === recipe.id,
       );

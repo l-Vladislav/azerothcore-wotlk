@@ -1,5 +1,5 @@
 <section class="page-head">
-  <h1>Объединение</h1>
+  <app-professions-tabs />
 </section>
 
 @if (loading()) {
@@ -9,48 +9,50 @@
     Таблицы модуля не найдены. Примените миграцию продвинутых профессий.
   </p>
 } @else {
-  <p class="hint">
-    Третий род рецепта (DESIGN §5.8): в середину стола кладут <b>любую</b> вещь подходящего типа -
-    выбитую, купленную, скованную здесь, - в пять ячеек что угодно, и выходит готовый предмет.
-    Навыка стол не требует, броска не делает, а несовпавший набор не тратит ничего.
-  </p>
-
   @if (canEdit()) {
-    <div class="add-bar">
-      <label>
-        <span>имя</span>
-        <input
-          class="forge-field"
-          placeholder="Клинок, скованный заново"
-          [ngModel]="draft().name_ru"
-          (ngModelChange)="setDraft({ name_ru: $event })"
-          (keydown.enter)="add()"
-        />
-      </label>
-      <label>
-        <span>тип вещи в середине</span>
-        <select
-          class="forge-field is-select"
-          [ngModel]="draft().type_id"
-          (ngModelChange)="setDraft({ type_id: +$event })"
-        >
-          @for (type of types(); track type.id) {
-            <option [ngValue]="type.id">{{ type.name_ru }}</option>
-          }
-        </select>
-      </label>
-      <button type="button" class="forge-btn is-primary is-compact" [disabled]="busy()" (click)="add()">
-        Добавить
-      </button>
-    </div>
+    <app-add-dialog
+      title="Новый рецепт объединения"
+      [busy]="busy()"
+      [error]="error()"
+      (submitted)="submitAdd()"
+    >
+      <div class="add-form">
+        <label>
+          <span>имя</span>
+          <input
+            class="forge-field is-small"
+            placeholder="Клинок, скованный заново"
+            [ngModel]="draft().name_ru"
+            (ngModelChange)="setDraft({ name_ru: $event })"
+          />
+        </label>
+        <label>
+          <span>тип вещи в середине</span>
+          <select
+            class="forge-field is-small is-select"
+            [ngModel]="draft().type_id"
+            (ngModelChange)="setDraft({ type_id: +$event })"
+          >
+            @for (type of types(); track type.id) {
+              <option [ngValue]="type.id">{{ type.name_ru }}</option>
+            }
+          </select>
+        </label>
+      </div>
+    </app-add-dialog>
   }
 
   <app-prof-filters
     [view]="view"
     [picks]="picks()"
-    [total]="rows().length"
     placeholder="поиск по имени, типу или предмету набора"
-  />
+  >
+    @if (canEdit()) {
+      <button type="button" class="forge-btn is-primary is-compact" (click)="openAdd()">
+        + Добавить
+      </button>
+    }
+  </app-prof-filters>
 
   <div class="table-wrap">
     <table>
@@ -78,7 +80,7 @@
           <tr [class.off]="!row.enabled">
             <td>
               <input
-                class="forge-field"
+                class="forge-field is-small"
                 [ngModel]="row.name_ru"
                 [disabled]="!canEdit()"
                 (change)="patch(row, { name_ru: $any($event.target).value })"
@@ -86,7 +88,7 @@
             </td>
             <td>
               <select
-                class="forge-field is-select"
+                class="forge-field is-small is-select"
                 [ngModel]="row.type_id"
                 [disabled]="!canEdit()"
                 (ngModelChange)="patch(row, { type_id: +$event })"
@@ -171,11 +173,13 @@
               @if (canEdit()) {
                 <button
                   type="button"
-                  class="forge-btn is-danger is-compact"
+                  class="forge-btn is-danger is-icon is-compact"
                   [disabled]="busy()"
                   (click)="remove(row)"
+                  title="Удалить"
+                  aria-label="Удалить"
                 >
-                  Удалить
+                  <app-icon name="trash" tone="plain" [size]="15" />
                 </button>
               }
             </td>
@@ -202,7 +206,6 @@
     [total]="view.found().length"
     [page]="view.page()"
     [perPage]="view.perPage()"
-    [sizes]="[25, 50, 100, 200]"
     (pageChange)="view.page.set($event)"
     (perPageChange)="view.perPage.set($event); view.page.set(1)"
   />

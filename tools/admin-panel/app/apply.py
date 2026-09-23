@@ -54,7 +54,7 @@ TARGETS: dict[str, Target] = {
         ".itemtalent reload"),
     "aprof": Target(
         "aprof", "Продвинутые профессии",
-        "«aprof reload» - модуль перечитывает материалы и рецепты.",
+        "«aprof reload» - модуль перечитывает материалы и основы.",
         "aprof reload", role="owner"),
     "loot": Target(
         "loot", "Добыча",

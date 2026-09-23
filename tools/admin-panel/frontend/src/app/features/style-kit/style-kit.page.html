@@ -78,6 +78,12 @@
     <button class="forge-btn is-icon" type="button" aria-label="Настройки">
       <span class="forge-tile" style="background-image: url('/ui/icons/emblem-gear.png')"></span>
     </button>
+    <button class="forge-btn is-icon is-compact" type="button" aria-label="Выбрать" title="Выбрать">
+      <app-icon name="more" [size]="16" />
+    </button>
+    <button class="forge-btn is-icon is-compact is-danger" type="button" aria-label="Удалить" title="Удалить">
+      <app-icon name="trash" tone="plain" [size]="15" />
+    </button>
   </div>
   <button class="forge-btn is-wide" type="button">Действие во всю ширину »</button>
 </details>
@@ -234,7 +240,15 @@
     </select>
   </div>
   <div class="row">
-    <textarea class="forge-field" placeholder="Сообщение подлиннее…" rows="3"></textarea>
+    <input class="forge-field is-small" placeholder="Малое поле" />
+    <input class="forge-field is-search is-small" placeholder="Малый поиск…" />
+    <select class="forge-field is-select is-small">
+      <option>Малый список</option>
+      <option>Вариант 1</option>
+    </select>
+  </div>
+  <div class="row">
+    <textarea class="forge-field"placeholder="Сообщение подлиннее…" rows="3"></textarea>
     <label class="pick"><input class="forge-check" type="checkbox" checked /> Отмечено</label>
     <label class="pick"><input class="forge-check" type="checkbox" /> Не отмечено</label>
     <label class="pick"

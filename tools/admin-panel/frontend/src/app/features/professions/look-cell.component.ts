@@ -1,5 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { IconComponent } from '../../shared/ui/icon.component';
 import { iconUrl, useBlankIcon } from './professions.model';
 
 /**
@@ -12,12 +13,12 @@ import { iconUrl, useBlankIcon } from './professions.model';
  */
 @Component({
   selector: 'app-look-cell',
-  imports: [FormsModule],
+  imports: [FormsModule, IconComponent],
   styleUrl: './look-cell.component.scss',
   template: `
     <img [src]="src()" width="28" height="28" alt="" (error)="onError($event)" />
     <input
-      class="forge-field"
+      class="forge-field is-small"
       type="number"
       min="0"
       [ngModel]="displayId()"
@@ -27,22 +28,24 @@ import { iconUrl, useBlankIcon } from './professions.model';
     />
     <button
       type="button"
-      class="forge-btn is-ghost is-compact"
+      class="forge-btn is-ghost is-icon is-compact"
       [disabled]="disabled()"
       title="Выбрать внешний вид из существующих предметов."
+      aria-label="Выбрать внешний вид"
       (click)="pick.emit()"
     >
-      Выбрать
+      <app-icon name="more" [size]="16" />
     </button>
     @if (clearable() && displayId()) {
       <button
         type="button"
-        class="forge-btn is-ghost is-compact"
+        class="forge-btn is-ghost is-icon is-compact"
         [disabled]="disabled()"
         title="Вернуть внешний вид основы."
+        aria-label="Вернуть внешний вид основы"
         (click)="changed.emit(0)"
       >
-        ×
+        <app-icon name="close" [size]="12" />
       </button>
     }
   `,

@@ -1,4 +1,5 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, ElementRef, OnDestroy, computed, inject, input } from '@angular/core';
+import { ItemTooltipService } from '../../shared/ui/item-tooltip.service';
 import { ItemBrief } from './professions.api';
 import { BLANK_ICON, iconUrl, useBlankIcon } from './professions.model';
 
@@ -11,12 +12,18 @@ import { BLANK_ICON, iconUrl, useBlankIcon } from './professions.model';
  */
 @Component({
   selector: 'app-prof-item',
+  // Наведение на предмет - игровая подсказка кита (`ItemTooltipService`).
+  // Предмета нет в item_template - и подсказывать нечего.
+  host: {
+    '(mouseenter)': 'tip.show(item() ? entry() || item()!.entry : 0, host.nativeElement)',
+    '(mouseleave)': 'tip.hide(host.nativeElement)',
+  },
   styleUrl: './item-cell.component.scss',
   template: `
     <img [src]="src()" width="28" height="28" alt="" loading="lazy" (error)="onError($event)" />
     <span class="nm">
       @if (item(); as row) {
-        <b [class]="'q' + row.quality" [title]="row.name">{{ row.name }}</b>
+        <b [class]="'q' + row.quality">{{ row.name }}</b>
         <small>id {{ row.entry }}</small>
       } @else {
         <b class="warn">{{ entry() ? 'предмета нет' : empty() }}</b>
@@ -27,7 +34,10 @@ import { BLANK_ICON, iconUrl, useBlankIcon } from './professions.model';
     </span>
   `,
 })
-export class ProfItemComponent {
+export class ProfItemComponent implements OnDestroy {
+  protected readonly tip = inject(ItemTooltipService);
+  protected readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
   readonly item = input<ItemBrief | null>(null);
   readonly entry = input(0);
   readonly iconBase = input('');
@@ -40,5 +50,9 @@ export class ProfItemComponent {
 
   onError(event: Event): void {
     useBlankIcon(event);
+  }
+
+  ngOnDestroy(): void {
+    this.tip.hide(this.host.nativeElement);
   }
 }

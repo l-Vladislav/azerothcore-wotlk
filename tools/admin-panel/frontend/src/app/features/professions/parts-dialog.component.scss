@@ -1,16 +1,7 @@
 dialog {
-  background-image: var(--texture-panel);
-  background-size: auto, 480px;
-  border: 3px ridge #62655c;
-  border-radius: 3px;
-  box-shadow: var(--frame-shadow);
-  color: var(--text);
   max-height: min(680px, 84vh);
   padding: 0;
   width: min(720px, 94vw);
-}
-dialog::backdrop {
-  background: #04060799;
 }
 
 header {

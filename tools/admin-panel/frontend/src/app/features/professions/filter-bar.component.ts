@@ -1,14 +1,13 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ForgeSelectDirective } from '../../shared/ui/forge-select.directive';
 import { FilterState, PickOption } from './list-view';
 
 /**
- * Полоса отбора: поиск, выпадающие отборы, сброс и счёт строк.
+ * Полоса отбора: поиск, выпадающие отборы, сброс и действия листа.
  *
- * Счёт из двух чисел, а не из одного: сколько нашлось отбором и сколько строк
- * всего. Без второго непонятно, много ли отбор отсёк. Номера страниц тут не
- * рисуются - подвал таблицы (`app-table-pager`) и так стоит под листом.
+ * Счёта строк тут нет: его показывает подвал таблицы (`app-table-pager`), и
+ * два счёта над и под листом повторяли друг друга.
  */
 @Component({
   selector: 'app-prof-filters',
@@ -17,7 +16,7 @@ import { FilterState, PickOption } from './list-view';
   template: `
     <div class="filters">
       <input
-        class="forge-field is-search"
+        class="forge-field is-small is-search"
         type="search"
         [placeholder]="placeholder()"
         [ngModel]="view().query()"
@@ -25,7 +24,7 @@ import { FilterState, PickOption } from './list-view';
       />
       @for (pick of picks(); track pick.key) {
         <select
-          class="forge-field is-select"
+          class="forge-field is-small is-select"
           [title]="pick.label"
           [ngModel]="view().picked()[pick.key] ?? ''"
           (ngModelChange)="view().onPick(pick.key, $event)"
@@ -41,7 +40,8 @@ import { FilterState, PickOption } from './list-view';
           Сбросить
         </button>
       }
-      <span class="count">{{ count() }}</span>
+      <!-- Действия листа («Добавить») - у правого края, над таблицей. -->
+      <span class="actions"><ng-content /></span>
     </div>
   `,
 })
@@ -49,11 +49,4 @@ export class ProfFiltersComponent {
   readonly view = input.required<FilterState>();
   readonly picks = input<readonly PickOption[]>([]);
   readonly placeholder = input('поиск');
-  readonly total = input.required<number>();
-
-  readonly count = computed(() => {
-    const found = this.view().found().length;
-    const total = this.total();
-    return found === total ? `строк: ${total}` : `отобрано ${found} из ${total}`;
-  });
 }

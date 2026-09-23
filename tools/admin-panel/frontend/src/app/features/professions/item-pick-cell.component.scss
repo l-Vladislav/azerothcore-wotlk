@@ -1,14 +1,23 @@
+// Предмет и кнопки в одну строку: кнопки теперь квадратные значки («…», «×»)
+// и под строку предмета их выносить незачем - второй этаж только растил ряд.
 :host {
-  display: grid;
-  gap: 4px;
-  min-width: 200px;
+  align-items: center;
+  display: flex;
+  gap: 6px;
+  min-width: 170px;
+}
+// Имя сжимается многоточием, но не до огрызка «предме…».
+app-prof-item {
+  flex: 1 1 auto;
+  min-width: 96px;
 }
 .muted {
   color: var(--muted);
+  flex: 1 1 auto;
   font-size: 12px;
 }
 .act {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex: none;
+  gap: 4px;
 }

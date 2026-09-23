@@ -1,7 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { TablePagerComponent } from '../../shared/data/table-pager.component';
 import { ToastService } from '../../shared/ui/toast.service';
+import { ListView } from './list-view';
 import { ProfItemComponent } from './item-cell.component';
 import { RelationsGraphComponent } from './relations-graph.component';
 import {
@@ -14,6 +16,7 @@ import {
   Synergy,
 } from './professions.api';
 import { ACQUIRE, BLANK_ICON, apiError, iconUrl, qualityName, useBlankIcon } from './professions.model';
+import { ProfessionsTabsComponent } from './professions-tabs.component';
 
 type Dir = 'base' | 'named' | 'graph';
 
@@ -24,11 +27,17 @@ type Dir = 'base' | 'named' | 'graph';
  * могу сделать», обратный - «откуда берётся вот эта вещь», а диаграмма
  * показывает всё разом, без выбора типа.
  *
- * Своих запросов у карточных видов нет: данные те же, что у страниц рецептов
+ * Своих запросов у карточных видов нет: данные те же, что у страниц основ
  * и именных, - карта их только раскладывает.
  */
 @Component({
-  imports: [ProfItemComponent, RelationsGraphComponent, RouterLink],
+  imports: [
+    ProfessionsTabsComponent,
+    ProfItemComponent,
+    RelationsGraphComponent,
+    RouterLink,
+    TablePagerComponent,
+  ],
   providers: [ProfessionsApi],
   selector: 'app-professions-relations-page',
   styleUrl: './relations.page.scss',
@@ -69,6 +78,12 @@ export class ProfessionsRelationsPage {
   readonly typeSynergies = computed(() =>
     this.synergies().filter((syn) => this.typeRecipes().some((rec) => rec.id === syn.recipe_id)),
   );
+  /**
+   * Карточки по страницам: у меча 184 основы и 417 эскизов, и все разом
+   * давали 14 тысяч узлов - вкладка открывалась секунду.
+   */
+  readonly baseView = new ListView<Recipe>(this.typeRecipes, signal({}));
+  readonly sketchView = new ListView<Synergy>(this.typeSynergies, signal({}));
 
   readonly stepCount = computed(() =>
     this.typeRecipes().reduce((sum, rec) => sum + rec.results.length, 0),
@@ -117,6 +132,8 @@ export class ProfessionsRelationsPage {
 
   setType(id: number): void {
     this.typeId.set(id);
+    this.baseView.page.set(1);
+    this.sketchView.page.set(1);
     this.patchUrl();
   }
 

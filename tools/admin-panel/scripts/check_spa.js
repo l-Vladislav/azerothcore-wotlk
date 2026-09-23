@@ -1138,7 +1138,7 @@ async function main() {
       const pages = [
         ["Типы предметов", "/professions/types", "app-professions-types-page"],
         ["Материалы", "/professions/materials", "app-professions-materials-page"],
-        ["Рецепты", "/professions/recipes", "app-professions-recipes-page"],
+        ["Основы", "/professions/recipes", "app-professions-recipes-page"],
         ["Именные", "/professions/named", "app-professions-named-page"],
         ["Объединение", "/professions/merge", "app-professions-merge-page"],
         ["Справочники", "/professions/dicts", "app-professions-dicts-page"],
@@ -1149,11 +1149,16 @@ async function main() {
       ];
       for (const [label, route, selector] of pages) {
         const tab = await page(engine.port, `${base}${route}`);
-        await tab.until(countOf(`${selector} h1`), `страница «${label}»`);
+        // Заголовка у страниц профессий нет: открытую страницу называет
+        // выбранная вкладка в шапке, и она должна быть ровно одна.
+        const active = `${selector} .page-head .forge-tab.is-active`;
+        await tab.until(countOf(active), `страница «${label}»`);
         check(
-          `Профессии · ${label}: заголовок`,
-          (await tab.evaluate(textOf(`${selector} h1`))) === label,
-          await tab.evaluate(textOf(`${selector} h1`)),
+          `Профессии · ${label}: выбрана своя вкладка`,
+          (await tab.evaluate(textOf(active))) === label &&
+            (await tab.evaluate(countOf(active))) === 1 &&
+            (await tab.evaluate(countOf(`${selector} .page-head .forge-tab`))) === pages.length,
+          await tab.evaluate(textOf(active)),
         );
         // Содержимое приезжает запросом, поэтому его ЖДЁМ: заголовок рисуется
         // сразу, и проверка сразу после него мерила бы скорость сети, а не

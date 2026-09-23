@@ -1,15 +1,7 @@
 dialog {
-  background-image: var(--texture-panel);
-  border: 3px ridge #62655c;
-  border-radius: 3px;
-  box-shadow: var(--frame-shadow);
-  color: var(--text);
   margin-top: 12vh;
   padding: 0;
   width: min(620px, 94vw);
-}
-dialog::backdrop {
-  background: #04060799;
 }
 
 // Поле - из набора (поисковая кромка с листа 5); тут только его место в окне.

@@ -5,6 +5,7 @@ import { AuthService } from '../../core/auth.service';
 import { ToastService } from '../../shared/ui/toast.service';
 import { Balance, IlvlRow, ProfessionsApi, ProfessionsMeta, SettingRow } from './professions.api';
 import { apiError } from './professions.model';
+import { ProfessionsTabsComponent } from './professions-tabs.component';
 
 /** Точки кривой, по которым видно, во что складываются числа модуля. */
 const GAPS = [100, 50, 0, -50, -100, -200];
@@ -19,7 +20,7 @@ const GAPS = [100, 50, 0, -50, -100, -200];
  * проверку, которой на самом деле не проходит.
  */
 @Component({
-  imports: [FormsModule],
+  imports: [ProfessionsTabsComponent, FormsModule],
   providers: [ProfessionsApi],
   selector: 'app-professions-balance-page',
   styleUrl: './balance.page.scss',

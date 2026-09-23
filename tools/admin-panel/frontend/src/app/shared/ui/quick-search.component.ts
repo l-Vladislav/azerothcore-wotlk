@@ -28,7 +28,7 @@ interface Hit {
     '(document:keydown)': 'onKey($event)',
   },
   template: `
-    <dialog #dialog (close)="query.set('')">
+    <dialog #dialog class="forge-dialog" (close)="query.set('')">
       <input
         class="forge-field is-search"
         #field

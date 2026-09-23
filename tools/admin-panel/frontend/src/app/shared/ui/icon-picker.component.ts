@@ -29,7 +29,7 @@ const SHOWN = 240;
   imports: [FormsModule, IconComponent],
   styleUrl: './icon-picker.component.scss',
   template: `
-    <dialog #dialog>
+    <dialog #dialog class="forge-dialog">
       <header>
         <h2>Иконка</h2>
         <button

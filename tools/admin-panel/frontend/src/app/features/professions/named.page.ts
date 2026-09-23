@@ -22,6 +22,9 @@ import {
   SynergyPatch,
 } from './professions.api';
 import { apiError, qualityName } from './professions.model';
+import { IconComponent } from '../../shared/ui/icon.component';
+import { ProfessionsTabsComponent } from './professions-tabs.component';
+import { AddDialogComponent } from './add-dialog.component';
 
 /** Кому предназначен ответ окна выбора камня. */
 type GemTarget = { kind: 'draft'; index: number } | { kind: 'row'; row: Synergy; index: number };
@@ -42,6 +45,9 @@ type PickMode =
  */
 @Component({
   imports: [
+    AddDialogComponent,
+    ProfessionsTabsComponent,
+    IconComponent,
     FormsModule,
     ForgeSelectDirective,
     GemPickerDialogComponent,
@@ -68,6 +74,13 @@ export class ProfessionsNamedPage {
   readonly meta = signal<ProfessionsMeta | null>(null);
   readonly rows = signal<Synergy[]>([]);
   readonly recipes = signal<Recipe[]>([]);
+  /**
+   * Строка, у которой список «Основа» раскрыт целиком. Основ 1127, и
+   * полный список в каждой строке давал 56 тысяч `<option>` на полсотни строк
+   * - вкладка открывалась три секунды. Меню кита читает варианты в момент
+   * раскрытия, а к этому моменту мышь или фокус уже здесь.
+   */
+  readonly recipeListFor = signal<number | null>(null);
   readonly materials = signal<Material[]>([]);
   readonly loading = signal(true);
   readonly busy = signal(false);
@@ -271,11 +284,24 @@ export class ProfessionsNamedPage {
     this.itemPicker().open();
   }
 
-  async add(): Promise<void> {
+  /** Окно добавления: поля живут там, а не полосой над листом. */
+  private readonly adder = viewChild(AddDialogComponent);
+
+  openAdd(): void {
+    this.error.set(null);
+    this.adder()?.open();
+  }
+
+  /** Окно закрывается только после удачной записи - отказ остаётся перед глазами. */
+  async submitAdd(): Promise<void> {
+    if (await this.add()) this.adder()?.close();
+  }
+
+  async add(): Promise<boolean> {
     const mats = this.draftSlots().filter(Boolean);
     if (!mats.length) {
       this.error.set('Положите в набор хотя бы один камень.');
-      return;
+      return false;
     }
     const saved = await this.put({
       id: 0,
@@ -292,6 +318,7 @@ export class ProfessionsNamedPage {
       this.draftMats.set([]);
       this.draftTeach.set(null);
     }
+    return saved;
   }
 
   // --- строки ---------------------------------------------------------------

@@ -43,10 +43,6 @@ export function blankRow(group = 0, chance = 100): RowDraft {
     <form (submit)="save($event)">
       <fieldset class="what">
         <legend>Что кладём</legend>
-        <p class="hint">
-          Строка несёт либо предмет, либо ссылку на общий кусок: при непустой ссылке ядро поле
-          предмета не читает вовсе.
-        </p>
         <div class="choice">
           <div class="side" [class.dimmed]="!!draft().reference">
             <span class="caption">Предмет</span>
