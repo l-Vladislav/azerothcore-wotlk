@@ -1,11 +1,30 @@
 import { Injectable, inject } from '@angular/core';
+import { Observable, catchError, map, shareReplay, tap, throwError } from 'rxjs';
 import { ApiService } from '../../core/api.service';
+
+/**
+ * Кэш чтений, ОБЩИЙ для всех страниц профессий.
+ *
+ * Без него каждая вкладка при открытии заново качала одни и те же
+ * справочники: материалы (460 КБ) тянули шесть страниц из десяти, основы
+ * (1.1 МБ) - четыре, и переход «Основы -> Именные» стоил 4.5 МБ повторной
+ * загрузки. Служба заводится на каждой странице своя (`providers`), поэтому
+ * кэш лежит на уровне модуля, а не в экземпляре.
+ *
+ * Живёт минуту и сбрасывается ЦЕЛИКОМ любой правкой через эту службу:
+ * справочники связаны накрест (материал в основе, основа в сочетании), и
+ * сбрасывать по одному адресу - значит однажды забыть соседний. Каждый
+ * потребитель получает свою копию (`structuredClone`): страницы правят строки
+ * на месте, и без копии черновик одной вкладки уезжал бы в другую.
+ */
+const CACHE_TTL_MS = 60_000;
+const cache = new Map<string, { at: number; data: Observable<unknown> }>();
 
 /**
  * Одна служба на все страницы профессий, а не по службе на страницу.
  *
  * Справочники тут связаны накрест: материал ссылается на род из справочника,
- * ячейка типа - на тот же род, рецепт - на тип и на материалы. Разрезав вызовы
+ * ячейка типа - на тот же род, основа - на тип и на материалы. Разрезав вызовы
  * по страницам, мы бы получили пять описаний одного и того же `Material`,
  * которые разойдутся на первой же правке модели.
  */
@@ -91,7 +110,7 @@ export interface ItemType {
   sort: number;
   fail_entry: number;
   enabled: boolean;
-  /** Считает сервер: ячеек всего, из них обязательных, и сколько рецептов. */
+  /** Считает сервер: ячеек всего, из них обязательных, и сколько основ. */
   parts: number;
   required_parts: number;
   recipes: number;
@@ -110,7 +129,7 @@ export interface TypePart {
   choices: number;
 }
 
-/** Ячейка рецепта: что лежит в части схемы и сколько его надо. */
+/** Ячейка основы: что лежит в части схемы и сколько его надо. */
 export interface RecipeCell {
   part_idx: number;
   item_entry: number;
@@ -119,7 +138,7 @@ export interface RecipeCell {
   part_kind_id: number;
   required: number;
   item: ItemBrief | null;
-  /** Ячейки, которой в схеме типа уже нет: схему перекроили после рецепта. */
+  /** Ячейки, которой в схеме типа уже нет: схему перекроили после основы. */
   orphan?: boolean;
 }
 
@@ -135,7 +154,7 @@ export interface RecipeResult {
 /**
  * Что выходит на ступени качества: сколько гнёзд даёт изделие, сколько камней
  * им подходит и сколько разных наборов из этого собирается. Ноль камней при
- * живых гнёздах - рецепт включить не дадут.
+ * живых гнёздах - основу включить не дадут.
  */
 export interface InlayStep {
   quality: number;
@@ -202,7 +221,7 @@ export interface RecipeCellsPage {
 /**
  * Именное сочетание: набор вставок в одной основе даёт СВОЙ предмет.
  *
- * Принадлежит основе, то есть рецепту (DESIGN §5.6): те же два камня в щите
+ * Принадлежит основе (DESIGN §5.6): те же два камня в щите
  * либо дадут собственное сочетание щита, либо не дадут ничего.
  */
 export interface Synergy {
@@ -276,6 +295,25 @@ export interface MatchResult {
   totals: { stat_type: number; value: number }[];
   synergy: { id: number; name: string; result_entry: number; result: ItemBrief | null } | null;
   finish_warning: boolean;
+}
+
+/**
+ * Проверка именного: основа выбрана прямо, ячейки не нужны. Вставки, сумма и
+ * сочетание - те же, что во второй половине `MatchResult`.
+ */
+export interface NamedMatchResult {
+  recipe: {
+    id: number;
+    name_ru: string;
+    enabled: boolean;
+    inlay: { quality: number; slots: number; gems: number; patterns: number }[];
+  };
+  inserts: MatchResult['inserts'];
+  totals: MatchResult['totals'];
+  synergy: MatchResult['synergy'];
+  finish_warning: boolean;
+  /** Все сочетания этой основы - чтобы было с чем сверить набор. */
+  known: { id: number; name: string; mats: number[]; enabled: boolean }[];
 }
 
 /** Что уже выдано из пула и сколько заготовок осталось. */
@@ -363,22 +401,57 @@ export type PartPatch = Omit<TypePart, 'choices'>;
 export class ProfessionsApi {
   private readonly api = inject(ApiService);
 
+  private get<T>(path: string): Observable<T> {
+    const hit = cache.get(path);
+    if (!hit || Date.now() - hit.at > CACHE_TTL_MS) {
+      const data = this.api.get<T>(path).pipe(
+        catchError((error) => {
+          cache.delete(path);
+          return throwError(() => error);
+        }),
+        shareReplay(1),
+      );
+      cache.set(path, { at: Date.now(), data });
+      return data.pipe(map((value) => structuredClone(value)));
+    }
+    return (hit.data as Observable<T>).pipe(map((value) => structuredClone(value)));
+  }
+
+  /** Любая запись сбрасывает кэш - и при успехе, и при отказе. */
+  private write<T>(request: Observable<T>): Observable<T> {
+    return request.pipe(
+      tap({ next: () => cache.clear(), error: () => cache.clear() }),
+    );
+  }
+
+  private put<T>(path: string, body: unknown) {
+    return this.write(this.api.put<T>(path, body));
+  }
+
+  private post<T>(path: string, body?: unknown) {
+    return this.write(this.api.post<T>(path, body));
+  }
+
+  private delete<T>(path: string) {
+    return this.write(this.api.delete<T>(path));
+  }
+
   meta() {
-    return this.api.get<ProfessionsMeta>('/aprof/meta');
+    return this.get<ProfessionsMeta>('/aprof/meta');
   }
 
   // --- материалы ----------------------------------------------------------
 
   materials() {
-    return this.api.get<{ materials: Material[] }>('/aprof/materials');
+    return this.get<{ materials: Material[] }>('/aprof/materials');
   }
 
   saveMaterial(material: MaterialPatch) {
-    return this.api.put<{ entry: number }>('/aprof/materials', material);
+    return this.put<{ entry: number }>('/aprof/materials', material);
   }
 
   deleteMaterial(entry: number) {
-    return this.api.delete<{ ok: boolean }>(`/aprof/materials/${entry}`);
+    return this.delete<{ ok: boolean }>(`/aprof/materials/${entry}`);
   }
 
   // --- справочники --------------------------------------------------------
@@ -386,86 +459,86 @@ export class ProfessionsApi {
   // оговорок. Форма тела у них общая, поэтому путь - обычный параметр.
 
   dictRows(path: 'part-kinds' | 'insert-types') {
-    return this.api.get<{ rows: DictRow[] }>(`/aprof/${path}`);
+    return this.get<{ rows: DictRow[] }>(`/aprof/${path}`);
   }
 
   saveDictRow(path: 'part-kinds' | 'insert-types', row: DictRow) {
-    return this.api.put<{ id: number }>(`/aprof/${path}`, row);
+    return this.put<{ id: number }>(`/aprof/${path}`, row);
   }
 
   deleteDictRow(path: 'part-kinds' | 'insert-types', id: number) {
-    return this.api.delete<{ ok: boolean }>(`/aprof/${path}/${id}`);
+    return this.delete<{ ok: boolean }>(`/aprof/${path}/${id}`);
   }
 
   // --- типы и их схемы ----------------------------------------------------
 
   types() {
-    return this.api.get<{ types: ItemType[] }>('/aprof/types');
+    return this.get<{ types: ItemType[] }>('/aprof/types');
   }
 
   saveType(type: TypePatch) {
-    return this.api.put<{ id: number }>('/aprof/types', type);
+    return this.put<{ id: number }>('/aprof/types', type);
   }
 
   deleteType(id: number) {
-    return this.api.delete<{ ok: boolean }>(`/aprof/types/${id}`);
+    return this.delete<{ ok: boolean }>(`/aprof/types/${id}`);
   }
 
   makeFailItem(typeId: number, sampleEntry: number) {
-    return this.api.post<{ entry: number }>(`/aprof/types/${typeId}/fail-item`, {
+    return this.post<{ entry: number }>(`/aprof/types/${typeId}/fail-item`, {
       sample_entry: sampleEntry,
     });
   }
 
   parts(typeId: number) {
-    return this.api.get<{ parts: TypePart[] }>(`/aprof/types/${typeId}/parts`);
+    return this.get<{ parts: TypePart[] }>(`/aprof/types/${typeId}/parts`);
   }
 
   savePart(typeId: number, part: PartPatch) {
-    return this.api.put<{ idx: number }>(`/aprof/types/${typeId}/parts`, {
+    return this.put<{ idx: number }>(`/aprof/types/${typeId}/parts`, {
       ...part,
       type_id: typeId,
     });
   }
 
   deletePart(typeId: number, idx: number) {
-    return this.api.delete<{ ok: boolean }>(`/aprof/types/${typeId}/parts/${idx}`);
+    return this.delete<{ ok: boolean }>(`/aprof/types/${typeId}/parts/${idx}`);
   }
 
-  // --- рецепты ------------------------------------------------------------
+  // --- основы -------------------------------------------------------------
 
   recipes() {
-    return this.api.get<{ recipes: Recipe[] }>('/aprof/recipes');
+    return this.get<{ recipes: Recipe[] }>('/aprof/recipes');
   }
 
   saveRecipe(recipe: RecipePatch) {
     // `note` приходит, когда сервер принял строку, но с оговоркой, - например
-    // выключил рецепт, у которого пропало изделие.
-    return this.api.put<{ id: number; note?: string }>('/aprof/recipes', recipe);
+    // выключил основу, у которой пропало изделие.
+    return this.put<{ id: number; note?: string }>('/aprof/recipes', recipe);
   }
 
   deleteRecipe(id: number) {
-    return this.api.delete<{ ok: boolean }>(`/aprof/recipes/${id}`);
+    return this.delete<{ ok: boolean }>(`/aprof/recipes/${id}`);
   }
 
   recipeCells(recipeId: number) {
-    return this.api.get<RecipeCellsPage>(`/aprof/recipes/${recipeId}/cells`);
+    return this.get<RecipeCellsPage>(`/aprof/recipes/${recipeId}/cells`);
   }
 
   saveRecipeCell(recipeId: number, cell: { part_idx: number; item_entry: number; count: number }) {
-    return this.api.put<{ ok: boolean }>(`/aprof/recipes/${recipeId}/cells`, cell);
+    return this.put<{ ok: boolean }>(`/aprof/recipes/${recipeId}/cells`, cell);
   }
 
   saveRecipeFilters(recipeId: number, filters: { insert_types: number[]; materials: number[] }) {
-    return this.api.put<{ ok: boolean }>(`/aprof/recipes/${recipeId}/filters`, filters);
+    return this.put<{ ok: boolean }>(`/aprof/recipes/${recipeId}/filters`, filters);
   }
 
   saveRecipeResult(recipeId: number, result: { quality: number; result_entry: number }) {
-    return this.api.put<{ ok: boolean }>(`/aprof/recipes/${recipeId}/results`, result);
+    return this.put<{ ok: boolean }>(`/aprof/recipes/${recipeId}/results`, result);
   }
 
   generateResults(recipeId: number, sampleEntry: number) {
-    return this.api.post<{ created: number[]; skipped: number[] }>(
+    return this.post<{ created: number[]; skipped: number[] }>(
       `/aprof/recipes/${recipeId}/results/generate`,
       { sample_entry: sampleEntry },
     );
@@ -473,7 +546,7 @@ export class ProfessionsApi {
 
   /** Нарезать слайс пула ступени и засеять его по виду изделия. */
   reslice(recipeId: number, quality: number) {
-    return this.api.post<{ lo: number; hi: number; seeded: number }>(
+    return this.post<{ lo: number; hi: number; seeded: number }>(
       `/aprof/recipes/${recipeId}/results/${quality}/slice`,
     );
   }
@@ -487,31 +560,35 @@ export class ProfessionsApi {
     part_mats: number[];
     part_counts: number[];
   }) {
-    return this.api.post<MatchResult>('/aprof/match', body);
+    return this.api.post<MatchResult>('/aprof/match', body); // чтение: кэш не трогает
+  }
+
+  matchNamed(body: { recipe_id: number; mats: number[] }) {
+    return this.api.post<NamedMatchResult>('/aprof/match-named', body); // чтение
   }
 
   // --- пул id -------------------------------------------------------------
 
   generated(limit = 200) {
-    return this.api.get<Generated>(`/aprof/generated?limit=${limit}`);
+    return this.get<Generated>(`/aprof/generated?limit=${limit}`);
   }
 
   // --- именные сочетания --------------------------------------------------
 
   synergies() {
-    return this.api.get<{ synergies: Synergy[] }>('/aprof/synergies');
+    return this.get<{ synergies: Synergy[] }>('/aprof/synergies');
   }
 
   saveSynergy(synergy: SynergyPatch) {
-    return this.api.put<{ id: number; note?: string }>('/aprof/synergies', synergy);
+    return this.put<{ id: number; note?: string }>('/aprof/synergies', synergy);
   }
 
   deleteSynergy(id: number) {
-    return this.api.delete<{ ok: boolean }>(`/aprof/synergies/${id}`);
+    return this.delete<{ ok: boolean }>(`/aprof/synergies/${id}`);
   }
 
   makeNamedItem(synergyId: number, sampleEntry: number) {
-    return this.api.post<{ entry: number }>(`/aprof/synergies/${synergyId}/named-item`, {
+    return this.post<{ entry: number }>(`/aprof/synergies/${synergyId}/named-item`, {
       sample_entry: sampleEntry,
     });
   }
@@ -519,19 +596,19 @@ export class ProfessionsApi {
   // --- объединение --------------------------------------------------------
 
   merges() {
-    return this.api.get<{ merges: Merge[] }>('/aprof/merges');
+    return this.get<{ merges: Merge[] }>('/aprof/merges');
   }
 
   saveMerge(merge: MergePatch) {
-    return this.api.put<{ id: number; note?: string }>('/aprof/merges', merge);
+    return this.put<{ id: number; note?: string }>('/aprof/merges', merge);
   }
 
   deleteMerge(id: number) {
-    return this.api.delete<{ ok: boolean }>(`/aprof/merges/${id}`);
+    return this.delete<{ ok: boolean }>(`/aprof/merges/${id}`);
   }
 
   makeMergeItem(mergeId: number, sampleEntry: number) {
-    return this.api.post<{ entry: number }>(`/aprof/merges/${mergeId}/result-item`, {
+    return this.post<{ entry: number }>(`/aprof/merges/${mergeId}/result-item`, {
       sample_entry: sampleEntry,
     });
   }
@@ -539,27 +616,27 @@ export class ProfessionsApi {
   // --- баланс -------------------------------------------------------------
 
   balance() {
-    return this.api.get<Balance>('/aprof/balance');
+    return this.get<Balance>('/aprof/balance');
   }
 
   saveBalance(balance: Balance) {
-    return this.api.put<{ ok: boolean }>('/aprof/balance', balance);
+    return this.put<{ ok: boolean }>('/aprof/balance', balance);
   }
 
   ilvlLevels() {
-    return this.api.get<{ rows: IlvlRow[] }>('/aprof/ilvl-levels');
+    return this.get<{ rows: IlvlRow[] }>('/aprof/ilvl-levels');
   }
 
   saveIlvlLevels(rows: IlvlRow[]) {
-    return this.api.put<{ rows: IlvlRow[] }>('/aprof/ilvl-levels', rows);
+    return this.put<{ rows: IlvlRow[] }>('/aprof/ilvl-levels', rows);
   }
 
   settings() {
-    return this.api.get<{ settings: SettingRow[] }>('/aprof/settings');
+    return this.get<{ settings: SettingRow[] }>('/aprof/settings');
   }
 
   saveSettings(values: Record<string, string>) {
-    return this.api.put<{ settings: SettingRow[] }>('/aprof/settings', values);
+    return this.put<{ settings: SettingRow[] }>('/aprof/settings', values);
   }
 
   // --- внешний вид --------------------------------------------------------
@@ -577,6 +654,6 @@ export class ProfessionsApi {
     if (params.itemSubclass !== undefined) query.set('item_subclass', String(params.itemSubclass));
     query.set('limit', String(params.limit));
     query.set('offset', String(params.offset));
-    return this.api.get<{ displays: DisplayLook[]; total: number }>(`/aprof/displays?${query}`);
+    return this.get<{ displays: DisplayLook[]; total: number }>(`/aprof/displays?${query}`);
   }
 }

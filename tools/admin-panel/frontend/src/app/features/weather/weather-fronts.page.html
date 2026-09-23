@@ -106,7 +106,6 @@
             placeholder="из настроек"
           />
         </label>
-        <p class="hint">Ноль — взять из настроек модуля.</p>
       } @else if (selected(); as front) {
         <header>
           <strong>Фронт №{{ front.id }}</strong>
@@ -264,11 +263,6 @@
         }
 
         @if (store.canEdit()) {
-          <p class="hint queue-hint">
-            Своя заготовка встаёт следующей - впереди жребия. Пустое поле значит
-            «как обычно»: зона случайная, радиус из настроек, срок - пока фронт
-            не пересечёт карту.
-          </p>
           <div class="queue-add">
             <label>
               <span>Карта</span>

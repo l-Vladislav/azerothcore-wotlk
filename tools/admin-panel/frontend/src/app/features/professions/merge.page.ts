@@ -11,6 +11,9 @@ import { ProfItemPickComponent } from './item-pick-cell.component';
 import { ListSpec, ListView, SortHeadComponent } from './list-view';
 import { ItemType, Merge, MergePatch, ProfessionsApi, ProfessionsMeta } from './professions.api';
 import { apiError } from './professions.model';
+import { IconComponent } from '../../shared/ui/icon.component';
+import { ProfessionsTabsComponent } from './professions-tabs.component';
+import { AddDialogComponent } from './add-dialog.component';
 
 /** Ячеек у стола объединения ровно пять (DESIGN §5.8). */
 const CELLS = 5;
@@ -30,6 +33,9 @@ type PickMode =
  */
 @Component({
   imports: [
+    AddDialogComponent,
+    ProfessionsTabsComponent,
+    IconComponent,
     FormsModule,
     ForgeSelectDirective,
     ItemPickerComponent,
@@ -155,11 +161,24 @@ export class ProfessionsMergePage {
     this.draft.update((draft) => ({ ...draft, ...patch }));
   }
 
-  async add(): Promise<void> {
+  /** Окно добавления: поля живут там, а не полосой над листом. */
+  private readonly adder = viewChild(AddDialogComponent);
+
+  openAdd(): void {
+    this.error.set(null);
+    this.adder()?.open();
+  }
+
+  /** Окно закрывается только после удачной записи - отказ остаётся перед глазами. */
+  async submitAdd(): Promise<void> {
+    if (await this.add()) this.adder()?.close();
+  }
+
+  async add(): Promise<boolean> {
     const draft = this.draft();
     if (!draft.name_ru.trim()) {
       this.error.set('Дайте рецепту имя.');
-      return;
+      return false;
     }
     const saved = await this.put({
       id: 0,
@@ -171,6 +190,7 @@ export class ProfessionsMergePage {
       enabled: false,
     });
     if (saved) this.setDraft({ name_ru: '' });
+    return saved;
   }
 
   // --- набор ----------------------------------------------------------------
@@ -241,9 +261,7 @@ export class ProfessionsMergePage {
   async remove(row: Merge): Promise<void> {
     if (!this.canEdit() || this.busy()) return;
     if (
-      !confirm(
-        `Удалить рецепт «${row.name_ru}»? Предмет-результат останется в каталоге предметов.`,
-      )
+      !confirm(`Удалить рецепт «${row.name_ru}»? Предмет-результат останется в каталоге предметов.`)
     ) {
       return;
     }

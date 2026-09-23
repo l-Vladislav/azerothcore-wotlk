@@ -1,5 +1,5 @@
 <section class="page-head">
-  <h1>Связи</h1>
+  <app-professions-tabs />
 </section>
 
 @if (loading()) {
@@ -9,12 +9,6 @@
     Таблицы модуля не найдены. Примените миграцию продвинутых профессий.
   </p>
 } @else {
-  <p class="hint">
-    Карта, а не таблица. Таблицы отвечают на вопрос «какие поля у этой строки»; здесь другой вопрос
-    - <b>что из чего выходит</b>: какая основа даёт какие ступени, какие эскизы на них висят и во
-    что эти эскизы превращаются.
-  </p>
-
   <div class="modes">
     @for (mode of modes; track mode[0]) {
       <button
@@ -59,10 +53,10 @@
       <p class="empty">у этого типа нет ни одной основы</p>
     } @else if (dir() === 'base') {
       <div class="cards">
-        @for (rec of typeRecipes(); track rec.id) {
+        @for (rec of baseView.rows(); track rec.id) {
           <article class="card" [class.off]="!rec.enabled">
             <header class="card-head">
-              <b>{{ rec.name_ru || 'рецепт ' + rec.id }}</b>
+              <b>{{ rec.name_ru || 'основа ' + rec.id }}</b>
               <span class="muted">навык {{ rec.req_skill }}</span>
               <span class="tag">{{ acquireName(rec.acquire) }}</span>
               @if (!rec.enabled) {
@@ -164,11 +158,18 @@
           </article>
         }
       </div>
+      <app-table-pager
+        [total]="baseView.found().length"
+        [page]="baseView.page()"
+        [perPage]="baseView.perPage()"
+        (pageChange)="baseView.page.set($event)"
+        (perPageChange)="baseView.perPage.set($event); baseView.page.set(1)"
+      />
     } @else if (!typeSynergies().length) {
       <p class="empty">у этого типа нет ни одного эскиза</p>
     } @else {
       <div class="cards">
-        @for (syn of typeSynergies(); track syn.id) {
+        @for (syn of sketchView.rows(); track syn.id) {
           <article class="card" [class.off]="!syn.enabled">
             <header class="card-head">
               <app-prof-item
@@ -221,6 +222,13 @@
           </article>
         }
       </div>
+      <app-table-pager
+        [total]="sketchView.found().length"
+        [page]="sketchView.page()"
+        [perPage]="sketchView.perPage()"
+        (pageChange)="sketchView.page.set($event)"
+        (perPageChange)="sketchView.perPage.set($event); sketchView.page.set(1)"
+      />
     }
   }
 }

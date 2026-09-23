@@ -1,5 +1,5 @@
 <section class="page-head">
-  <h1>Проверка</h1>
+  <app-professions-tabs />
 </section>
 
 @if (loading()) {
@@ -9,203 +9,322 @@
     Таблицы модуля не найдены. Примените миграцию продвинутых профессий.
   </p>
 } @else {
-  <p class="hint">
-    Та же проверка, что делает сервер: набор в ячейках сравнивается с рецептами <b>точно</b>
-    - предмет и количество, - а не «считается предмет». Числа изделия тут не показываются вовсе:
-    их не из чего считать, они стоят в строке предмета.
-  </p>
+  <nav class="forge-tabbar modes" aria-label="Что проверяем">
+    @for (item of modes; track item[0]) {
+      <button
+        type="button"
+        class="forge-tab is-compact"
+        [class.is-active]="mode() === item[0]"
+        (click)="setMode(item[0])"
+      >
+        {{ item[1] }}
+      </button>
+    }
+  </nav>
 
-  <section class="card">
-    <div class="row">
-      <label>
-        <span>тип</span>
-        <select
-          class="forge-field is-select"
-          [ngModel]="typeId()"
-          (ngModelChange)="onType(+$event)"
-        >
-          @for (type of types(); track type.id) {
-            <option [ngValue]="type.id">{{ type.name_ru }}</option>
-          }
-        </select>
-      </label>
-      <label>
-        <span>навык</span>
-        <input
-          class="forge-field"
-          type="number"
-          min="1"
-          max="500"
-          [ngModel]="skill()"
-          (ngModelChange)="skill.set(+$event || 1)"
-        />
-      </label>
-      @for (slot of slots(); track $index) {
+  @if (mode() === 'base') {
+    <section class="card">
+      <div class="row">
         <label>
-          <span>слот {{ $index + 1 }}</span>
+          <span>тип</span>
           <select
-            class="forge-field is-select"
-            [ngModel]="slot"
-            (ngModelChange)="setSlot($index, +$event)"
+            class="forge-field is-small is-select"
+            [ngModel]="typeId()"
+            (ngModelChange)="onType(+$event)"
           >
-            <option [ngValue]="0">— пусто —</option>
-            @for (mat of inserts(); track mat.entry) {
-              <option [ngValue]="mat.entry">{{ matName(mat) }}</option>
+            @for (type of types(); track type.id) {
+              <option [ngValue]="type.id">{{ type.name_ru }}</option>
             }
           </select>
         </label>
-      }
-    </div>
-
-    <p class="sub">Набор по ячейкам (ковка):</p>
-    @if (!parts().length) {
-      <p class="muted">У типа нет ни одной ячейки - задайте их на странице «Типы предметов».</p>
-    } @else {
-      <div class="row">
-        @for (part of parts(); track part.idx) {
-          <label [title]="part.required ? 'Обязательная часть: пустой её не оставить.' : ''">
-            <span>{{ part.label_ru }}{{ part.required ? ' *' : '' }}</span>
-            <span class="pair">
-              <select
-                class="forge-field is-select"
-                [ngModel]="partMat(part.idx)"
-                (ngModelChange)="setPartMat(part.idx, +$event)"
-              >
-                <option [ngValue]="0">— пусто —</option>
-                @for (mat of partOptions(part.part_kind_id); track mat.entry) {
-                  <option [ngValue]="mat.entry">{{ matName(mat) }}</option>
-                }
-              </select>
-              <input
-                class="forge-field count"
-                type="number"
-                min="1"
-                max="50"
-                title="Количество - часть набора: «те же предметы, но по три» это другой рецепт."
-                [ngModel]="partCount(part.idx)"
-                (ngModelChange)="setPartCount(part.idx, +$event || 1)"
-              />
-            </span>
-          </label>
-        }
+        <label>
+          <span>навык</span>
+          <input
+            class="forge-field is-small"
+            type="number"
+            min="1"
+            max="500"
+            [ngModel]="skill()"
+            (ngModelChange)="skill.set(+$event || 1)"
+          />
+        </label>
       </div>
-    }
 
-    <div class="row actions">
-      <button
-        type="button"
-        class="forge-btn is-primary is-compact"
-        [disabled]="busy()"
-        (click)="check()"
-      >
-        Проверить
-      </button>
-    </div>
-  </section>
-
-  @if (result(); as out) {
-    <section class="card out">
-      <h2>Что выйдет</h2>
-
-      <ul class="plain">
-        @for (cell of out.cells; track cell.idx) {
-          <li>{{ cell.label }}: {{ cell.entry ? cell.name + ' ×' + cell.count : 'пусто' }}</li>
-        }
-      </ul>
-      @if (out.spend.length) {
-        <p>Уйдёт из сумки: {{ spendText(out) }}</p>
+      <p class="sub">Набор по ячейкам:</p>
+      @if (partsLoading()) {
+        <p class="muted">Читаем ячейки типа…</p>
+      } @else if (!parts().length) {
+        <p class="muted">У типа нет ни одной ячейки - задайте их на странице «Типы предметов».</p>
+      } @else {
+        <div class="row">
+          @for (part of parts(); track part.idx) {
+            <label [title]="part.required ? 'Обязательная часть: пустой её не оставить.' : ''">
+              <span>{{ part.label_ru }}{{ part.required ? ' *' : '' }}</span>
+              <span class="pair">
+                <select
+                  class="forge-field is-small is-select"
+                  [ngModel]="partMat(part.idx)"
+                  (mouseenter)="openList.set('part' + part.idx)"
+                  (focus)="openList.set('part' + part.idx)"
+                  (ngModelChange)="setPartMat(part.idx, +$event)"
+                >
+                  <option [ngValue]="0">— пусто —</option>
+                  @if (openList() === 'part' + part.idx) {
+                    @for (mat of partOptions(part.part_kind_id); track mat.entry) {
+                      <option [ngValue]="mat.entry">{{ matName(mat) }}</option>
+                    }
+                  } @else if (partMat(part.idx)) {
+                    <option [ngValue]="partMat(part.idx)">
+                      {{ entryName(partMat(part.idx)) }}
+                    </option>
+                  }
+                </select>
+                <input
+                  class="forge-field is-small count"
+                  type="number"
+                  min="1"
+                  max="50"
+                  title="Количество - часть набора: «те же предметы, но по три» это другая основа."
+                  [ngModel]="partCount(part.idx)"
+                  (ngModelChange)="setPartCount(part.idx, +$event || 1)"
+                />
+              </span>
+            </label>
+          }
+        </div>
       }
 
-      @if (!out.recipe) {
-        <p class="warn">{{ out.note }}</p>
-        @if (out.fail_mode === 2) {
-          <p class="muted">
-            Поделка:
-            {{
-              out.fail_item
-                ? out.fail_item.name + ' (id ' + out.fail_entry + ')'
-                : 'у типа не заведена - ковка откажет'
-            }}
-          </p>
+      <div class="row actions">
+        <button
+          type="button"
+          class="forge-btn is-primary is-compact"
+          [disabled]="busy()"
+          (click)="check()"
+        >
+          Проверить
+        </button>
+      </div>
+    </section>
+
+    @if (result(); as out) {
+      <section class="card out">
+        <h2>Что выйдет</h2>
+
+        <ul class="plain">
+          @for (cell of out.cells; track cell.idx) {
+            <li>{{ cell.label }}: {{ cell.entry ? cell.name + ' ×' + cell.count : 'пусто' }}</li>
+          }
+        </ul>
+        @if (out.spend.length) {
+          <p>Уйдёт из сумки: {{ spendText(out) }}</p>
         }
-      } @else {
-        <p>
-          Совпал рецепт «{{ out.recipe.name_ru }}» (id {{ out.recipe.id }}), требует навыка
-          {{ out.recipe.req_skill }}
-        </p>
-        @if (out.chance; as chance) {
-          <p [class.warn]="chance.chance < 50">
-            Шанс успеха: {{ chance.chance }} % (разрыв {{ chance.gap > 0 ? '+' : ''
-            }}{{ chance.gap }})
-          </p>
-          @if (chance.chance <= chance.floor) {
+
+        @if (!out.recipe) {
+          <p class="warn">{{ out.note }}</p>
+          @if (out.fail_mode === 2) {
             <p class="muted">
-              Это нижняя граница: работа далеко за пределами навыка. Провал сжигает материалы и
-              оставляет поделку.
+              Поделка:
+              {{
+                out.fail_item
+                  ? out.fail_item.name + ' (id ' + out.fail_entry + ')'
+                  : 'у типа не заведена - ковка откажет'
+              }}
             </p>
           }
-        }
-        <p>
-          Качество: от {{ tierName(out.recipe.quality_min) }} до
-          {{ tierName(out.recipe.quality_max) }}
-        </p>
-        <ul class="plain">
-          @for (step of out.recipe.results; track step.quality) {
-            <li>
-              {{ tierName(step.quality) }}:
-              {{
-                step.item
-                  ? step.item.name + ' (id ' + step.result_entry + ')'
-                  : 'изделие ' + step.result_entry + ' отсутствует'
-              }}
-            </li>
-          }
-        </ul>
-        @for (issue of out.recipe.issues; track issue) {
-          <p class="warn">{{ issue }}</p>
-        }
-      }
-
-      @if (out.inserts.length) {
-        <h2>Вставки</h2>
-        <ul class="plain">
-          @for (insert of out.inserts; track $index) {
-            <li>
-              слот {{ $index + 1 }}: {{ insert.name }} →
-              {{
-                insert.stat_type
-                  ? statLabel(insert.stat_type) + ' +' + insert.value
-                  : 'чисел не даёт'
-              }}
-            </li>
-          }
-        </ul>
-      }
-      <p class="totals">
-        @if (out.totals.length) {
-          @for (total of out.totals; track total.stat_type) {
-            <span>{{ statLabel(total.stat_type) }} +{{ total.value }}</span>
-          }
         } @else {
-          <span>без бонусов</span>
+          <p>
+            Совпала основа «{{ out.recipe.name_ru }}» (id {{ out.recipe.id }}), требует навыка
+            {{ out.recipe.req_skill }}
+          </p>
+          @if (out.chance; as chance) {
+            <p [class.warn]="chance.chance < 50">
+              Шанс успеха: {{ chance.chance }} % (разрыв {{ chance.gap > 0 ? '+' : ''
+              }}{{ chance.gap }})
+            </p>
+            @if (chance.chance <= chance.floor) {
+              <p class="muted">
+                Это нижняя граница: работа далеко за пределами навыка. Провал сжигает материалы и
+                оставляет поделку.
+              </p>
+            }
+          }
+          <p>
+            Качество: от {{ tierName(out.recipe.quality_min) }} до
+            {{ tierName(out.recipe.quality_max) }}
+          </p>
+          <ul class="plain">
+            @for (step of out.recipe.results; track step.quality) {
+              <li>
+                {{ tierName(step.quality) }}:
+                {{
+                  step.item
+                    ? step.item.name + ' (id ' + step.result_entry + ')'
+                    : 'изделие ' + step.result_entry + ' отсутствует'
+                }}
+              </li>
+            }
+          </ul>
+          @for (issue of out.recipe.issues; track issue) {
+            <p class="warn">{{ issue }}</p>
+          }
         }
-      </p>
+      </section>
+    }
+  } @else {
+    <section class="card">
+      @if (recipesLoading()) {
+        <p class="muted">Загрузка основ…</p>
+      } @else {
+        <div class="row">
+          <label>
+            <span>тип</span>
+            <select
+              class="forge-field is-small is-select"
+              [ngModel]="namedTypeId()"
+              (ngModelChange)="onNamedType(+$event)"
+            >
+              @for (type of types(); track type.id) {
+                <option [ngValue]="type.id">{{ type.name_ru }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            <span>основа</span>
+            <select
+              class="forge-field is-small is-select base"
+              [ngModel]="baseId()"
+              (ngModelChange)="onBase(+$event)"
+            >
+              @for (rec of typeBases(); track rec.id) {
+                <option [ngValue]="rec.id">
+                  {{ rec.name_ru }}{{ rec.enabled ? '' : ' (выкл)' }}
+                </option>
+              }
+            </select>
+          </label>
+        </div>
 
-      @if (out.synergy; as synergy) {
-        <p>
-          Сочетание «{{ synergy.name }}» →
-          {{
-            synergy.result
-              ? synergy.result.name + ' (id ' + synergy.result.entry + ')'
-              : 'именной предмет не заведён'
-          }}
-        </p>
-      } @else if (out.finish_warning) {
-        <p class="warn">
-          Этот набор вставок не совпадает ни с одним сочетанием основы: «Завершить доводку»
-          испортит вещь, как поделку.
-        </p>
+        <p class="sub">Вставки в слоты:</p>
+        <div class="row">
+          @for (slot of slots(); track $index) {
+            <label>
+              <span>слот {{ $index + 1 }}</span>
+              <select
+                class="forge-field is-small is-select"
+                [ngModel]="slot"
+                (mouseenter)="openList.set('slot' + $index)"
+                (focus)="openList.set('slot' + $index)"
+                (ngModelChange)="setSlot($index, +$event)"
+              >
+                <option [ngValue]="0">— пусто —</option>
+                @if (openList() === 'slot' + $index) {
+                  @for (mat of inserts(); track mat.entry) {
+                    <option [ngValue]="mat.entry">{{ matName(mat) }}</option>
+                  }
+                } @else if (slot) {
+                  <option [ngValue]="slot">{{ entryName(slot) }}</option>
+                }
+              </select>
+            </label>
+          }
+        </div>
+
+        <div class="row actions">
+          <button
+            type="button"
+            class="forge-btn is-primary is-compact"
+            [disabled]="busy() || !baseId()"
+            (click)="checkNamed()"
+          >
+            Проверить
+          </button>
+        </div>
       }
     </section>
+
+    @if (namedResult(); as out) {
+      <section class="card out">
+        <h2>Что выйдет</h2>
+        <p>
+          Основа «{{ out.recipe.name_ru }}» (id {{ out.recipe.id }}){{
+            out.recipe.enabled ? '' : ' - выключена, в игре её не сковать'
+          }}
+        </p>
+        @if (out.recipe.inlay.length) {
+          <p class="muted">
+            Гнёзд по ступеням:
+            @for (step of out.recipe.inlay; track step.quality; let last = $last) {
+              {{ tierName(step.quality) }} {{ step.slots }}{{ last ? '' : ', ' }}
+            }
+          </p>
+        }
+
+        @if (out.inserts.length) {
+          <h2>Вставки</h2>
+          <ul class="plain">
+            @for (insert of out.inserts; track $index) {
+              <li>
+                слот {{ $index + 1 }}: {{ insert.name }} →
+                {{
+                  insert.stat_type
+                    ? statLabel(insert.stat_type) + ' +' + insert.value
+                    : 'чисел не даёт'
+                }}
+              </li>
+            }
+          </ul>
+        }
+        <p class="totals">
+          @if (out.totals.length) {
+            @for (total of out.totals; track total.stat_type) {
+              <span>{{ statLabel(total.stat_type) }} +{{ total.value }}</span>
+            }
+          } @else {
+            <span>без бонусов</span>
+          }
+        </p>
+
+        @if (out.synergy; as synergy) {
+          <p>
+            Сочетание «{{ synergy.name }}» →
+            {{
+              synergy.result
+                ? synergy.result.name + ' (id ' + synergy.result.entry + ')'
+                : 'именной предмет не заведён'
+            }}
+          </p>
+        } @else if (out.finish_warning) {
+          <p class="warn">
+            Этот набор вставок не совпадает ни с одним сочетанием основы: «Завершить доводку»
+            испортит вещь, как поделку.
+          </p>
+        }
+
+        <h2>Сочетания основы</h2>
+        @if (!out.known.length) {
+          <p class="muted">У этой основы нет ни одного сочетания.</p>
+        } @else {
+          <ul class="plain known">
+            @for (syn of out.known; track syn.id) {
+              <li [class.off]="!syn.enabled" [class.is-hit]="out.synergy?.id === syn.id">
+                <span>
+                  <b>{{ syn.name }}</b
+                  >{{ syn.enabled ? '' : ' (выкл)' }}:
+                  {{ synergyMats(syn.mats) }}
+                </span>
+                <button
+                  type="button"
+                  class="forge-btn is-ghost is-compact"
+                  title="Положить этот набор в слоты и проверить"
+                  (click)="useSynergy(syn.mats)"
+                >
+                  Подставить
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
   }
 }

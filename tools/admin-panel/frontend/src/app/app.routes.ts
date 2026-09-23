@@ -199,7 +199,7 @@ export const routes: Routes = [
         path: 'professions/recipes',
         loadComponent: () =>
           import('./features/professions/recipes.page').then((m) => m.ProfessionsRecipesPage),
-        title: 'Рецепты — Панель управления',
+        title: 'Основы — Панель управления',
       },
       {
         path: 'professions/named',

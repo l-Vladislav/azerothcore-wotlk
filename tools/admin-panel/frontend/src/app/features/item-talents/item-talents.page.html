@@ -29,10 +29,6 @@
   }
 
   @if (tab() === 'categories') {
-    <p class="hint">
-      Категория задаёт меню перков, а правило определяет, каким предметам она достанется. Значение
-      −1 означает «любое».
-    </p>
     @if (canEdit()) {
       <div class="toolbar">
         <button class="forge-btn is-compact" type="button" (click)="addCategory()">
@@ -246,10 +242,6 @@
   }
 
   @if (tab() === 'menus') {
-    <p class="hint">
-      Меню ряда действует на все предметы категории. Точный подкласс перекрывает меню с подклассом
-      −1.
-    </p>
     <div class="category-picker">
       @for (category of categories(); track category.code) {
         <button
@@ -311,7 +303,6 @@
   }
 
   @if (tab() === 'items') {
-    <p class="hint">Персональный пул перекрывает меню категории только для выбранного предмета.</p>
     <div class="items-layout">
       <aside>
         <div class="filters">
@@ -447,10 +438,6 @@
   }
 
   @if (tab() === 'procs') {
-    <p class="hint">
-      Перк с эффектом PROC ссылается на trigger spell через поле base; сила эффекта берётся из
-      per_ilvl.
-    </p>
     @if (canEdit()) {
       <div class="toolbar">
         <button class="forge-btn is-compact" type="button" (click)="addProc()">+ Прок</button
@@ -599,10 +586,6 @@
   }
 
   @if (tab() === 'curves') {
-    <p class="hint">
-      Сколько убийств нужно для каждого уровня пробуждения. Побеждает строка с наибольшим
-      приоритетом.
-    </p>
     @if (canEdit()) {
       <div class="toolbar">
         <button class="forge-btn is-compact" type="button" (click)="addCurve()">
@@ -742,9 +725,6 @@
   }
 
   @if (tab() === 'library') {
-    <p class="hint">
-      Заготовки перков для меню категорий и персональных пулов. Ядро их не читает напрямую.
-    </p>
     @if (canEdit()) {
       <div class="toolbar">
         <button class="forge-btn is-compact" type="button" (click)="addPerk()">+ Перк</button

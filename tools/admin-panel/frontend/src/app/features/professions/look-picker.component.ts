@@ -1,6 +1,16 @@
-import { Component, ElementRef, computed, inject, input, output, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
+import { ItemTooltipDirective } from '../../shared/ui/item-tooltip.directive';
 import { ForgeSelectDirective } from '../../shared/ui/forge-select.directive';
 import { IconComponent } from '../../shared/ui/icon.component';
 import { DisplayLook, ProfessionsApi } from './professions.api';
@@ -17,24 +27,21 @@ const PAGE = 120;
  *
  * Постранично нарочно: одних мечей в базе под тысячу видов, и без листания
  * выбор молча обрезался на первой сотне - страница выглядела как «это всё».
+ *
+ * Заголовка с чертой нет (решение владельца 2026-09-23): что выбираем, видно по
+ * кнопке, открывшей окно. Наведение на вид показывает игровую подсказку его
+ * предмета-образца - по ней видно, чей это вид.
  */
 @Component({
   selector: 'app-look-picker',
-  imports: [FormsModule, ForgeSelectDirective, IconComponent],
+  imports: [FormsModule, ForgeSelectDirective, IconComponent, ItemTooltipDirective],
   styleUrl: './look-picker.component.scss',
   template: `
-    <dialog #dialog (close)="onClose()">
-      <header>
-        <h2>{{ title() }}</h2>
-        <button type="button" class="forge-btn is-icon close" aria-label="Закрыть" (click)="close()">
-          <app-icon name="close" [size]="14" />
-        </button>
-      </header>
-
+    <dialog #dialog class="forge-dialog" [attr.aria-label]="title()" (close)="onClose()">
       <div class="tools">
         <input
           #field
-          class="forge-field is-search"
+          class="forge-field is-small is-search"
           type="search"
           placeholder="поиск по названию предмета (рус. или англ.)"
           [ngModel]="query()"
@@ -42,7 +49,7 @@ const PAGE = 120;
         />
         @if (itemClass() !== null) {
           <select
-            class="forge-field is-select"
+            class="forge-field is-small is-select"
             [ngModel]="scope()"
             (ngModelChange)="onScope($event)"
             aria-label="Где искать вид"
@@ -52,19 +59,24 @@ const PAGE = 120;
             <option value="any">любые предметы</option>
           </select>
         }
+        <button
+          type="button"
+          class="forge-btn is-icon is-compact close"
+          aria-label="Закрыть"
+          (click)="close()"
+        >
+          <app-icon name="close" [size]="12" />
+        </button>
       </div>
 
       <div class="grid">
         @for (look of looks(); track look.display_id) {
-          <button
-            type="button"
-            class="look"
-            [title]="hint(look)"
-            (click)="choose(look)"
-          >
+          <button type="button" class="look" [appItemTooltip]="look.entry" (click)="choose(look)">
             <img [src]="src(look)" width="40" height="40" alt="" (error)="onIconError($event)" />
             <span class="id">{{ look.display_id }}</span>
-            <span class="used">{{ look.used_by }}</span>
+            <span class="used" [title]="'так выглядят предметов: ' + look.used_by">{{
+              look.used_by
+            }}</span>
           </button>
         }
       </div>
@@ -91,7 +103,9 @@ const PAGE = 120;
             </button>
           </div>
         }
-        <p class="hint">{{ status() }}</p>
+        @if (status()) {
+          <p class="hint">{{ status() }}</p>
+        }
       </footer>
     </dialog>
   `,
@@ -167,12 +181,6 @@ export class LookPickerComponent {
     this.close();
   }
 
-  /** Подсказка в три строки: имя образца, id вида и сам образец. */
-  hint(look: DisplayLook): string {
-    return `${look.name}
-displayid ${look.display_id} · предмет-образец ${look.entry}`;
-  }
-
   src(look: DisplayLook): string {
     return iconUrl(look.icon, this.iconBase());
   }
@@ -197,11 +205,7 @@ displayid ${look.display_id} · предмет-образец ${look.entry}`;
       );
       this.looks.set(found.displays ?? []);
       this.total.set(found.total ?? this.looks().length);
-      this.status.set(
-        this.looks().length
-          ? 'Число под иконкой - сколько предметов в игре уже так выглядят; самые расхожие виды идут первыми.'
-          : 'Ничего не нашлось.',
-      );
+      this.status.set(this.looks().length ? '' : 'Ничего не нашлось.');
     } catch (error) {
       this.looks.set([]);
       this.total.set(0);

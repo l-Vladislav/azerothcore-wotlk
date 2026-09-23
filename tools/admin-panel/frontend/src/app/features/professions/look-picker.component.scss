@@ -1,34 +1,11 @@
 dialog {
-  background-image: var(--texture-panel);
-  background-size: auto, 480px;
-  border: 3px ridge #62655c;
-  border-radius: 3px;
-  box-shadow: var(--frame-shadow);
-  color: var(--text);
   max-height: min(720px, 86vh);
   padding: 0;
   width: min(760px, 94vw);
 }
-dialog::backdrop {
-  background: #04060799;
-}
 
-header {
-  align-items: center;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-  padding: 10px 14px;
-}
-h2 {
-  color: var(--gold);
-  font: 18px var(--serif);
-  margin: 0;
-}
 .close {
-  height: 38px;
-  width: 38px;
+  flex: none;
 }
 
 .tools {

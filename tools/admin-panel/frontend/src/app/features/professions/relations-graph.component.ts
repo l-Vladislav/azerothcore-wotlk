@@ -195,7 +195,7 @@ interface Palette {
     <div class="filters">
       <span class="muted">Поиск:</span>
       <input
-        class="forge-field is-search find"
+        class="forge-field is-small is-search find"
         type="search"
         placeholder="имя эскиза, основы или типа"
         [ngModel]="find()"
@@ -259,8 +259,8 @@ export class RelationsGraphComponent implements AfterViewInit, AfterViewChecked,
   );
 
   /**
-   * Полосы лестницы. Ключ чипа - НАВЫК полосы, а не её номер: именно им рецепт
-   * с ней и связан, своего поля у рецепта нет.
+   * Полосы лестницы. Ключ чипа - НАВЫК полосы, а не её номер: именно им основа
+   * с ней и связана, своего поля у основы нет.
    */
   readonly bands = computed(
     () => (this.meta()?.bands as { idx: number; skill: number; name_ru: string }[] | undefined) ?? [],

@@ -13,19 +13,20 @@
   min-width: 220px;
   max-width: 420px;
 }
-// Счёт прижат к правому краю: он читается как итог полосы, а не как ещё один
-// её орган управления.
-.count {
-  color: var(--muted);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
+// Действия листа прижаты к правому краю - над таблицей справа.
+.actions {
+  display: flex;
+  gap: 8px;
   margin-left: auto;
+}
+.actions:empty {
+  display: none;
 }
 @media (max-width: 800px) {
   .filters input[type='search'] {
     max-width: none;
   }
-  .count {
+  .actions {
     margin-left: 0;
   }
 }

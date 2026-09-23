@@ -1,128 +1,132 @@
 <section class="page-head">
-  <h1>Рецепты</h1>
+  <app-professions-tabs />
 </section>
 
 @if (loading()) {
-  <p class="empty">Загрузка рецептов…</p>
+  <p class="empty">Загрузка основ…</p>
 } @else if (!meta()?.available) {
   <p class="forge-alert is-warning">
     Таблицы модуля не найдены. Примените миграцию продвинутых профессий.
   </p>
 } @else {
-  <p class="hint">
-    Рецепт - это <b>точный</b> набор предметов по ячейкам и готовое изделие на каждую ступень
-    качества. Ничего не вычисляется: пустая ячейка значит «пусто», а не «любой».
-  </p>
-
   @if (canEdit()) {
-    <div class="add-bar">
-      <label>
-        <span>имя</span>
-        <input
-          class="forge-field"
-          placeholder="Стальной клинок"
-          [ngModel]="draft().name_ru"
-          (ngModelChange)="setDraft({ name_ru: $event })"
-          (keydown.enter)="add()"
-        />
-      </label>
-      <label>
-        <span>тип</span>
-        <select
-          class="forge-field is-select"
-          [ngModel]="draft().type_id"
-          (ngModelChange)="setDraft({ type_id: +$event })"
-        >
-          @for (type of types(); track type.id) {
-            <option [ngValue]="type.id">{{ type.name_ru }}</option>
-          }
-        </select>
-      </label>
-      <label>
-        <span>качество от</span>
-        <select
-          class="forge-field is-select"
-          [ngModel]="draft().quality_min"
-          (ngModelChange)="setDraft({ quality_min: +$event })"
-        >
-          @for (tier of qualities(); track tier.quality) {
-            <option [ngValue]="tier.quality">{{ tier.name_ru }} ({{ tier.slots }} сл.)</option>
-          }
-        </select>
-      </label>
-      <label>
-        <span>до</span>
-        <select
-          class="forge-field is-select"
-          [ngModel]="draft().quality_max"
-          (ngModelChange)="setDraft({ quality_max: +$event })"
-        >
-          @for (tier of qualities(); track tier.quality) {
-            <option [ngValue]="tier.quality">{{ tier.name_ru }} ({{ tier.slots }} сл.)</option>
-          }
-        </select>
-      </label>
-      <label>
-        <span>откуда</span>
-        <select
-          class="forge-field is-select"
-          [ngModel]="draft().acquire"
-          (ngModelChange)="onDraftAcquire($event)"
-        >
-          @for (way of acquire; track way[0]) {
-            <option [value]="way[0]">{{ way[1] }}</option>
-          }
-        </select>
-      </label>
-      <label
-        [title]="
-          draft().acquire === 'drop'
-            ? 'Дроп-основу не куют: книга ей ничего не даст. Именные эскизы учатся своими книгами.'
-            : ''
-        "
-      >
-        <span>обучение</span>
-        <span class="picked" [class.is-off]="draft().acquire === 'drop'">
-          @if (draftTeach(); as item) {
-            <b>{{ item.name_ru || item.name }}</b>
-          } @else {
-            <span class="muted">только угадать</span>
-          }
-          <button
-            type="button"
-            class="forge-btn is-ghost is-compact"
-            [disabled]="draft().acquire === 'drop'"
-            (click)="pickDraftTeach()"
+    <app-add-dialog
+      title="Новая основа"
+      submitLabel="Завести основу"
+      [busy]="busy()"
+      [error]="error()"
+      (submitted)="submitAdd()"
+    >
+      <div class="add-form">
+        <label>
+          <span>имя</span>
+          <input
+            class="forge-field is-small"
+            placeholder="Стальной клинок"
+            [ngModel]="draft().name_ru"
+            (ngModelChange)="setDraft({ name_ru: $event })"
+          />
+        </label>
+        <label>
+          <span>тип</span>
+          <select
+            class="forge-field is-small is-select"
+            [ngModel]="draft().type_id"
+            (ngModelChange)="setDraft({ type_id: +$event })"
           >
-            Выбрать
-          </button>
-        </span>
-      </label>
-      <label title="Предмет игры, с которого изделия снимут всё: урон, слот, вид, звук, флаги.">
-        <span>образец</span>
-        <span class="picked">
-          @if (draftSample(); as item) {
-            <b>{{ item.name_ru || item.name }}</b>
-          } @else {
-            <span class="muted">не выбран</span>
-          }
-          <button type="button" class="forge-btn is-ghost is-compact" (click)="pickDraftSample()">
-            Выбрать
-          </button>
-        </span>
-      </label>
-      <button type="button" class="forge-btn is-primary is-compact" [disabled]="busy()" (click)="add()">
-        Завести основу
-      </button>
-    </div>
+            @for (type of types(); track type.id) {
+              <option [ngValue]="type.id">{{ type.name_ru }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>качество от</span>
+          <select
+            class="forge-field is-small is-select"
+            [ngModel]="draft().quality_min"
+            (ngModelChange)="setDraft({ quality_min: +$event })"
+          >
+            @for (tier of qualities(); track tier.quality) {
+              <option [ngValue]="tier.quality">{{ tier.name_ru }} ({{ tier.slots }} сл.)</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>до</span>
+          <select
+            class="forge-field is-small is-select"
+            [ngModel]="draft().quality_max"
+            (ngModelChange)="setDraft({ quality_max: +$event })"
+          >
+            @for (tier of qualities(); track tier.quality) {
+              <option [ngValue]="tier.quality">{{ tier.name_ru }} ({{ tier.slots }} сл.)</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>откуда</span>
+          <select
+            class="forge-field is-small is-select"
+            [ngModel]="draft().acquire"
+            (ngModelChange)="onDraftAcquire($event)"
+          >
+            @for (way of acquire; track way[0]) {
+              <option [value]="way[0]">{{ way[1] }}</option>
+            }
+          </select>
+        </label>
+        <label
+          [title]="
+            draft().acquire === 'drop'
+              ? 'Дроп-основу не куют: книга ей ничего не даст. Именные эскизы учатся своими книгами.'
+              : ''
+          "
+        >
+          <span>обучение</span>
+          <span class="picked" [class.is-off]="draft().acquire === 'drop'">
+            @if (draftTeach(); as item) {
+              <b>{{ item.name_ru || item.name }}</b>
+            } @else {
+              <span class="muted">только угадать</span>
+            }
+            <button
+              type="button"
+              class="forge-btn is-ghost is-compact"
+              [disabled]="draft().acquire === 'drop'"
+              (click)="pickDraftTeach()"
+            >
+              Выбрать
+            </button>
+          </span>
+        </label>
+        <label title="Предмет игры, с которого изделия снимут всё: урон, слот, вид, звук, флаги.">
+          <span>образец</span>
+          <span class="picked">
+            @if (draftSample(); as item) {
+              <b>{{ item.name_ru || item.name }}</b>
+            } @else {
+              <span class="muted">не выбран</span>
+            }
+            <button type="button" class="forge-btn is-ghost is-compact" (click)="pickDraftSample()">
+              Выбрать
+            </button>
+          </span>
+        </label>
+      </div>
+    </app-add-dialog>
   }
 
   <app-prof-filters
     [view]="view"
     [picks]="picks()"
-    [total]="rows().length"
-    placeholder="поиск по имени рецепта или типу"
-  />
+    placeholder="поиск по имени основы или типу"
+  >
+    @if (canEdit()) {
+      <button type="button" class="forge-btn is-primary is-compact" (click)="openAdd()">
+        + Добавить
+      </button>
+    }
+  </app-prof-filters>
 
   <div class="table-wrap">
     <table>
@@ -145,7 +149,7 @@
           >
             Навык
           </th>
-          <th title="Обучающий предмет. Пусто - рецепт можно только угадать.">Обучение</th>
+          <th title="Обучающий предмет. Пусто - основу можно только угадать.">Обучение</th>
           <th appSort="Качество" [view]="view">Качество</th>
           <th appSort="Изделия" [view]="view">Изделия</th>
           <th
@@ -164,7 +168,7 @@
           <tr [class.off]="!row.enabled" [class.is-flash]="view.focused() === row">
             <td>
               <input
-                class="forge-field"
+                class="forge-field is-small"
                 [ngModel]="row.name_ru"
                 [disabled]="!canEdit()"
                 (change)="patch(row, { name_ru: $any($event.target).value })"
@@ -172,7 +176,7 @@
             </td>
             <td>
               <select
-                class="forge-field is-select"
+                class="forge-field is-small is-select"
                 [ngModel]="row.type_id"
                 [disabled]="!canEdit()"
                 (ngModelChange)="patch(row, { type_id: +$event })"
@@ -184,7 +188,7 @@
             </td>
             <td>
               <select
-                class="forge-field is-select"
+                class="forge-field is-small is-select"
                 [ngModel]="row.acquire"
                 [disabled]="!canEdit()"
                 (ngModelChange)="onAcquire(row, $event)"
@@ -212,10 +216,12 @@
             <td
               class="num"
               [class.dim]="row.acquire === 'drop'"
-              [title]="row.acquire === 'drop' ? 'Навык растёт на ковке, а ковки у дроп-основы нет.' : ''"
+              [title]="
+                row.acquire === 'drop' ? 'Навык растёт на ковке, а ковки у дроп-основы нет.' : ''
+              "
             >
               <input
-                class="forge-field"
+                class="forge-field is-small"
                 type="number"
                 min="0"
                 [ngModel]="row.req_skill"
@@ -227,7 +233,7 @@
               @if (row.acquire === 'drop') {
                 <span
                   class="muted"
-                  title="Книга обещала бы рецепт, которого не сковать. Именные эскизы учатся своими книгами."
+                  title="Книга обещала бы основу, которую не сковать. Именные эскизы учатся своими книгами."
                   >—</span
                 >
               } @else {
@@ -245,7 +251,7 @@
             <td>
               <span class="range">
                 <select
-                  class="forge-field is-select"
+                  class="forge-field is-small is-select"
                   [ngModel]="row.quality_min"
                   [disabled]="!canEdit()"
                   (ngModelChange)="patch(row, { quality_min: +$event })"
@@ -256,7 +262,7 @@
                 </select>
                 <span>—</span>
                 <select
-                  class="forge-field is-select"
+                  class="forge-field is-small is-select"
                   [ngModel]="row.quality_max"
                   [disabled]="!canEdit()"
                   (ngModelChange)="patch(row, { quality_max: +$event })"
@@ -272,7 +278,7 @@
                 type="button"
                 class="forge-btn is-ghost is-compact"
                 [class.is-warn]="row.ready_steps !== row.steps || !row.steps"
-                title="Изделия рецепта: по строке item_template на ступень."
+                title="Изделия основы: по строке item_template на ступень."
                 (click)="openResults(row)"
               >
                 готово {{ row.ready_steps }} из {{ row.steps }}
@@ -302,11 +308,13 @@
               @if (canEdit()) {
                 <button
                   type="button"
-                  class="forge-btn is-danger is-compact"
+                  class="forge-btn is-danger is-icon is-compact"
                   [disabled]="busy()"
                   (click)="remove(row)"
+                  title="Удалить"
+                  aria-label="Удалить"
                 >
-                  Удалить
+                  <app-icon name="trash" tone="plain" [size]="15" />
                 </button>
               }
             </td>
@@ -322,7 +330,7 @@
           }
         } @empty {
           <tr>
-            <td colspan="11" class="empty">Рецептов не найдено.</td>
+            <td colspan="11" class="empty">Основ не найдено.</td>
           </tr>
         }
       </tbody>
@@ -333,7 +341,6 @@
     [total]="view.found().length"
     [page]="view.page()"
     [perPage]="view.perPage()"
-    [sizes]="[25, 50, 100, 200]"
     (pageChange)="view.page.set($event)"
     (perPageChange)="view.perPage.set($event); view.page.set(1)"
   />

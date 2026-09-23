@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 
 from . import (apply as apply_mod, aprof, audit, board, config, dbc, envfx,
                export, italents, items, loot, patch, registry, soap, spelldex,
-               spells, users, weather, worlditems)
+               spells, tooltip, users, weather, worlditems)
 from .db import query_one
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
@@ -735,17 +735,24 @@ def item_meta(_: users.Actor = Viewer) -> dict:
     }
 
 
+@app.get("/api/items/enums")
+def item_enums(_: users.Actor = Viewer) -> dict:
+    """Только справочники - для окон выбора, которым весь meta ни к чему."""
+    return {"enums": items.enums(), "icon_base_url": config.ICON_BASE_URL}
+
+
 @app.get("/api/items")
 def item_search(q: str = "", block: str | None = None,
                 quality: int | None = None, item_class: int | None = None,
-                inventory_type: int | None = None,
+                inventory_type: int | None = None, item_subclass: int | None = None,
                 item_level_min: int | None = None, item_level_max: int | None = None,
                 required_level_min: int | None = None, required_level_max: int | None = None,
                 limit: int = Query(60, ge=1, le=200),
                 offset: int = Query(0, ge=0),
                 _: users.Actor = Viewer) -> dict:
     return items.search(q=q, block=block, quality=quality, item_class=item_class,
-                        inventory_type=inventory_type, item_level_min=item_level_min,
+                        inventory_type=inventory_type, item_subclass=item_subclass,
+                        item_level_min=item_level_min,
                         item_level_max=item_level_max, required_level_min=required_level_min,
                         required_level_max=required_level_max, limit=limit, offset=offset)
 
@@ -796,6 +803,15 @@ def item_delete(entry: int, _: users.Actor = Owner) -> dict:
     except ValueError as exc:
         raise HTTPException(409, str(exc)) from exc
     return {"ok": True}
+
+
+@app.get("/api/items/{entry}/tooltip")
+def item_tooltip(entry: int, _: users.Actor = Viewer) -> dict:
+    """Подсказка «как в игре»: строки и их цвета (см. `tooltip.py`)."""
+    data = tooltip.build(entry)
+    if not data:
+        raise HTTPException(404, "Предмет %d не найден." % entry)
+    return data
 
 
 @app.get("/api/items/{entry}/client-row")
@@ -1142,6 +1158,18 @@ def aprof_match(payload: AprofMatch, _: users.Actor = Viewer) -> dict:
     return _aprof(lambda: aprof.match(payload.type_id, payload.part_mats,
                                       payload.part_counts, payload.skill,
                                       payload.mats))
+
+
+class AprofMatchNamed(BaseModel):
+    # Основа выбрана прямо: для проверки именного её набор ячеек не нужен.
+    recipe_id: int
+    # Вставки в слоты доводки по порядку.
+    mats: list[int] = []
+
+
+@app.post("/api/aprof/match-named")
+def aprof_match_named(payload: AprofMatchNamed, _: users.Actor = Viewer) -> dict:
+    return _aprof(lambda: aprof.match_named(payload.recipe_id, payload.mats))
 
 
 @app.get("/api/aprof/displays")

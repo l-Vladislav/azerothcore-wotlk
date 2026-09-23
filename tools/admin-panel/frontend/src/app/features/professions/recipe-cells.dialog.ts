@@ -7,19 +7,19 @@ import { DictRow, ProfessionsApi, Recipe, RecipeCellRow } from './professions.ap
 import { apiError, dictName } from './professions.model';
 
 /**
- * Набор рецепта: что и в какой ячейке должно лежать.
+ * Набор основы: что и в какой ячейке должно лежать.
  *
  * Сравнение ТОЧНОЕ - предмет и количество, - поэтому «не задано» значит не
  * «всё равно», а требование ПУСТОЙ ячейки: что не лежит, тоже часть набора
  * (DESIGN §5.4). У обязательной ячейки этого выбора нет вовсе: её нечем
- * оставить пустой, и рецепт, который её не называет, включить не дадут.
+ * оставить пустой, и основу, которая её не называет, включить не дадут.
  */
 @Component({
   selector: 'app-recipe-cells-dialog',
   imports: [FormsModule, ForgeSelectDirective, IconComponent],
   styleUrl: './recipe-dialog.scss',
   template: `
-    <dialog #dialog (close)="closed.emit()">
+    <dialog #dialog class="forge-dialog" (close)="closed.emit()">
       <header>
         <h2>Набор: {{ recipe()?.name_ru }}</h2>
         <button type="button" class="forge-btn is-icon close" aria-label="Закрыть" (click)="close()">
@@ -29,7 +29,7 @@ import { apiError, dictName } from './professions.model';
 
       <div class="body">
         @if (error(); as text) {
-          <p class="forge-alert is-danger">{{ text }}</p>
+          <p class="forge-alert is-error">{{ text }}</p>
         }
         @if (!rows().length) {
           <p class="empty">
@@ -51,7 +51,7 @@ import { apiError, dictName } from './professions.model';
                   <td
                     [title]="
                       row.required
-                        ? 'Обязательная ячейка: без этой части предмета не существует. Оставить её пустой рецепт не может.'
+                        ? 'Обязательная ячейка: без этой части предмета не существует. Оставить её пустой основа не может.'
                         : ''
                     "
                   >
@@ -60,14 +60,14 @@ import { apiError, dictName } from './professions.model';
                   <td class="muted">{{ kindName(row.part_kind_id) }}</td>
                   <td>
                     <select
-                      class="forge-field is-select"
+                      class="forge-field is-small is-select"
                       [class.is-warning]="row.required && !row.item_entry"
                       [ngModel]="row.item_entry"
                       [disabled]="!canEdit()"
                       [title]="
                         row.required
-                          ? 'Ячейка обязательная: пока материал не выбран, рецепт нельзя включить - сковать его не выйдет.'
-                          : 'Пусто - рецепт требует, чтобы игрок оставил эту ячейку пустой. Материал - чтобы в ней лежал именно он и именно в указанном количестве.'
+                          ? 'Ячейка обязательная: пока материал не выбран, основу нельзя включить - сковать её не выйдет.'
+                          : 'Пусто - основа требует, чтобы игрок оставил эту ячейку пустой. Материал - чтобы в ней лежал именно он и именно в указанном количестве.'
                       "
                       (ngModelChange)="save(row, { item_entry: +$event })"
                     >
@@ -81,7 +81,7 @@ import { apiError, dictName } from './professions.model';
                   </td>
                   <td class="num">
                     <input
-                      class="forge-field"
+                      class="forge-field is-small"
                       type="number"
                       min="1"
                       title="Сколько единиц уходит из сумки за эту ячейку."
@@ -135,7 +135,7 @@ export class RecipeCellsDialogComponent {
       this.error.set(null);
     } catch (error) {
       this.rows.set([]);
-      this.error.set(apiError(error, 'Набор рецепта прочитать не удалось.'));
+      this.error.set(apiError(error, 'Набор основы прочитать не удалось.'));
     }
   }
 

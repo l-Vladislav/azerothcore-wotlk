@@ -1,16 +1,21 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../core/auth.service';
+import { TablePagerComponent } from '../../shared/data/table-pager.component';
 import { ToastService } from '../../shared/ui/toast.service';
+import { ListView } from './list-view';
 import {
   Generated,
   GeneratedRow,
   Material,
+  PoolSlice,
+  PoolState,
   ProfessionsApi,
   ProfessionsMeta,
   Recipe,
 } from './professions.api';
 import { apiError } from './professions.model';
+import { ProfessionsTabsComponent } from './professions-tabs.component';
 
 /** Ниже этой доли свободного слайс считается кончающимся. */
 const LOW = 0.1;
@@ -27,6 +32,7 @@ const LOW = 0.1;
  * видно, а отказ игрок получит.
  */
 @Component({
+  imports: [ProfessionsTabsComponent, TablePagerComponent],
   providers: [ProfessionsApi],
   selector: 'app-professions-pool-page',
   styleUrl: './pool.page.scss',
@@ -48,6 +54,19 @@ export class ProfessionsPoolPage {
 
   readonly canEdit = computed(() => this.auth.actor()?.role === 'owner');
   readonly pool = computed(() => this.data()?.pool ?? null);
+  /** Три листа страницы - по десять строк, как и остальные листы профессий. */
+  readonly sliceView = new ListView<PoolSlice>(
+    computed(() => this.pool()?.types ?? []),
+    signal({}),
+  );
+  readonly missingView = new ListView<PoolState['missing'][number]>(
+    computed(() => this.pool()?.missing ?? []),
+    signal({}),
+  );
+  readonly issuedView = new ListView<GeneratedRow>(
+    computed(() => this.data()?.rows ?? []),
+    signal({}),
+  );
   readonly low = computed(() => {
     const pool = this.pool();
     return !!pool?.blanks && pool.free / pool.blanks < LOW;

@@ -14,14 +14,14 @@
 У страницы две работы, и вторая появилась с разворотом 2026-09-02
 (DESIGN §2.2). Первая прежняя: **вся числовая часть крафта живёт в базе, а не
 в C++** - новый камень это строка в таблице, а не сборка worldserver. Вторая -
-панель **сочиняет содержание**: рецепт со своим готовым изделием и именной
+панель **сочиняет содержание**: основа со своим готовым изделием и именной
 предмет заводятся здесь целиком, включая строки item_template в блоке
 180000-184999 (§8).
 
 Формулы, считавшей предмет из свойств материалов, больше нет. Ковка сравнивает
-набор в ячейках с рецептом ТОЧНО и выдаёт заранее заведённую строку; вставка
+набор в ячейках с основой ТОЧНО и выдаёт заранее заведённую строку; вставка
 складывает сырые статы камней. Поэтому `match()` не «считает предмет», а
-показывает, какой рецепт совпал и с каким шансом он выйдет.
+показывает, какая основа совпала и с каким шансом она выйдет.
 """
 
 import bisect
@@ -91,7 +91,7 @@ def _bump_catalog_version() -> None:
     """Сказать клиентам, что каталог окна изменился.
 
     Каталог - это справочники родов и типов вставки, типы предметов с ячейками,
-    список материалов и фильтры вставок у рецептов: всё, что у игроков
+    список материалов и фильтры вставок у основ: всё, что у игроков
     одинаково и правится только отсюда. С протокола 17 он не едет на каждое
     открытие верстака, а лежит у аддона в SavedVariables и спрашивается лишь
     при расхождении версий (DESIGN §7, «Кэш каталога»). Иначе 554 материала и
@@ -329,7 +329,7 @@ def _require() -> None:
         raise ApError(
             "Таблиц модуля нет. Примените "
             "data/sql/updates/pending_db_world/mod_advanced_professions_v1.sql")
-    # Разворот 2026-09-02: рецепты, изделия и поделка.
+    # Разворот 2026-09-02: основы, изделия и поделка.
     if not _has_column(T_RECIPE_NEW, "quality_min"):
         raise ApError(
             "Схема старой версии. Примените data/sql/updates/pending_db_world/"
@@ -541,7 +541,7 @@ def save_material(mat: Material) -> dict:
 def delete_material(entry: int) -> None:
     """Убрать материал — но только если на него никто не ссылается.
 
-    Молча удалённый материал превратил бы рецепт основы в «куётся из ничего», а
+    Молча удалённый материал превратил бы основу в «куётся из ничего», а
     синергию — в никогда не срабатывающую. Поэтому отказываем с объяснением.
     """
     _require()
@@ -551,7 +551,7 @@ def delete_material(entry: int) -> None:
         % (T_RECIPE_ITEM, T_RECIPE_NEW), (entry,))
     if used_by:
         names = ", ".join(r["name_ru"] or str(r["id"]) for r in used_by)
-        raise ApError("Материал входит в наборы рецептов: %s." % names)
+        raise ApError("Материал входит в наборы основ: %s." % names)
 
     in_parts = query(
         "SELECT DISTINCT `type_id` FROM `%s` WHERE `part_kind_id` <> 0 AND "
@@ -651,7 +651,7 @@ def types() -> list[dict]:
         "SELECT `type_id`, COUNT(*) AS n FROM `%s` GROUP BY `type_id`"
         % T_RECIPE_NEW)}
     fail_info = _item_info([r["fail_entry"] for r in rows])
-    # Поделка нужна, только пока набор без рецепта превращается в вещь.
+    # Поделка нужна, только пока набор без основы превращается в вещь.
     mode = query_one("SELECT `value` FROM `%s` WHERE `name` = 'fail_mode'"
                      % T_CONFIG)
     fail_mode = int((mode or {}).get("value", 2) or 0)
@@ -672,7 +672,7 @@ def types() -> list[dict]:
             item["issues"].append("нет ни одной ячейки: ковать нечем")
         if fail_mode == 2 and not item["fail_entry"]:
             item["issues"].append(
-                "нет поделки, а набор без рецепта сейчас превращается в вещь "
+                "нет поделки, а набор без основы сейчас превращается в вещь "
                 "(fail_mode = 2)")
         elif item["fail_entry"] and not item["fail_item"]:
             item["issues"].append("поделки %d нет в item_template"
@@ -732,7 +732,7 @@ def delete_type(type_id: int) -> None:
                     % T_RECIPE_NEW, (type_id,))
     if on_type:
         names = ", ".join(r["name_ru"] or str(r["id"]) for r in on_type)
-        raise ApError("На типе висят рецепты: %s." % names)
+        raise ApError("На типе висят основы: %s." % names)
 
     with world_cursor(commit=True) as cur:
         cur.execute("DELETE FROM `%s` WHERE `type_id` = %%s" % T_PART, (type_id,))
@@ -748,12 +748,12 @@ class Part(BaseModel):
 
     Состояний у неё два: пусто либо предмет с количеством (DESIGN §5.4.1).
     Материала по умолчанию нет: пустая ячейка - законная часть набора, а
-    рецепт, который её не называет, требует именно пустоты. Расход стоит в
-    строке рецепта, геометрия и текстура - в аддоне.
+    основа, которая её не называет, требует именно пустоты. Расход стоит в
+    строке основы, геометрия и текстура - в аддоне.
 
     Исключение одно - `required`: часть, без которой предмета не существует
-    (клинок у меча, древко у древкового). Её пустой не оставить, и рецепт,
-    который её не называет, включить нельзя - сковать его не выйдет.
+    (клинок у меча, древко у древкового). Её пустой не оставить, и основа,
+    которая её не называет, включить нельзя - сковать её не выйдет.
     """
     type_id: int = Field(gt=0)
     idx: int = Field(ge=1, le=12)
@@ -809,7 +809,7 @@ def save_part(part: Part) -> dict:
             "Нет ни одного материала рода «%s» — такую часть будет нечем "
             "заполнить." % _dict_name(T_PART_KIND, part.part_kind_id))
 
-    # Ставить галочку «обязательна» поверх включённых рецептов, которые эту
+    # Ставить галочку «обязательна» поверх включённых основ, которые эту
     # ячейку не называют, значит молча сделать их некуемыми: в игре ковка будет
     # отказывать, а в панели они останутся зелёными. Поэтому отказываем и
     # называем виноватых - порядок работ тут «сначала набор, потом галочка».
@@ -821,7 +821,7 @@ def save_part(part: Part) -> dict:
         if broken:
             raise ApError(
                 "Ячейку нельзя сделать обязательной: её не называют включённые "
-                "рецепты (%s%s). Допишите им эту ячейку или выключите их, "
+                "основы (%s%s). Допишите им эту ячейку или выключите их, "
                 "иначе они станут некуемыми."
                 % (", ".join("«%s»" % n for n in broken[:3]),
                    " и ещё %d" % (len(broken) - 3) if len(broken) > 3 else ""))
@@ -842,12 +842,12 @@ def save_part(part: Part) -> dict:
 
 
 def delete_part(type_id: int, idx: int) -> None:
-    """Убрать ячейку схемы вместе со строками рецептов, которые её называли."""
+    """Убрать ячейку схемы вместе со строками основ, которые её называли."""
     _require()
     with world_cursor(commit=True) as cur:
         cur.execute("DELETE FROM `%s` WHERE `type_id` = %%s AND `idx` = %%s"
                     % T_PART, (type_id, idx))
-        # Рецепты ссылались на эту ячейку - без неё набор не сойдётся никогда.
+        # Основы ссылались на эту ячейку - без неё набор не сойдётся никогда.
         cur.execute("DELETE FROM `%s` WHERE `part_idx` = %%s AND `recipe_id` IN "
                     "(SELECT `id` FROM `%s` WHERE `type_id` = %%s)"
                     % (T_RECIPE_ITEM, T_RECIPE_NEW), (idx, type_id))
@@ -855,10 +855,10 @@ def delete_part(type_id: int, idx: int) -> None:
     _bump_catalog_version()
 
 
-# --- рецепты: точный набор -> готовое изделие ------------------------------
+# --- основы: точный набор -> готовое изделие -------------------------------
 # Разворот 2026-09-02 (DESIGN §2.2, §5.4, §5.4.5, §5.6). Прежняя пара
 # ap_base/ap_base_recipe была набором УСЛОВИЙ («в части 1 лежит мифрил»), и из
-# них вычислялся предмет. Здесь наоборот: рецепт - это точный набор предметов
+# них вычислялся предмет. Здесь наоборот: основа - это точный набор предметов
 # по ячейкам, а его результат - готовая строка item_template, заведённая
 # заранее. Ничего не считается, поэтому и панель занимается не числами, а
 # содержанием: она эти строки создаёт.
@@ -980,11 +980,11 @@ def references_to_item(entry: int) -> list[str]:
             "SELECT r.`name_ru` AS recipe, s.`quality` AS quality FROM `%s` s "
             "JOIN `%s` r ON r.`id` = s.`recipe_id` WHERE s.`result_entry` = %%s"
             % (T_RECIPE_RESULT, T_RECIPE_NEW), (entry,)):
-        out.append("изделие рецепта «%s» (качество %d)"
+        out.append("изделие основы «%s» (качество %d)"
                    % (row["recipe"], int(row["quality"])))
     for row in query("SELECT `name_ru` FROM `%s` WHERE `teach_item` = %%s"
                      % T_RECIPE_NEW, (entry,)):
-        out.append("обучающий предмет рецепта «%s»" % row["name_ru"])
+        out.append("обучающий предмет основы «%s»" % row["name_ru"])
     for row in query("SELECT `name_ru` FROM `%s` WHERE `result_entry` = %%s"
                      % T_SYNERGY, (entry,)):
         out.append("именной предмет сочетания «%s»" % row["name_ru"])
@@ -1051,10 +1051,10 @@ class Recipe(BaseModel):
     type_id: int = Field(default=0, ge=0)
     name_ru: str = ""
     req_skill: int = Field(default=1, ge=0, le=500)
-    # Обучающий предмет: 0 - рецепт только угадывают (DESIGN §5.4.4).
+    # Обучающий предмет: 0 - основу только угадывают (DESIGN §5.4.4).
     teach_item: int = Field(default=0, ge=0)
     # Границы качества изделия у ОСНОВЫ, проценты остаются глобальными
-    # (DESIGN §5.4.5). Ноль - это поделка, рецептом её не задают.
+    # (DESIGN §5.4.5). Ноль - это поделка, основой её не задают.
     quality_min: int = Field(default=1, ge=1, le=5)
     quality_max: int = Field(default=1, ge=1, le=5)
     # Способ получения: 'forge' куётся на верстаке, 'drop' приходит только
@@ -1070,7 +1070,7 @@ RECIPE_COLS = ("type_id", "name_ru", "req_skill", "teach_item",
 class RecipeCell(BaseModel):
     part_idx: int = Field(ge=1, le=12)
     # Что должно лежать в ячейке. Ноль означает «не задано»: строка удаляется, а
-    # рецепт начинает требовать, чтобы ячейка была ПУСТОЙ (DESIGN §5.4).
+    # основа начинает требовать, чтобы ячейка была ПУСТОЙ (DESIGN §5.4).
     item_entry: int = Field(default=0, ge=0)
     count: int = Field(default=1, ge=1, le=50)
 
@@ -1095,9 +1095,9 @@ def _schemes() -> dict[int, list[dict]]:
 
 
 def _cell_signature(cells: dict[int, dict]) -> tuple:
-    """Отпечаток набора, чтобы сравнивать рецепты между собой.
+    """Отпечаток набора, чтобы сравнивать основы между собой.
 
-    Расход в него не входит: два рецепта с одним набором предметов, но разным
+    Расход в него не входит: две основы с одним набором предметов, но разным
     расходом, всё равно неразличимы в момент ковки.
     """
     return tuple(sorted(
@@ -1155,7 +1155,7 @@ def _patterns(gems: int, slots: int) -> int:
 
 def _recipe_inlay(rec: dict, quals: dict[int, dict],
                   mats: list[dict]) -> list[dict]:
-    """Что выйдет из гнёзд на каждой ступени качества рецепта."""
+    """Что выйдет из гнёзд на каждой ступени качества основы."""
     out = []
     for row in rec["results"]:
         quality = int(row["quality"])
@@ -1183,7 +1183,7 @@ def _recipe_inlay(rec: dict, quals: dict[int, dict],
 
 def _recipe_issues(rec: dict, scheme: list[dict], quals: dict[int, dict],
                    twins: list[str]) -> list[str]:
-    """Что мешает включить рецепт. Пустой список - можно включать.
+    """Что мешает включить основу. Пустой список - можно включать.
 
     Проверки из DESIGN §8: набор обязан покрывать обязательные ячейки, на
     каждую ступень диапазона нужно существующее изделие, диапазон не должен
@@ -1193,7 +1193,7 @@ def _recipe_issues(rec: dict, scheme: list[dict], quals: dict[int, dict],
     # У дроп-основы ковочной половины нет вовсе: её не куют, а выбивают, и в
     # сравнении наборов она не участвует (DESIGN §2.5). Проверять ей нечего -
     # ни схемы, ни набора, ни обязательных ячеек, ни двойников: двойник это
-    # «два рецепта на один набор», а набора у неё нет.
+    # «две основы на один набор», а набора у неё нет.
     drop = rec.get("acquire") == "drop"
 
     cells = rec["cells"]
@@ -1201,23 +1201,23 @@ def _recipe_issues(rec: dict, scheme: list[dict], quals: dict[int, dict],
         issues.append("у типа нет ни одной ячейки — задайте части на вкладке "
                       "«Типы предметов»")
     if not drop and not _cell_signature(cells):
-        issues.append("набор пуст: рецепт не совпадёт ни с чем")
+        issues.append("набор пуст: основа не совпадёт ни с чем")
     for idx, cell in cells.items():
         if not any(p["idx"] == idx for p in scheme):
             issues.append("ячейка %d осталась от прежней схемы типа" % idx)
         elif int(cell["item_entry"]) and not cell["item"]:
             issues.append("в ячейке %d предмет %d, которого нет в item_template"
                           % (idx, int(cell["item_entry"])))
-    # Обязательную ячейку рецепт обязан назвать: «не задано» означает «должна
+    # Обязательную ячейку основа обязана назвать: «не задано» означает «должна
     # быть пустой», а пустой она быть не может - ковка откажет до расхода
-    # материалов, и рецепт окажется недостижимым (DESIGN §5.4.1).
+    # материалов, и основа окажется недостижимой (DESIGN §5.4.1).
     for part in scheme:
         if drop or not int(part.get("required", 0)):
             continue
         cell = cells.get(part["idx"])
         if not cell or not int(cell["item_entry"]):
             issues.append("ячейка «%s» обязательная, а набор её не называет — "
-                          "такой рецепт не сковать" % part["label_ru"])
+                          "такую основу не сковать" % part["label_ru"])
 
     if rec["quality_min"] > rec["quality_max"]:
         issues.append("нижняя граница качества выше верхней")
@@ -1262,7 +1262,7 @@ def _recipe_issues(rec: dict, scheme: list[dict], quals: dict[int, dict],
                    step["slots"]))
 
     for twin in (twins if not drop else []):
-        issues.append("тот же набор уже у рецепта «%s» — совпадение точное, и "
+        issues.append("тот же набор уже у основы «%s» — совпадение точное, и "
                       "какой из двух сработает, решал бы случай" % twin)
     return issues
 
@@ -1304,7 +1304,7 @@ def recipes() -> list[dict]:
         named.setdefault(int(row["recipe_id"]), set()).add(int(row["item_entry"]))
 
     # Материалы читаем один раз на всю выборку: gem_fits зовётся на каждый
-    # камень каждой ступени каждого рецепта, и запрос внутри стоил бы сотен.
+    # камень каждой ступени каждой основы, и запрос внутри стоил бы сотен.
     mats = materials()
 
     wanted = [r["teach_item"] for r in rows]
@@ -1336,7 +1336,7 @@ def recipes() -> list[dict]:
             cell["item"] = info.get(int(cell["item_entry"]))
             by_idx[part["idx"]] = cell
         # Ячейки, которых в схеме типа уже нет: схему могли перекроить после
-        # того, как рецепт написали. Прятать их нельзя - из-за них рецепт не
+        # того, как основу написали. Прятать их нельзя - из-за них основа не
         # совпадёт ни с чем, а по таблице этого не видно.
         for idx, cell in cells.get(rec["id"], {}).items():
             if idx not in by_idx:
@@ -1360,7 +1360,7 @@ def recipes() -> list[dict]:
         rec["_by_idx"] = by_idx
         out.append(rec)
 
-    # Двойники ищем, когда собраны наборы всех рецептов, и только внутри
+    # Двойники ищем, когда собраны наборы всех основ, и только внутри
     # одного типа: разные типы и так не спутать.
     signatures = {rec["id"]: _cell_signature(rec["_by_idx"]) for rec in out}
     for rec in out:
@@ -1389,9 +1389,9 @@ def recipes() -> list[dict]:
 
 def save_recipe(rec: Recipe) -> dict:
     _require()
-    rec.name_ru = _clean_text(rec.name_ru, "Имя рецепта")
+    rec.name_ru = _clean_text(rec.name_ru, "Имя основы")
     if not rec.name_ru:
-        raise ApError("У рецепта должно быть имя — по нему его видно в панели.")
+        raise ApError("У основы должно быть имя — по нему его видно в панели.")
     if not query_one("SELECT 1 AS ok FROM `%s` WHERE `id` = %%s" % T_TYPE,
                      (rec.type_id,)):
         raise ApError("Выберите тип предмета: он задаёт схему ячеек.")
@@ -1411,7 +1411,7 @@ def save_recipe(rec: Recipe) -> dict:
     _check_teach_item(rec.teach_item, "recipe", rec.id)
 
     # Ковочная половина у дроп-основы не то что не нужна - она обманывает.
-    # Книга обещала бы рецепт, которого не сковать; требуемый навык обещал бы
+    # Книга обещала бы основу, которую не сковать; требуемый навык обещал бы
     # ковку по навыку, а навык растёт только на ковке (DESIGN §2.5).
     if rec.acquire == "drop":
         if rec.teach_item:
@@ -1421,15 +1421,15 @@ def save_recipe(rec: Recipe) -> dict:
             raise ApError("Дроп-основа навыка не требует и навыку не учит: "
                           "навык растёт на ковке, а ковки у неё нет.")
 
-    # Включать рецепт можно только целым: без изделия на каждую ступень
+    # Включать основу можно только целой: без изделия на каждую ступень
     # диапазона ковка удастся, а выдать будет нечего.
     #
     # Проверка стоит на ПЕРЕХОДЕ «выключен -> включён», а не на каждом
     # сохранении включённой строки. Иначе выходило вот что: у включённого
-    # рецепта появлялось замечание (например, камни его качества кто-то убрал
+    # основы появлялось замечание (например, камни его качества кто-то убрал
     # с другой вкладки), и после этого ЛЮБАЯ правка строки - имя, книга, тип -
     # отвечала «пока нельзя включить», хотя никто ничего не включал. Чинить
-    # рецепт правкой становилось нельзя, пока его не выключишь; замечание при
+    # основу правкой становилось нельзя, пока её не выключишь; замечание при
     # этом и так висит в строке красным.
     if rec.enabled and rec.id:
         current = next((r for r in recipes() if r["id"] == rec.id), None)
@@ -1439,20 +1439,20 @@ def save_recipe(rec: Recipe) -> dict:
             probe["quality_max"] = rec.quality_max
             probe["teach_item"] = rec.teach_item
             # Способ получения берём НОВЫЙ: он решает, какие проверки вообще
-            # применимы, и на старом рецепт-дроп упирался бы в «набор пуст».
+            # применимы, и на старой основа-дроп упиралась бы в «набор пуст».
             probe["acquire"] = rec.acquire
             probe["cells"] = {c["part_idx"]: c for c in current["cells"]}
             issues = _recipe_issues(
                 probe, _schemes().get(rec.type_id, []), quals, [])
             if issues:
-                raise ApError("Рецепт «%s» пока нельзя включить: %s."
+                raise ApError("Основу «%s» пока нельзя включить: %s."
                               % (rec.name_ru, issues[0]))
 
     note = ""
     if not rec.id and rec.enabled:
         rec.enabled = False
-        note = ("Рецепт создан выключенным: у него ещё нет ни набора, ни "
-                "изделий. Включите его, когда заведёте и то и другое.")
+        note = ("Основа создана выключенной: у неё ещё нет ни набора, ни "
+                "изделий. Включите её, когда заведёте и то и другое.")
 
     values = tuple(getattr(rec, c) if c != "enabled" else int(rec.enabled)
                    for c in RECIPE_COLS)
@@ -1468,7 +1468,7 @@ def save_recipe(rec: Recipe) -> dict:
             cur.execute("INSERT INTO `%s` (%s) VALUES (%s)"
                         % (T_RECIPE_NEW, cols, marks), values)
             new_id = cur.lastrowid
-    # Фильтры вставок уезжают на клиент у ВСЕХ включённых рецептов, изучен он
+    # Фильтры вставок уезжают на клиент у ВСЕХ включённых основ, изучена она
     # или нет, поэтому каталог сдвигает и обычная правка строки.
     _bump_catalog_version()
     return {"id": int(new_id), "note": note}
@@ -1479,32 +1479,32 @@ def delete_recipe(recipe_id: int) -> None:
     rec = query_one("SELECT `name_ru` FROM `%s` WHERE `id` = %%s"
                     % T_RECIPE_NEW, (recipe_id,))
     if not rec:
-        raise ApError("Рецепта %d нет." % recipe_id)
+        raise ApError("Основы %d нет." % recipe_id)
 
     # Колонка в снимке зовётся `recipe_id`; `base_id` осталась от прежней
-    # модели и роняла удаление любого рецепта ошибкой MySQL - то есть проверка
+    # модели и роняла удаление любой основы ошибкой MySQL - то есть проверка
     # не срабатывала ни разу, а вместо отказа приходила пятисотка.
     made = query_one("SELECT COUNT(*) AS n FROM `%s` WHERE `recipe_id` = %%s"
                      % T_GENERATED, (recipe_id,))
     if made and int(made["n"]):
         raise ApError(
-            "По этому рецепту уже собрано предметов: %d. Удалять нельзя — "
-            "выключите его: выключенный не предлагается в ковке, а собранное "
+            "По этой основе уже собрано предметов: %d. Удалять нельзя — "
+            "выключите её: выключенная не предлагается в ковке, а собранное "
             "продолжает работать." % int(made["n"]))
     named = query("SELECT `name_ru` FROM `%s` WHERE `recipe_id` = %%s"
                   % T_SYNERGY, (recipe_id,))
     if named:
-        raise ApError("На рецепте висят именные сочетания: %s. Сначала уберите "
+        raise ApError("На основе висят именные сочетания: %s. Сначала уберите "
                       "их." % ", ".join(r["name_ru"] for r in named))
 
-    # Заготовки слайсов уходят вместе с рецептом: выданных по нему нет (это
+    # Заготовки слайсов уходят вместе с основой: выданных по нему нет (это
     # проверено выше), а незанятые строки без хозяина только висели бы в
     # памяти каждого старта. Границы за основой при этом не освобождаются -
-    # новый рецепт получит слайс за верхней границей, а не чужой.
+    # новая основа получит слайс за верхней границей, а не чужой.
     slices = query("SELECT `pool_lo`, `pool_hi` FROM `%s` WHERE "
                    "`recipe_id` = %%s" % T_RECIPE_RESULT, (recipe_id,))
 
-    # Сами изделия остаются жить: строка item_template переживает свой рецепт,
+    # Сами изделия остаются жить: строка item_template переживает свою основу,
     # потому что такая вещь может лежать в сумке игрока (DESIGN §8).
     with world_cursor(commit=True) as cur:
         cur.execute("DELETE FROM `%s` WHERE `recipe_id` = %%s"
@@ -1540,7 +1540,7 @@ def save_recipe_filters(recipe_id: int, filters: RecipeFilters) -> dict:
     _require()
     if not query_one("SELECT 1 AS ok FROM `%s` WHERE `id` = %%s"
                      % T_RECIPE_NEW, (recipe_id,)):
-        raise ApError("Рецепта %d нет." % recipe_id)
+        raise ApError("Основы %d нет." % recipe_id)
 
     types = sorted({int(t) for t in filters.insert_types if int(t) > 0})
     entries = sorted({int(e) for e in filters.materials if int(e) > 0})
@@ -1583,12 +1583,12 @@ def save_recipe_filters(recipe_id: int, filters: RecipeFilters) -> dict:
 
 
 def recipe_cells(recipe_id: int) -> dict:
-    """Набор рецепта по ячейкам схемы плюс то, что вообще можно в них класть."""
+    """Набор основы по ячейкам схемы плюс то, что вообще можно в них класть."""
     _require()
     rec = query_one("SELECT `type_id`, `name_ru` FROM `%s` WHERE `id` = %%s"
                     % T_RECIPE_NEW, (recipe_id,))
     if not rec:
-        raise ApError("Рецепта %d нет." % recipe_id)
+        raise ApError("Основы %d нет." % recipe_id)
 
     have = {int(r["part_idx"]): r for r in query(
         "SELECT `part_idx`, `item_entry`, `count` FROM `%s` "
@@ -1598,7 +1598,7 @@ def recipe_cells(recipe_id: int) -> dict:
     for part in parts(int(rec["type_id"])):
         own = have.get(part["idx"])
         # Предлагаем материалы своего рода: ячейка «лезвие» ждёт металл, и
-        # ткань в ней сделала бы рецепт несобираемым.
+        # ткань в ней сделала бы основу несобираемой.
         options = [m for m in materials()
                    if m["role"] == "base"
                    and m["part_kind_id"] == part["part_kind_id"]]
@@ -1606,13 +1606,13 @@ def recipe_cells(recipe_id: int) -> dict:
             "part_idx": part["idx"],
             "label_ru": part["label_ru"],
             "part_kind_id": part["part_kind_id"],
-            # Обязательную ячейку рецепт обязан назвать: пустой она быть не
-            # может, и оставить её «не заданной» значит сделать рецепт
-            # недостижимым (DESIGN §5.4.1).
+            # Обязательную ячейку основа обязана назвать: пустой она быть не
+            # может, и оставить её «не заданной» значит сделать основу
+            # недостижимой (DESIGN §5.4.1).
             "required": int(part["required"]),
             "item_entry": int(own["item_entry"]) if own else 0,
             # Расход - часть набора, а не настройка ячейки: «те же предметы, но
-            # по три» это другой рецепт (DESIGN §5.4.2).
+            # по три» это другая основа (DESIGN §5.4.2).
             "count": int(own["count"]) if own else 1,
             "options": [{"entry": m["entry"], "name": m["name_ru"]}
                         for m in options],
@@ -1626,7 +1626,7 @@ def save_recipe_cell(recipe_id: int, cell: RecipeCell) -> dict:
     rec = query_one("SELECT `type_id`, `name_ru`, `acquire` FROM `%s` "
                     "WHERE `id` = %%s" % T_RECIPE_NEW, (recipe_id,))
     if not rec:
-        raise ApError("Рецепта %d нет." % recipe_id)
+        raise ApError("Основы %d нет." % recipe_id)
     # Набор у дроп-основы был бы мёртвой записью: в сравнении она не участвует,
     # и ни на что этот набор не влияет (DESIGN §2.5).
     if rec["acquire"] == "drop":
@@ -1653,7 +1653,7 @@ def save_recipe_cell(recipe_id: int, cell: RecipeCell) -> dict:
                              _dict_name(T_PART_KIND, part["part_kind_id"])))
 
     with world_cursor(commit=True) as cur:
-        # «Не задано» - это отсутствие строки, а не ноль в ней: рецепт начнёт
+        # «Не задано» - это отсутствие строки, а не ноль в ней: основа начнёт
         # требовать, чтобы ячейка была пустой (DESIGN §5.4).
         if not cell.item_entry:
             cur.execute("DELETE FROM `%s` WHERE `recipe_id` = %%s AND "
@@ -1717,7 +1717,7 @@ def _copy_item_row(sample: int, entry: int, quality: int, name_en: str,
 
 
 # --- слайсы пула доводки ---------------------------------------------------
-# Пул нарезан ПО ОСНОВАМ (v25): у каждой ступени рецепта свой слайс, потому что
+# Пул нарезан ПО ОСНОВАМ (v25): у каждой ступени основы свой слайс, потому что
 # строка клиентской Item.dbc статична и одному слайсу двух моделей не показать.
 # Миграция раздала слайсы тем основам, что были на тот день, а дальше основы
 # заводит панель - значит и резать слайс ей. Без этого новая основа выглядит
@@ -1838,7 +1838,7 @@ def reseed_slice(recipe_id: int, quality: int) -> dict:
         "`recipe_id` = %%s AND `quality` = %%s" % T_RECIPE_RESULT,
         (recipe_id, quality))
     if not row or not int(row["result_entry"]):
-        raise ApError("У ступени %d рецепта %d нет изделия."
+        raise ApError("У ступени %d основы %d нет изделия."
                       % (quality, recipe_id))
     return _ensure_slice(recipe_id, quality, int(row["result_entry"]))
 
@@ -1847,7 +1847,7 @@ def generate_results(recipe_id: int, sample_entry: int) -> dict:
     """«Создать варианты»: по изделию на каждую ступень диапазона качества.
 
     Заводить их руками владелец не должен: диапазон из четырёх ступеней - это
-    четыре почти одинаковых предмета на каждый рецепт (DESIGN §5.4.5). Уже
+    четыре почти одинаковых предмета на каждую основу (DESIGN §5.4.5). Уже
     заведённые ступени не трогаем: сгенерированное правится дальше руками, и
     перезапись стёрла бы правку.
     """
@@ -1855,7 +1855,7 @@ def generate_results(recipe_id: int, sample_entry: int) -> dict:
     rec = query_one("SELECT `name_ru`, `quality_min`, `quality_max` FROM `%s` "
                     "WHERE `id` = %%s" % T_RECIPE_NEW, (recipe_id,))
     if not rec:
-        raise ApError("Рецепта %d нет." % recipe_id)
+        raise ApError("Основы %d нет." % recipe_id)
     if not _item_exists(sample_entry):
         raise ApError("Образца %d нет в item_template." % sample_entry)
 
@@ -1894,9 +1894,9 @@ def save_recipe_result(recipe_id: int, row: RecipeResult) -> dict:
     rec = query_one("SELECT `quality_min`, `quality_max` FROM `%s` "
                     "WHERE `id` = %%s" % T_RECIPE_NEW, (recipe_id,))
     if not rec:
-        raise ApError("Рецепта %d нет." % recipe_id)
+        raise ApError("Основы %d нет." % recipe_id)
     if not (int(rec["quality_min"]) <= row.quality <= int(rec["quality_max"])):
-        raise ApError("Качество %d вне диапазона рецепта." % row.quality)
+        raise ApError("Качество %d вне диапазона основы." % row.quality)
     if row.result_entry and not _item_exists(row.result_entry):
         raise ApError("Предмета %d нет в item_template." % row.result_entry)
 
@@ -1932,7 +1932,7 @@ def save_recipe_result(recipe_id: int, row: RecipeResult) -> dict:
 def generate_fail_item(type_id: int, sample_entry: int) -> dict:
     """Серая поделка типа: одна строка на тип (DESIGN §5.4.2).
 
-    Нужна, пока fail_mode = 2: набор без рецепта тогда не отказ, а испорченная
+    Нужна, пока fail_mode = 2: набор без основы тогда не отказ, а испорченная
     вещь, и выдать её не из чего, если строки нет.
     """
     _require()
@@ -1964,7 +1964,7 @@ def generate_fail_item(type_id: int, sample_entry: int) -> dict:
 class Synergy(BaseModel):
     id: int = 0
     name_ru: str = ""
-    # Сочетание принадлежит ОСНОВЕ, то есть рецепту (DESIGN §5.6). Этим закрыт
+    # Сочетание принадлежит ОСНОВЕ (DESIGN §5.6). Этим закрыт
     # старый вопрос «Клинок ловчего на щите»: те же два камня в щите либо дадут
     # собственное сочетание щита, либо не дадут ничего.
     recipe_id: int = Field(default=0, ge=0)
@@ -2033,7 +2033,7 @@ def synergies() -> list[dict]:
 
         issues = []
         if not owner:
-            issues.append("сочетание не привязано к рецепту-основе")
+            issues.append("сочетание не привязано к основе")
         if not pattern:
             issues.append("набор пуст")
         elif best and len(pattern) > best:
@@ -2079,7 +2079,7 @@ def save_synergy(syn: Synergy) -> dict:
     owner = query_one("SELECT `name_ru`, `quality_max` FROM `%s` "
                       "WHERE `id` = %%s" % T_RECIPE_NEW, (syn.recipe_id,))
     if not owner:
-        raise ApError("Выберите основу: сочетание принадлежит рецепту, а не "
+        raise ApError("Выберите основу: сочетание принадлежит основе, а не "
                       "всему модулю — иначе те же камни сработают и на щите.")
     # Один материал - законная длина: у основы может быть своё сочетание на
     # один, на два и на три (DESIGN §5.6).
@@ -2201,7 +2201,7 @@ class Balance(BaseModel):
     qualities: list[Quality]
     # {"quality": вес}. Проценты качества ГЛОБАЛЬНЫЕ - одна таблица на модуль:
     # подкрутка «стало слишком много эпиков» правится в одном месте, а не по
-    # всем рецептам разом (DESIGN §5.4.5).
+    # всем основам разом (DESIGN §5.4.5).
     chances: dict[str, int] = {}
 
 
@@ -2426,7 +2426,7 @@ def save_balance(payload: Balance) -> dict:
 
 # --- уровень предмета -> уровень персонажа --------------------------------
 # В ковке НЕ УЧАСТВУЕТ: и числа, и уровень надевания стоят в одной строке
-# item_template - той, что прописана результатом рецепта, и разойтись им негде
+# item_template - той, что прописана результатом основы, и разойтись им негде
 # (DESIGN §5.5). Таблица оставлена в схеме на случай, если вставки поедут в
 # сторону «материал поднимает уровень предмета» (§5.7): тогда пересчёт
 # понадобится именно здесь.
@@ -2513,7 +2513,7 @@ def save_settings(values: dict[str, str]) -> list[dict]:
             raise ApError("«%s»: допустимо от %d до %d." % (name, lo, hi))
 
     # Пол шанса выше базового означает кривую, которая растёт вниз; нулевой пол
-    # означает рецепт, который нельзя выковать никогда, сколько ни пробуй
+    # означает основу, которую нельзя выковать никогда, сколько ни пробуй
     # (DESIGN §5.1.1).
     floor_, base_ = int(merged.get("fail_floor", 10)), int(merged.get("base_chance", 75))
     if floor_ > base_:
@@ -2559,7 +2559,7 @@ def match(type_id: int, part_mats: list[int], part_counts: list[int],
     """Что выйдет из такого набора: тем же сравнением, что и сервер.
 
     Числа изделия здесь не считаются вовсе - их не из чего считать. Ответ на
-    другой вопрос: совпал ли набор с рецептом, с каким шансом он выкуется при
+    другой вопрос: совпал ли набор с основой, с каким шансом она выкуется при
     таком навыке, что уйдёт из сумки и что добавят вставки.
     """
     _require()
@@ -2607,7 +2607,7 @@ def match(type_id: int, part_mats: list[int], part_counts: list[int],
         raise ApError("Верстак пуст: положите хотя бы один материал.")
 
     # Сравнение точное и по всему набору: тот же предмет в том же количестве в
-    # той же ячейке, а ячейка, которую рецепт не называет, обязана быть ПУСТОЙ
+    # той же ячейке, а ячейка, которую основа не называет, обязана быть ПУСТОЙ
     # (DESIGN §5.4).
     hit = None
     for rec in recipes():
@@ -2647,10 +2647,10 @@ def match(type_id: int, part_mats: list[int], part_counts: list[int],
     }
 
     if not hit:
-        # Набора нет ни в одном рецепте - неудачная попытка, а не ошибка ввода.
+        # Набора нет ни в одной основе - неудачная попытка, а не ошибка ввода.
         out["recipe"] = None
         out["note"] = {
-            0: "Ковка откажет: набора нет ни в одном рецепте, материалы целы.",
+            0: "Ковка откажет: набора нет ни в одной основе, материалы целы.",
             1: "Ковка не удастся: материалы сгорят впустую.",
         }.get(fail_mode,
               "Ковка не удастся: материалы сгорят, на руках останется поделка.")
@@ -2671,10 +2671,21 @@ def match(type_id: int, part_mats: list[int], part_counts: list[int],
         out["note"] = ("Провал броска сожжёт материалы и оставит поделку."
                        if out["chance"]["chance"] < 100 else "")
 
+    out.update(_match_inserts(hit["id"] if hit else 0, mats or [], known))
+    return out
+
+
+def _match_inserts(recipe_id: int, mats: list[int],
+                   known: dict[int, dict]) -> dict:
+    """Вставки поверх изделия основы: сумма статов и именное сочетание.
+
+    Общая половина обеих проверок: ковки (основа найдена набором ячеек) и
+    именной (основа выбрана из списка, ячейки не нужны вовсе).
+    """
     # Вставки: сырые статы складываются без множителей (DESIGN §5.7).
     totals: dict[int, int] = {}
     detail = []
-    for entry in (mats or []):
+    for entry in mats:
         mat = known.get(int(entry))
         if not mat:
             raise ApError("Материала %d нет в списке." % entry)
@@ -2687,28 +2698,55 @@ def match(type_id: int, part_mats: list[int], part_counts: list[int],
         detail.append({"entry": mat["entry"], "name": mat["name_ru"],
                        "stat_type": mat["stat_type"],
                        "value": int(mat["stat_value"])})
-    out["inserts"] = detail
-    out["totals"] = [{"stat_type": st, "value": v}
-                     for st, v in sorted(totals.items()) if v]
 
-    # Именное сочетание принадлежит рецепту-основе: те же камни в другой
+    # Именное сочетание принадлежит основе: те же камни в другой
     # основе дадут другое или ничего (DESIGN §5.6).
     hit_syn = None
-    if hit and mats:
+    if recipe_id and mats:
         for syn in synergies():
-            if not syn["enabled"] or int(syn["recipe_id"]) != hit["id"]:
+            if not syn["enabled"] or int(syn["recipe_id"]) != recipe_id:
                 continue
             same = (syn["mats"] == list(mats) if syn["order_matters"]
                     else sorted(syn["mats"]) == sorted(mats))
             if same:
                 hit_syn = syn
                 break
-    out["synergy"] = ({"id": hit_syn["id"], "name": hit_syn["name_ru"],
-                       "result_entry": hit_syn["result_entry"],
-                       "result": hit_syn["result"]} if hit_syn else None)
-    # Несовпавший набор при завершении доводки портит вещь, как поделка -
-    # поэтому аддон обязан показать это ДО нажатия (DESIGN §5.6).
-    out["finish_warning"] = bool(mats) and hit_syn is None
+    return {
+        "inserts": detail,
+        "totals": [{"stat_type": st, "value": v}
+                   for st, v in sorted(totals.items()) if v],
+        "synergy": ({"id": hit_syn["id"], "name": hit_syn["name_ru"],
+                     "result_entry": hit_syn["result_entry"],
+                     "result": hit_syn["result"]} if hit_syn else None),
+        # Несовпавший набор при завершении доводки портит вещь, как поделка -
+        # поэтому аддон обязан показать это ДО нажатия (DESIGN §5.6).
+        "finish_warning": bool(mats) and hit_syn is None,
+    }
+
+
+def match_named(recipe_id: int, mats: list[int]) -> dict:
+    """Проверка именного: какое сочетание дадут эти вставки в этой основе.
+
+    Основа выбирается прямо, а не находится набором ячеек: для вопроса «что
+    выйдет из камней» ковать саму основу незачем. Ответ - те же вставки,
+    сумма статов и сочетание, что и во второй половине `match`, плюс
+    сочетания основы, чтобы было с чем сверяться.
+    """
+    _require()
+    rec = next((r for r in recipes() if int(r["id"]) == int(recipe_id)), None)
+    if rec is None:
+        raise ApError("Основы %d нет." % recipe_id)
+    if not mats:
+        raise ApError("Слоты пусты: положите хотя бы одну вставку.")
+    known = {int(m["entry"]): m for m in materials()}
+    out = _match_inserts(int(rec["id"]), list(mats), known)
+    out["recipe"] = {"id": rec["id"], "name_ru": rec["name_ru"],
+                     "enabled": bool(rec["enabled"]),
+                     "inlay": rec.get("inlay", [])}
+    out["known"] = [{"id": syn["id"], "name": syn["name_ru"],
+                     "mats": syn["mats"], "enabled": bool(syn["enabled"])}
+                    for syn in synergies()
+                    if int(syn["recipe_id"]) == int(rec["id"])]
     return out
 
 
@@ -2866,7 +2904,7 @@ def generated(limit: int = 200) -> dict:
 
     # Основы, которым слайса не досталось. Панель режет его сама при заведении
     # изделия, так что сюда попадают строки старше этой правки - и они опаснее
-    # пустого списка: рецепт выглядит готовым, а доводка у него отвечает
+    # пустого списка: основа выглядит готовой, а доводка у неё отвечает
     # отказом.
     missing = [{
         "recipe_id": int(r["recipe_id"]),
@@ -2912,7 +2950,7 @@ def bands() -> list[dict]:
 
     Нужны отбору на диаграмме: лестница из тринадцати полос - главная ось
     модуля, а узлы сгруппированы по типам предметов, и связать одно с другим
-    можно только через требуемый навык рецепта.
+    можно только через требуемый навык основы.
 
     Таблицы может не быть вовсе (база без v32) - тогда отбор просто не
     покажется, а страница останется живой.
@@ -2944,7 +2982,7 @@ def meta() -> dict[str, Any]:
         # нет, страница честно скажет об этом, а не упадёт на первом SELECT.
         "revision": 25,
         "has_revision": _has_column(T_RECIPE_RESULT, "pool_lo"),
-        # Ступени качества: их выбирают границами у рецепта, и по ним же
+        # Ступени качества: их выбирают границами у основы, и по ним же
         # считается, сколько изделий он обязан иметь.
         "qualities": [
             {"quality": q, "name_ru": row["name_ru"], "slots": int(row["slots"])}

@@ -1,5 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { ItemBrief } from './professions.api';
+import { IconComponent } from '../../shared/ui/icon.component';
 import { ProfItemComponent } from './item-cell.component';
 
 /**
@@ -9,7 +10,7 @@ import { ProfItemComponent } from './item-cell.component';
  */
 @Component({
   selector: 'app-prof-item-pick',
-  imports: [ProfItemComponent],
+  imports: [IconComponent, ProfItemComponent],
   styleUrl: './item-pick-cell.component.scss',
   template: `
     @if (entry()) {
@@ -19,12 +20,24 @@ import { ProfItemComponent } from './item-cell.component';
     }
     @if (!readonly()) {
       <span class="act">
-        <button type="button" class="forge-btn is-ghost is-compact" (click)="pick.emit()">
-          {{ entry() ? 'Сменить' : 'Выбрать' }}
+        <button
+          type="button"
+          class="forge-btn is-ghost is-icon is-compact"
+          [title]="entry() ? 'Сменить предмет' : 'Выбрать предмет'"
+          [attr.aria-label]="entry() ? 'Сменить предмет' : 'Выбрать предмет'"
+          (click)="pick.emit()"
+        >
+          <app-icon name="more" [size]="16" />
         </button>
         @if (entry() && !required()) {
-          <button type="button" class="forge-btn is-ghost is-compact" (click)="changed.emit(0)">
-            Убрать
+          <button
+            type="button"
+            class="forge-btn is-ghost is-icon is-compact"
+            title="Убрать предмет"
+            aria-label="Убрать предмет"
+            (click)="changed.emit(0)"
+          >
+            <app-icon name="close" [size]="12" />
           </button>
         }
         <ng-content />

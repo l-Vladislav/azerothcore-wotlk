@@ -14,6 +14,9 @@ import { LookPickerComponent } from './look-picker.component';
 import { PartsDialogComponent } from './parts-dialog.component';
 import { ItemType, ProfessionsApi, ProfessionsMeta, TypePatch } from './professions.api';
 import { apiError, subclassOptions } from './professions.model';
+import { IconComponent } from '../../shared/ui/icon.component';
+import { ProfessionsTabsComponent } from './professions-tabs.component';
+import { AddDialogComponent } from './add-dialog.component';
 
 /**
  * Типы предметов - то, что игрок выбирает в левом списке верстака.
@@ -25,6 +28,9 @@ import { apiError, subclassOptions } from './professions.model';
  */
 @Component({
   imports: [
+    AddDialogComponent,
+    ProfessionsTabsComponent,
+    IconComponent,
     FormsModule,
     ForgeSelectDirective,
     ItemPickerComponent,
@@ -99,7 +105,7 @@ export class ProfessionsTypesPage {
       Порядок: (row) => row.sort,
       Вкл: (row) => (row.enabled ? 1 : 0),
       Частей: (row) => row.parts,
-      Рецептов: (row) => row.recipes,
+      Основ: (row) => row.recipes,
     },
   }));
 
@@ -160,17 +166,30 @@ export class ProfessionsTypesPage {
     this.draft.update((draft) => ({ ...draft, ...patch }));
   }
 
-  async add(): Promise<void> {
+  /** Окно добавления: поля живут там, а не полосой над листом. */
+  private readonly adder = viewChild(AddDialogComponent);
+
+  openAdd(): void {
+    this.error.set(null);
+    this.adder()?.open();
+  }
+
+  /** Окно закрывается только после удачной записи - отказ остаётся перед глазами. */
+  async submitAdd(): Promise<void> {
+    if (await this.add()) this.adder()?.close();
+  }
+
+  async add(): Promise<boolean> {
     const draft = this.draft();
     const preset =
       this.presets().find((item) => item.id === draft.preset) ?? this.presets()[0] ?? null;
     if (!preset) {
       this.error.set('Панель не знает ни одной заготовки типа.');
-      return;
+      return false;
     }
     if (!draft.name_ru.trim()) {
       this.error.set('У типа должно быть имя - его видит игрок в списке.');
-      return;
+      return false;
     }
     const saved = await this.put({
       id: 0,
@@ -186,6 +205,7 @@ export class ProfessionsTypesPage {
       enabled: true,
     });
     if (saved) this.setDraft({ name_ru: '', code: '' });
+    return saved;
   }
 
   // --- правка строки --------------------------------------------------------

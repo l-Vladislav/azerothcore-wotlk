@@ -96,7 +96,7 @@ export const featureNavigation: readonly FeatureNavigation[] = [
         hint: 'Что кладут в ячейки схемы и чем украшают готовую вещь.',
       },
       {
-        label: 'Рецепты',
+        label: 'Основы',
         route: '/professions/recipes',
         icon: 'scroll',
         group: 'Профессии',

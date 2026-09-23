@@ -49,6 +49,11 @@ aside {
   // панель ПОД прут нельзя - фон у него прозрачный, и кромка всё равно
   // выглянула бы ниже полосы.
   border-top-width: 0;
+  // Колонкой: кнопка «Свернуть» своего роста, остальное отдано списку.
+  // Раньше список получал `calc(100% - 52px)` - число, которое надо было
+  // держать в согласии с ростом кнопки.
+  display: flex;
+  flex-direction: column;
   height: 100%;
   overflow: hidden;
   width: 300px;
@@ -58,7 +63,14 @@ aside {
 aside.collapsed {
   border-width: 0 14px 14px;
   overflow-y: auto;
+  // Полосу прокрутки не показываем: в проёме 56 пикселей она (15 у
+  // системной) ложилась поверх значков по 50. Прокрутка колесом и пальцем
+  // остаётся; расширять колонку ради полосы - значит двигать всю страницу.
+  scrollbar-width: none;
   width: 84px;
+}
+aside.collapsed::-webkit-scrollbar {
+  display: none;
 }
 // Стрелка именно гильемет (« »), а не одиночная скобка (›): у той
 // боковые отступы разные, и в свёрнутой колонке она садится заметно
@@ -106,7 +118,8 @@ aside.collapsed .toggle .arrow {
   justify-items: center;
 }
 .sidebar-body {
-  height: calc(100% - 52px);
+  flex: 1 1 auto;
+  min-height: 0;
   min-width: 0;
   overflow-x: hidden;
   overflow-y: auto;

@@ -22,6 +22,9 @@ import {
   RecipePatch,
 } from './professions.api';
 import { ACQUIRE, apiError, qualityName } from './professions.model';
+import { IconComponent } from '../../shared/ui/icon.component';
+import { ProfessionsTabsComponent } from './professions-tabs.component';
+import { AddDialogComponent } from './add-dialog.component';
 
 /** Куда уедет ответ окна выбора предмета. */
 type PickMode =
@@ -32,7 +35,7 @@ type PickMode =
   | { kind: 'result-entry'; quality: number };
 
 /**
- * Рецепты основ: точный набор предметов по ячейкам и готовое изделие на каждую
+ * Основы: точный набор предметов по ячейкам и готовое изделие на каждую
  * ступень качества.
  *
  * Ничего не вычисляется - страница занимается не числами, а содержанием: что
@@ -43,6 +46,9 @@ type PickMode =
  */
 @Component({
   imports: [
+    AddDialogComponent,
+    ProfessionsTabsComponent,
+    IconComponent,
     FormsModule,
     ForgeSelectDirective,
     ItemPickerComponent,
@@ -172,7 +178,7 @@ export class ProfessionsRecipesPage {
         if (focus) this.view.focus((row) => row.id === focus);
       }
     } catch (error) {
-      this.error.set(apiError(error, 'Не удалось загрузить рецепты.'));
+      this.error.set(apiError(error, 'Не удалось загрузить основы.'));
     } finally {
       this.loading.set(false);
     }
@@ -218,7 +224,7 @@ export class ProfessionsRecipesPage {
       .join('\n');
   }
 
-  /** Гнёзда есть, а камней к ним нет: рецепт включить не дадут. */
+  /** Гнёзда есть, а камней к ним нет: основу включить не дадут. */
   inlayDry(row: Recipe): boolean {
     return row.inlay.some((step) => step.slots && !step.gems);
   }
@@ -231,7 +237,7 @@ export class ProfessionsRecipesPage {
 
   onDraftAcquire(acquire: 'forge' | 'drop'): void {
     this.setDraft({ acquire });
-    // Дроп-основу не куют, и книга обещала бы рецепт, которого не сковать.
+    // Дроп-основу не куют, и книга обещала бы основу, которую не сковать.
     if (acquire === 'drop') this.draftTeach.set(null);
   }
 
@@ -246,17 +252,30 @@ export class ProfessionsRecipesPage {
   }
 
   /**
-   * Заводит основу ЦЕЛИКОМ: строку рецепта, изделие на каждую ступень
+   * Заводит основу ЦЕЛИКОМ: строку основы, изделие на каждую ступень
    * диапазона и слайс пула под каждое. Без образца заводится одна строка -
    * тогда изделия привязываются вручную в окне «Изделия».
    */
-  async add(): Promise<void> {
+  /** Окно добавления: поля живут там, а не полосой над листом. */
+  private readonly adder = viewChild(AddDialogComponent);
+
+  openAdd(): void {
+    this.error.set(null);
+    this.adder()?.open();
+  }
+
+  /** Окно закрывается только после удачной записи - отказ остаётся перед глазами. */
+  async submitAdd(): Promise<void> {
+    if (await this.add()) this.adder()?.close();
+  }
+
+  async add(): Promise<boolean> {
     const draft = this.draft();
     if (!draft.name_ru.trim()) {
       this.error.set('Дайте основе имя.');
-      return;
+      return false;
     }
-    if (!this.canEdit() || this.busy()) return;
+    if (!this.canEdit() || this.busy()) return false;
     this.busy.set(true);
     try {
       const made = await firstValueFrom(
@@ -286,9 +305,11 @@ export class ProfessionsRecipesPage {
       this.draftSample.set(null);
       this.draftTeach.set(null);
       await this.reload();
+      return true;
     } catch (error) {
       this.error.set(apiError(error, 'Основу завести не удалось.'));
       await this.reload();
+      return false;
     } finally {
       this.busy.set(false);
     }
@@ -313,7 +334,7 @@ export class ProfessionsRecipesPage {
 
   async onAcquire(row: Recipe, acquire: 'forge' | 'drop'): Promise<void> {
     // Ковочная половина уезжает вместе со способом: сервер её у дроп-основы не
-    // примет, а оставленная книга обещала бы рецепт, которого не сковать.
+    // примет, а оставленная книга обещала бы основу, которую не сковать.
     await this.patch(row, {
       acquire,
       teach_item: acquire === 'drop' ? 0 : row.teach_item,
@@ -324,17 +345,19 @@ export class ProfessionsRecipesPage {
   async remove(row: Recipe): Promise<void> {
     if (!this.canEdit() || this.busy()) return;
     if (
-      !confirm(`Удалить рецепт «${row.name_ru}»? Заведённые изделия останутся в каталоге предметов.`)
+      !confirm(
+        `Удалить основу «${row.name_ru}»? Заведённые изделия останутся в каталоге предметов.`,
+      )
     ) {
       return;
     }
     this.busy.set(true);
     try {
       await firstValueFrom(this.api.deleteRecipe(row.id));
-      this.notice.set(`Рецепт «${row.name_ru}» удалён.`);
+      this.notice.set(`Основа «${row.name_ru}» удалена.`);
       await this.reload();
     } catch (error) {
-      this.error.set(apiError(error, 'Рецепт удалить не удалось.'));
+      this.error.set(apiError(error, 'Основу удалить не удалось.'));
     } finally {
       this.busy.set(false);
     }
@@ -420,7 +443,7 @@ export class ProfessionsRecipesPage {
       this.notice.set('Сохранено.');
       await this.reload();
     } catch (error) {
-      this.error.set(apiError(error, 'Рецепт сохранить не удалось.'));
+      this.error.set(apiError(error, 'Основу сохранить не удалось.'));
       await this.reload();
     } finally {
       this.busy.set(false);

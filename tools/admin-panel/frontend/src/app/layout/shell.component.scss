@@ -122,6 +122,11 @@ nav {
 .site-frame {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
+  // Строка сетки ОБЯЗАНА быть ровно в высоту рамки. Без этого она `auto` и
+  // растёт по содержимому боковой панели: при 600 пикселях экрана строка
+  // вытягивалась до 1150, и рамка молча срезала низ - и панели, и страницы,
+  // до которых прокрутка уже не доставала.
+  grid-template-rows: minmax(0, 1fr);
   height: calc(100dvh - var(--topbar-height) - var(--rail-drop));
   margin-top: var(--rail-drop);
   overflow: hidden;
@@ -242,6 +247,7 @@ nav {
 @media (max-width: 700px) {
   .site-frame {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
     height: auto;
     overflow: visible;
   }

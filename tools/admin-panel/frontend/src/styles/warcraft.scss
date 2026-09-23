@@ -108,6 +108,9 @@
   // своей нарисованной рамкой (`--frame-image`, scripts/make_ui_textures.py):
   // она рисовалась до того, как со стайлгайда нарезали настоящие, и рядом с
   // ними читалась чужой - другой толщины и другого золота.
+  //
+  // Модальных окон тут больше нет: у всех них одна рамка набора,
+  // `.forge-dialog` в `forge.scss`.
   app-login-page .card,
   app-master-detail-layout > .filters,
   app-master-detail-layout > .results,
@@ -116,10 +119,7 @@
   app-creature-loot-page .card,
   app-item-drops-page .card,
   app-loot-tables-page .list-side,
-  app-loot-tables-page .card,
-  app-item-picker dialog,
-  app-icon-picker dialog,
-  app-change-password dialog {
+  app-loot-tables-page .card {
     background-image: var(--texture-panel);
     border: 10px solid transparent;
     border-image: url('/ui/frames/panel-subtle.png') 22 round;

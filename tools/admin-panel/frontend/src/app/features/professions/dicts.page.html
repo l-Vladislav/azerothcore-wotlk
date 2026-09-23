@@ -1,5 +1,5 @@
 <section class="page-head">
-  <h1>Справочники</h1>
+  <app-professions-tabs />
 </section>
 
 @if (loading()) {
@@ -11,52 +11,52 @@
 } @else {
   @for (book of books(); track book.path) {
     <section class="book">
-      <h2>{{ book.title }}</h2>
-      <p class="hint">{{ book.hint }}</p>
-
-      @if (canEdit()) {
-        <div class="add-bar">
-          <label>
-            <span>код</span>
-            <input
-              class="forge-field"
-              [placeholder]="book.codeSample"
-              [ngModel]="draft()[book.path].code"
-              (ngModelChange)="setDraft(book.path, { code: $event })"
-              (keydown.enter)="add(book.path)"
-            />
-          </label>
-          <label>
-            <span>имя</span>
-            <input
-              class="forge-field"
-              [placeholder]="book.nameSample"
-              [ngModel]="draft()[book.path].name_ru"
-              (ngModelChange)="setDraft(book.path, { name_ru: $event })"
-              (keydown.enter)="add(book.path)"
-            />
-          </label>
-          <label>
-            <span>порядок</span>
-            <input
-              class="forge-field"
-              type="number"
-              min="0"
-              [ngModel]="draft()[book.path].sort"
-              (ngModelChange)="setDraft(book.path, { sort: +$event || 0 })"
-              (keydown.enter)="add(book.path)"
-            />
-          </label>
-          <button
-            type="button"
-            class="forge-btn is-primary is-compact"
-            [disabled]="busy()"
-            (click)="add(book.path)"
-          >
-            Добавить
+      <div class="book-head">
+        <h2>{{ book.title }}</h2>
+        @if (canEdit()) {
+          <button type="button" class="forge-btn is-primary is-compact" (click)="openAdd(adder)">
+            + Строка
           </button>
-        </div>
-      }
+          <app-add-dialog
+            #adder
+            [title]="'Новая строка: ' + book.title"
+            [busy]="busy()"
+            [error]="error()"
+            (submitted)="submitAdd(book.path, adder)"
+          >
+            <div class="add-form">
+              <label>
+                <span>код</span>
+                <input
+                  class="forge-field is-small"
+                  [placeholder]="book.codeSample"
+                  [ngModel]="draft()[book.path].code"
+                  (ngModelChange)="setDraft(book.path, { code: $event })"
+                />
+              </label>
+              <label>
+                <span>имя</span>
+                <input
+                  class="forge-field is-small"
+                  [placeholder]="book.nameSample"
+                  [ngModel]="draft()[book.path].name_ru"
+                  (ngModelChange)="setDraft(book.path, { name_ru: $event })"
+                />
+              </label>
+              <label>
+                <span>порядок</span>
+                <input
+                  class="forge-field is-small"
+                  type="number"
+                  min="0"
+                  [ngModel]="draft()[book.path].sort"
+                  (ngModelChange)="setDraft(book.path, { sort: +$event || 0 })"
+                />
+              </label>
+            </div>
+          </app-add-dialog>
+        }
+      </div>
 
       <div class="table-wrap">
         <table>
@@ -71,11 +71,11 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of book.rows; track row.id) {
+            @for (row of book.view.rows(); track row.id) {
               <tr [class.off]="!row.enabled">
                 <td>
                   <input
-                    class="forge-field"
+                    class="forge-field is-small"
                     [(ngModel)]="row.code"
                     [disabled]="!canEdit()"
                     (change)="save(book.path, row)"
@@ -83,7 +83,7 @@
                 </td>
                 <td>
                   <input
-                    class="forge-field"
+                    class="forge-field is-small"
                     [(ngModel)]="row.name_ru"
                     [disabled]="!canEdit()"
                     (change)="save(book.path, row)"
@@ -91,7 +91,7 @@
                 </td>
                 <td class="num">
                   <input
-                    class="forge-field"
+                    class="forge-field is-small"
                     type="number"
                     min="0"
                     [(ngModel)]="row.sort"
@@ -114,16 +114,17 @@
                   @if (canEdit()) {
                     <button
                       type="button"
-                      class="forge-btn is-danger is-compact"
+                      class="forge-btn is-danger is-icon is-compact"
                       [disabled]="busy() || book.used(row) > 0"
                       [title]="
                         book.used(row) > 0
                           ? 'На строку ссылаются материалы - сперва переведите их.'
                           : 'Убрать строку справочника.'
                       "
+                      aria-label="Убрать строку"
                       (click)="remove(book.path, row)"
                     >
-                      Убрать
+                      <app-icon name="trash" tone="plain" [size]="15" />
                     </button>
                   }
                 </td>
@@ -136,6 +137,13 @@
           </tbody>
         </table>
       </div>
+      <app-table-pager
+        [total]="book.view.found().length"
+        [page]="book.view.page()"
+        [perPage]="book.view.perPage()"
+        (pageChange)="book.view.page.set($event)"
+        (perPageChange)="book.view.perPage.set($event); book.view.page.set(1)"
+      />
     </section>
   }
 }

@@ -13,14 +13,14 @@ import { apiError, dictOptions, firstDictId } from './professions.model';
  * слиток выбирает игрок у верстака. Свойств у ячейки три: подпись, род и
  * обязательность; проценты вклада, флаг прока, координаты выноски, расход и
  * текстура убраны миграцией v15 - числа изделия приходят из результата
- * рецепта, расход задаёт рецепт, геометрия живёт в аддоне (DESIGN §5.4.1).
+ * основы, расход задаёт основа, геометрия живёт в аддоне (DESIGN §5.4.1).
  */
 @Component({
   selector: 'app-parts-dialog',
   imports: [FormsModule, ForgeSelectDirective, IconComponent],
   styleUrl: './parts-dialog.component.scss',
   template: `
-    <dialog #dialog (close)="closed.emit()">
+    <dialog #dialog class="forge-dialog" (close)="closed.emit()">
       <header>
         <h2>Части типа: {{ itemType()?.name_ru }}</h2>
         <button type="button" class="forge-btn is-icon close" aria-label="Закрыть" (click)="close()">
@@ -30,7 +30,7 @@ import { apiError, dictOptions, firstDictId } from './professions.model';
 
       <div class="body">
         @if (error(); as text) {
-          <p class="forge-alert is-danger">{{ text }}</p>
+          <p class="forge-alert is-error">{{ text }}</p>
         }
         <table>
           <thead>
@@ -48,7 +48,7 @@ import { apiError, dictOptions, firstDictId } from './professions.model';
                 <td class="num">{{ part.idx }}</td>
                 <td>
                   <input
-                    class="forge-field"
+                    class="forge-field is-small"
                     [ngModel]="part.label_ru"
                     [disabled]="!canEdit()"
                     (change)="save({ ...part, label_ru: $any($event.target).value })"
@@ -56,7 +56,7 @@ import { apiError, dictOptions, firstDictId } from './professions.model';
                 </td>
                 <td>
                   <select
-                    class="forge-field is-select"
+                    class="forge-field is-small is-select"
                     [ngModel]="part.part_kind_id"
                     [disabled]="!canEdit()"
                     (ngModelChange)="save({ ...part, part_kind_id: +$event })"
@@ -73,7 +73,7 @@ import { apiError, dictOptions, firstDictId } from './professions.model';
                   <input
                     class="forge-check"
                     type="checkbox"
-                    title="Без этой части предмет не собрать: пустой её не оставить, и каждый рецепт этого типа обязан её называть."
+                    title="Без этой части предмет не собрать: пустой её не оставить, и каждая основа этого типа обязана её называть."
                     [ngModel]="!!part.required"
                     [disabled]="!canEdit()"
                     (change)="save({ ...part, required: $any($event.target).checked ? 1 : 0 })"
@@ -102,14 +102,14 @@ import { apiError, dictOptions, firstDictId } from './professions.model';
         @if (canEdit()) {
           <div class="add">
             <input
-              class="forge-field"
+              class="forge-field is-small"
               placeholder="Клинок"
               [ngModel]="draftLabel()"
               (ngModelChange)="draftLabel.set($event)"
               (keydown.enter)="add()"
             />
             <select
-              class="forge-field is-select"
+              class="forge-field is-small is-select"
               [ngModel]="draftKind()"
               (ngModelChange)="draftKind.set(+$event)"
             >
@@ -227,7 +227,7 @@ export class PartsDialogComponent {
     if (
       !confirm(
         `Убрать часть ${part.idx}? Уже собранные предметы держат материалы по порядку частей - ` +
-          'их смысл сдвинется, а условия рецептов на эту часть будут удалены.',
+          'их смысл сдвинется, а условия основ на эту часть будут удалены.',
       )
     ) {
       return;

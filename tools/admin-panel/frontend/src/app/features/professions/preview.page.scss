@@ -21,8 +21,13 @@
   font-size: 11px;
   gap: 3px;
 }
+// Ширина списка ЗАДАНА, а не взята у содержимого: у родного `<select>` она
+// равна самому длинному варианту, и пять слотов с разными наборами выходили
+// разной ширины - форма рассыпалась по строкам как попало, а с ленивыми
+// вариантами ещё и прыгала бы при наведении.
 .row select {
-  min-width: 170px;
+  min-width: 0;
+  width: 220px;
 }
 .pair {
   display: flex;
@@ -74,4 +79,28 @@ ul.plain li {
   border-radius: 3px;
   font-size: 12px;
   padding: 2px 7px;
+}
+
+// Переключатель проверок: основа или именной.
+.modes {
+  margin-bottom: 12px;
+}
+// Имя основы длинное («Двуручный меч из тёмного железа»), а выбирают её по
+// имени - списку дано место.
+.row select.base {
+  width: 340px;
+}
+// Сочетания основы: набор и кнопка «Подставить» в одну строку; совпавшее
+// подсвечено, выключенное приглушено.
+ul.known li {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+ul.known li.off {
+  opacity: 0.55;
+}
+ul.known li.is-hit b {
+  color: var(--gold-bright);
 }

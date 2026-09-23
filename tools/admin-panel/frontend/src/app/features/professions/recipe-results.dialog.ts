@@ -7,11 +7,11 @@ import { ProfessionsApi, ProfessionsMeta, Recipe, RecipeResult } from './profess
 import { apiError, qualityName } from './professions.model';
 
 /**
- * Изделия рецепта: по строке `item_template` на ступень качества.
+ * Изделия основы: по строке `item_template` на ступень качества.
  *
  * Качество тянет за собой число слотов доводки, поэтому «то же изделие, но
  * редкое» - это ДРУГАЯ строка (DESIGN §5.4.5). Руками их заводить нельзя:
- * четыре ступени = четыре почти одинаковых предмета на каждый рецепт. Отсюда
+ * четыре ступени = четыре почти одинаковых предмета на каждую основу. Отсюда
  * «создать варианты» - копия образца на каждую ступень, с проставленным
  * качеством и склонённым именем.
  */
@@ -20,7 +20,7 @@ import { apiError, qualityName } from './professions.model';
   imports: [IconComponent, ProfItemPickComponent, RouterLink],
   styleUrl: './recipe-dialog.scss',
   template: `
-    <dialog #dialog (close)="closed.emit()">
+    <dialog #dialog class="forge-dialog" (close)="closed.emit()">
       <header>
         <h2>Изделия: {{ recipe()?.name_ru }}</h2>
         <button type="button" class="forge-btn is-icon close" aria-label="Закрыть" (click)="close()">
@@ -30,7 +30,7 @@ import { apiError, qualityName } from './professions.model';
 
       <div class="body">
         @if (error(); as text) {
-          <p class="forge-alert is-danger">{{ text }}</p>
+          <p class="forge-alert is-error">{{ text }}</p>
         }
         @if (canEdit()) {
           <div class="bar">
@@ -151,7 +151,7 @@ export class RecipeResultsDialogComponent {
     }
   }
 
-  /** Перечитать сам рецепт: слайсы и счётчики ступеней считает сервер. */
+  /** Перечитать саму основу: слайсы и счётчики ступеней считает сервер. */
   async refresh(): Promise<void> {
     const recipe = this.recipe();
     if (!recipe) return;
@@ -161,7 +161,7 @@ export class RecipeResultsDialogComponent {
       );
       if (fresh) this.recipe.set(fresh);
     } catch (error) {
-      this.error.set(apiError(error, 'Рецепт перечитать не удалось.'));
+      this.error.set(apiError(error, 'Основу перечитать не удалось.'));
     }
   }
 }

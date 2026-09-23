@@ -2,19 +2,25 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../core/auth.service';
+import { TablePagerComponent } from '../../shared/data/table-pager.component';
+import { IconComponent } from '../../shared/ui/icon.component';
 import { ToastService } from '../../shared/ui/toast.service';
+import { ListView } from './list-view';
 import { DictRow, Material, ProfessionsApi, ProfessionsMeta } from './professions.api';
 import { apiError } from './professions.model';
+import { ProfessionsTabsComponent } from './professions-tabs.component';
+import { AddDialogComponent } from './add-dialog.component';
 
 type DictPath = 'part-kinds' | 'insert-types';
 
 interface DictBook {
   path: DictPath;
   title: string;
-  hint: string;
   codeSample: string;
   nameSample: string;
-  rows: DictRow[];
+  /** Строки справочника по страницам. Вид живёт в странице, а не в книге:
+   *  `books` пересчитывается, и заведённый тут вид терял бы номер страницы. */
+  view: ListView<DictRow>;
   /** Сколько материалов держится за строку - и почему её не дают убрать. */
   used: (row: DictRow) => number;
 }
@@ -28,7 +34,13 @@ interface DictBook {
  * базе, в C++ и в панели, - и «кость» стоила правки всех трёх.
  */
 @Component({
-  imports: [FormsModule],
+  imports: [
+    AddDialogComponent,
+    ProfessionsTabsComponent,
+    FormsModule,
+    IconComponent,
+    TablePagerComponent,
+  ],
   providers: [ProfessionsApi],
   selector: 'app-professions-dicts-page',
   styleUrl: './dicts.page.scss',
@@ -50,24 +62,25 @@ export class ProfessionsDictsPage {
 
   readonly canEdit = computed(() => this.auth.actor()?.role === 'owner');
 
+  private readonly partKindView = new ListView<DictRow>(this.partKinds, signal({}));
+  private readonly insertTypeView = new ListView<DictRow>(this.insertTypes, signal({}));
+
   readonly books = computed<DictBook[]>(() => [
     {
       path: 'part-kinds',
       title: 'Род материала',
-      hint: 'Что кладут в ЯЧЕЙКУ схемы: металл, дерево, кожа. Ячейка требует род, а конкретный слиток выбирает игрок у верстака.',
       codeSample: 'bone',
       nameSample: 'Кость',
-      rows: this.partKinds(),
+      view: this.partKindView,
       used: (row) =>
         this.materials().filter((mat) => mat.role === 'base' && mat.part_kind_id === row.id).length,
     },
     {
       path: 'insert-types',
       title: 'Тип вставки',
-      hint: 'Чем украшают ГОТОВУЮ вещь: самоцвет, руна, пыльца. Рецепт называет типы, которые основа пускает в свои гнёзда.',
       codeSample: 'rune',
       nameSample: 'Руна',
-      rows: this.insertTypes(),
+      view: this.insertTypeView,
       used: (row) =>
         this.materials().filter((mat) => mat.role !== 'base' && mat.insert_type_id === row.id)
           .length,
@@ -114,16 +127,27 @@ export class ProfessionsDictsPage {
     this.draft.update((draft) => ({ ...draft, [path]: { ...draft[path], ...patch } }));
   }
 
-  async add(path: DictPath): Promise<void> {
+  openAdd(dialog: AddDialogComponent): void {
+    this.error.set(null);
+    dialog.open();
+  }
+
+  /** Окно закрывается только после удачной записи - отказ остаётся перед глазами. */
+  async submitAdd(path: DictPath, dialog: AddDialogComponent): Promise<void> {
+    if (await this.add(path)) dialog.close();
+  }
+
+  async add(path: DictPath): Promise<boolean> {
     const row = this.draft()[path];
     if (!row.name_ru.trim()) {
       this.error.set('У строки должно быть имя - его видно в списках.');
-      return;
+      return false;
     }
     const saved = await this.save(path, { ...row, id: 0 });
     if (saved) {
       this.setDraft(path, { code: '', name_ru: '' });
     }
+    return saved;
   }
 
   async save(path: DictPath, row: DictRow): Promise<boolean> {

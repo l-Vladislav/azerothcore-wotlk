@@ -9,8 +9,25 @@ import { ToastService } from '../../shared/ui/toast.service';
 import { ProfFiltersComponent } from './filter-bar.component';
 import { ProfItemComponent } from './item-cell.component';
 import { ListSpec, ListView, SortHeadComponent } from './list-view';
-import { DictRow, Material, MaterialPatch, ProfessionsApi, ProfessionsMeta } from './professions.api';
-import { ROLES, apiError, dictName, dictOptions, firstDictId, qualityName, statName } from './professions.model';
+import {
+  DictRow,
+  Material,
+  MaterialPatch,
+  ProfessionsApi,
+  ProfessionsMeta,
+} from './professions.api';
+import {
+  ROLES,
+  apiError,
+  dictName,
+  dictOptions,
+  firstDictId,
+  qualityName,
+  statName,
+} from './professions.model';
+import { IconComponent } from '../../shared/ui/icon.component';
+import { ProfessionsTabsComponent } from './professions-tabs.component';
+import { AddDialogComponent } from './add-dialog.component';
 
 /**
  * Материалы верстака: что кладут в ячейки схемы и чем украшают готовую вещь.
@@ -22,6 +39,9 @@ import { ROLES, apiError, dictName, dictOptions, firstDictId, qualityName, statN
  */
 @Component({
   imports: [
+    AddDialogComponent,
+    ProfessionsTabsComponent,
+    IconComponent,
     FormsModule,
     ForgeSelectDirective,
     ItemPickerComponent,
@@ -180,9 +200,7 @@ export class ProfessionsMaterialsPage {
   }
 
   onDraftKind(id: number): void {
-    this.setDraft(
-      this.draft().role === 'base' ? { part_kind_id: id } : { insert_type_id: id },
-    );
+    this.setDraft(this.draft().role === 'base' ? { part_kind_id: id } : { insert_type_id: id });
   }
 
   draftKindId(): number {
@@ -190,15 +208,28 @@ export class ProfessionsMaterialsPage {
     return draft.role === 'base' ? draft.part_kind_id : draft.insert_type_id;
   }
 
-  async add(): Promise<void> {
+  /** Окно добавления: поля живут там, а не полосой над листом. */
+  private readonly adder = viewChild(AddDialogComponent);
+
+  openAdd(): void {
+    this.error.set(null);
+    this.adder()?.open();
+  }
+
+  /** Окно закрывается только после удачной записи - отказ остаётся перед глазами. */
+  async submitAdd(): Promise<void> {
+    if (await this.add()) this.adder()?.close();
+  }
+
+  async add(): Promise<boolean> {
     if (!this.draft().entry) {
       this.error.set('Сначала выберите предмет.');
-      return;
+      return false;
     }
-    if (await this.put(this.draft())) {
-      this.draftItem.set(null);
-      this.setDraft({ entry: 0, name_ru: '' });
-    }
+    if (!(await this.put(this.draft()))) return false;
+    this.draftItem.set(null);
+    this.setDraft({ entry: 0, name_ru: '' });
+    return true;
   }
 
   // --- строки --------------------------------------------------------------

@@ -49,6 +49,7 @@ export type IconName =
   | 'chest'
   | 'scroll'
   | 'key'
+  | 'more'
   | 'dot';
 
 /** Своё число у каждого значка: иначе все они возьмут первый градиент. */
@@ -440,6 +441,11 @@ const aliases: Record<string, string> = {
               d="M12 2.4a6.4 6.4 0 0 1 6.4 6.4c0 4.4 1.6 5.6 2.4 6.8H3.2c.8-1.2 2.4-2.4 2.4-6.8A6.4 6.4 0 0 1 12 2.4Z"
             />
             <path d="M9.4 17.2h5.2a2.6 2.6 0 0 1-5.2 0Z" />
+          }
+          @case ('more') {
+            <circle cx="5" cy="12" r="2.4" />
+            <circle cx="12" cy="12" r="2.4" />
+            <circle cx="19" cy="12" r="2.4" />
           }
           @default {
             <circle cx="12" cy="12" r="3.2" />

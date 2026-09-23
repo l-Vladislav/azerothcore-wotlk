@@ -1,5 +1,5 @@
 <section class="page-head">
-  <h1>Пул id</h1>
+  <app-professions-tabs />
 </section>
 
 @if (loading()) {
@@ -34,7 +34,7 @@
       <p class="hint">
         {{ pool.orphans }} строк ссылаются на исчезнувшее изделие. Их id зарезервированы и в оборот
         не вернутся - это защита от того, чтобы вещь в сумке игрока молча стала другой вещью.
-        Изделия удалять нельзя, только выключать рецепт.
+        Изделия удалять нельзя, только выключать основу.
       </p>
     }
   </section>
@@ -42,10 +42,6 @@
   @if (pool.types.length) {
     <section class="card">
       <h2>Слайсы по основам</h2>
-      <p class="hint">
-        Кончиться может слайс <b>одной</b> основы, пока у остальных полно свободного, - по общему
-        числу этого не видно, а отказ игрок получит.
-      </p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -60,7 +56,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (slice of pool.types; track slice.recipe_id + ':' + slice.quality) {
+            @for (slice of sliceView.rows(); track slice.recipe_id + ':' + slice.quality) {
               <tr>
                 <td>{{ slice.name_ru }}</td>
                 <td class="num">{{ slice.result_entry }}</td>
@@ -86,6 +82,13 @@
           </tbody>
         </table>
       </div>
+      <app-table-pager
+        [total]="sliceView.found().length"
+        [page]="sliceView.page()"
+        [perPage]="sliceView.perPage()"
+        (pageChange)="sliceView.page.set($event)"
+        (perPageChange)="sliceView.perPage.set($event); sliceView.page.set(1)"
+      />
     </section>
   }
 
@@ -93,8 +96,8 @@
     <section class="card is-warning">
       <h2>Основы без слайса</h2>
       <p class="warn">
-        Основ без слайса пула: {{ pool.missing.length }}. Доводка у них не работает: рецепт выглядит
-        готовым, ковка по нему идёт, а доводка отвечает «кончились свободные id» - на вид
+        Основ без слайса пула: {{ pool.missing.length }}. Доводка у них не работает: основа выглядит
+        готовой, ковка по нему идёт, а доводка отвечает «кончились свободные id» - на вид
         беспричинно.
       </p>
       <div class="table-wrap">
@@ -107,7 +110,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of pool.missing; track row.recipe_id + ':' + row.quality) {
+            @for (row of missingView.rows(); track row.recipe_id + ':' + row.quality) {
               <tr>
                 <td>{{ row.name_ru }}</td>
                 <td class="num">{{ row.result_entry }}</td>
@@ -128,6 +131,13 @@
           </tbody>
         </table>
       </div>
+      <app-table-pager
+        [total]="missingView.found().length"
+        [page]="missingView.page()"
+        [perPage]="missingView.perPage()"
+        (pageChange)="missingView.page.set($event)"
+        (perPageChange)="missingView.perPage.set($event); missingView.page.set(1)"
+      />
     </section>
   }
 
@@ -142,13 +152,13 @@
             <tr>
               <th>id</th>
               <th>Изделие</th>
-              <th>Рецепт</th>
+              <th>Основа</th>
               <th>Вставки</th>
               <th>Когда</th>
             </tr>
           </thead>
           <tbody>
-            @for (row of data()!.rows; track row.entry) {
+            @for (row of issuedView.rows(); track row.entry) {
               <tr>
                 <td class="num">{{ row.entry }}</td>
                 <td class="num">{{ row.source_entry }}</td>
@@ -160,6 +170,13 @@
           </tbody>
         </table>
       </div>
+      <app-table-pager
+        [total]="issuedView.found().length"
+        [page]="issuedView.page()"
+        [perPage]="issuedView.perPage()"
+        (pageChange)="issuedView.page.set($event)"
+        (perPageChange)="issuedView.perPage.set($event); issuedView.page.set(1)"
+      />
       <p class="hint">Всего выдано: {{ data()!.total }}.</p>
     }
   </section>
