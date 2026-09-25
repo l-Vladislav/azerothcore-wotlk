@@ -104,6 +104,8 @@ services:
   ac-admin-panel:
     container_name: ac-admin-panel
     build:
+      # Отдельный репозиторий l-Vladislav/ac-admin-panel, клонированный сюда:
+      #   git clone https://github.com/l-Vladislav/ac-admin-panel.git tools/admin-panel
       context: ./tools/admin-panel
     networks:
       - ac-network

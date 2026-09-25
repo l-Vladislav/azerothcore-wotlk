@@ -94,6 +94,10 @@ Scripts follow a registration pattern:
 
 External modules are loaded from the `modules/` directory. Each module is a subdirectory with its own `CMakeLists.txt`. Disable specific modules with `-DDISABLED_AC_MODULES="mod1;mod2"`. Module skeleton: https://github.com/azerothcore/skeleton-module/
 
+### Admin panel
+
+`tools/admin-panel` is its own repository (`l-Vladislav/ac-admin-panel`), cloned in place like `modules/mod-*` and ignored here. Commits, branches and PRs for the panel go to that repository; `docker-compose.override.yml` still builds it from `./tools/admin-panel`.
+
 ### Dependencies
 
 Bundled in `deps/`: boost, MySQL client, OpenSSL, zlib, recastnavigation (pathfinding), g3dlite (geometry), fmt, argon2, jemalloc, and others.
