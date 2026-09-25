@@ -118,10 +118,44 @@ Type(Scope/Subscope): Short description (max 50 chars)
 - 4-space indentation for C++ (no tabs)
 - 2-space indentation for JSON, YAML, shell scripts
 - UTF-8 encoding, LF line endings
-- Max 80 character line length
+- Max 120 character line length (`.editorconfig`)
 - No braces around single-line statements
 - Use {} to parse variables into output instead of %u etc.
 - CI enforces code style checks and compiles with `-Werror`
+
+## Writing Style
+
+Applies to code, comments, commit messages, documentation, SQL headers, UI
+text and names.
+
+- Names and definitions use formal domain terminology: one established term
+  per concept, taken from the module's design document. No metaphors, slang or
+  ad-hoc coinages; do not introduce a synonym for a term that already exists.
+- Comments are minimal. Write one only for a constraint the code cannot
+  express. Do not narrate what the code does, where it came from, or why a
+  change is correct.
+- Documentation states the current rules and structure concisely. History
+  belongs in git, not in documents.
+- Language: code comments, documentation and player-facing text in Russian;
+  anything published to GitHub (commits, PRs, branch names) in English.
+
+## Working Style
+
+Deliver what was asked, at the scope intended. Make routine judgment calls;
+ask only when different readings lead to materially different work. If the
+request looks mistaken, say so in one sentence and proceed as asked. Report
+completion only when the work is done; otherwise state what is missing.
+
+## Environments
+
+- **Live**: containers `ac-worldserver-v2`, `ac-authserver-v2`,
+  `ac-database-v2`; databases `acore_world`, `acore_characters`. Do not start,
+  stop or recreate live containers and do not write to live databases without
+  the owner's explicit instruction. Changes reach live through a
+  `live-deployer` package.
+- **PTR**: container `ac-worldserver-ptr` (`--profile ptr`), databases
+  `acore_world_ptr`, `acore_characters_ptr`, config `env/dist/etc-ptr/`. All
+  development and verification happen here.
 
 ## PR Requirements
 
@@ -129,6 +163,9 @@ Type(Scope/Subscope): Short description (max 50 chars)
   only — NEVER to `upstream` (azerothcore/azerothcore-wotlk).** No commits, no
   pushes and no PRs against upstream, whatever the change looks like. Base
   branch is `custom`, the production trunk.
+- **Every commit references a board card** (`acore_admin.board_card`) as `[#N]`
+  at the end of the subject; `(#N)` is reserved for PR numbers. Work without a
+  card gets a card first. Branches are named `feat/<N>-<slug>`.
 - **One commit per board card.** Squash before opening the PR: a card's work
   arrives as a single commit carrying `[#N]`.
 - Commits carry no Claude authorship trailers (no `Co-Authored-By`, no
@@ -139,15 +176,25 @@ Type(Scope/Subscope): Short description (max 50 chars)
 
 ## Subagents
 
-Specialized subagents live in `.claude/agents/`. Prefer delegating to the matching agent over doing the work in the main thread — they encode the conventions for their area.
+Specialized subagents live in `.claude/agents/`. Each file documents the
+conventions of its system; read the matching file as reference before working
+in that area.
 
-- **sql-migration-writer** — any SQL change. Enforces `pending_db_*` placement and idempotency.
-- **familiars-dev** — Familiars gacha system (10 elemental families). Reads `.claude/familiars/` (per-family JSONs + familiar_gacha_* docs).
-- **nemesis-dev** — Nemesis system, ticket bounty board, branch_private changes. Reads `.claude/nemesis/`.
-- **statbooster-dev** — Fortune Pool / Scrolls / custom enchants. Reads `.claude/statBoosterItems/`.
-- **item-talents-dev** — mod-item-talents (per-item 5-row awakening tree + ItemTalentUI addon). Owns `modules/mod-item-talents/`; reads `.claude/item-talents/DESIGN.md`.
-- **playerbots-dev** — Playerbots AI tuning (strategies, actions, triggers, class/dungeon/raid logic).
-- **ollama-chat-dev** — In-game LLM integration (`mod-ollama-chat` + the Ollama docker service).
-- **dbc-investigator** — Read-only DBC lookups against `.claude/dbc/*.csv` (spells/items/enchants/titles).
+Delegate to a subagent only for large, independent work (for example a wide
+multi-file investigation) or when the owner asks. Do not delegate verification
+or work that takes a handful of tool calls. Brief a subagent completely once
+and do not redo its work afterwards.
 
-For cross-cutting changes, the feature agent leads and delegates the SQL parts to `sql-migration-writer` and DBC verification to `dbc-investigator`.
+- **sql-migration-writer** — SQL changes: `pending_db_*` placement, idempotency.
+- **dbc-investigator** — read-only lookups in `.claude/dbc/*.csv`.
+- **spell-editor** — custom spells, `spell_dbc`, SpellScript/AuraScript, spell texts.
+- **familiars-dev** — familiar gacha (`.claude/familiars/`).
+- **nemesis-dev** — Nemesis system, bounty board (`.claude/nemesis/`).
+- **statbooster-dev** — fortune pools, scrolls, custom enchants (`.claude/statBoosterItems/`).
+- **gear-ascension-dev** — `mod-gear-ascension` (item quality upgrade).
+- **worn-drops-dev** — `mod-worn-drops` (NPC equipment drops).
+- **item-talents-dev** — `mod-item-talents` and the ItemTalentUI addon.
+- **playerbots-dev** — playerbots AI and configuration.
+- **ollama-chat-dev** — `mod-ollama-chat` and the Ollama service.
+- **cdn-addon-deployer** — publishing client addons to the launcher CDN.
+- **live-deployer** — deployment packages for promoting PTR changes to live.
