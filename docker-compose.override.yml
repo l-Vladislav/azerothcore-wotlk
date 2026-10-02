@@ -150,7 +150,8 @@ services:
         l-Vladislav/mod-remote-control@main,
         l-Vladislav/mod-transmog-ui@master,
         l-Vladislav/StatBooster@master,
-        l-Vladislav/mod-ollama-chat@main
+        l-Vladislav/mod-ollama-chat@main,
+        l-Vladislav/mod-world-items@main
     ports:
       - "${ADMIN_PANEL_BIND:-127.0.0.1}:8091:8091"
     volumes:
