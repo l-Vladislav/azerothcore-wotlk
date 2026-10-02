@@ -146,7 +146,7 @@ services:
         l-Vladislav/mod-item-talents@main,
         l-Vladislav/mod-nemesis-system@main,
         l-Vladislav/mod-player-bot-level-brackets@main,
-        l-Vladislav/mod-playerbots@master,
+        l-Vladislav/mod-playerbots@custom,
         l-Vladislav/mod-remote-control@main,
         l-Vladislav/mod-transmog-ui@master,
         l-Vladislav/StatBooster@master
