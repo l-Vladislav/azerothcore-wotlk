@@ -132,6 +132,24 @@ services:
       # StormLib, ни права писать в launcher/cdn, поэтому она только просит.
       ADMIN_PATCH_BUILDER_URL: http://ac-patch-builder:8092
       ADMIN_PATCH_BUILDER_TOKEN: ${PATCH_BUILDER_TOKEN:-}
+      # Доска сверяет карточки с запросами на слияние и коммитами целевых веток
+      # по `[#N]`. Закрытым репозиториям нужен токен только на чтение.
+      ADMIN_GITHUB_TOKEN: ${ADMIN_GITHUB_TOKEN:-}
+      ADMIN_GITHUB_REPOS: >-
+        l-Vladislav/azerothcore-wotlk@custom,
+        l-Vladislav/ac-admin-panel@main,
+        l-Vladislav/wow-ak-launcher@main,
+        l-Vladislav/mod-advanced-professions@main,
+        l-Vladislav/mod-advanced-weather@main,
+        l-Vladislav/mod-environmental-effects@master,
+        l-Vladislav/mod-gear-ascension@master,
+        l-Vladislav/mod-item-talents@main,
+        l-Vladislav/mod-nemesis-system@main,
+        l-Vladislav/mod-player-bot-level-brackets@main,
+        l-Vladislav/mod-playerbots@master,
+        l-Vladislav/mod-remote-control@main,
+        l-Vladislav/mod-transmog-ui@master,
+        l-Vladislav/StatBooster@master
     ports:
       - "${ADMIN_PANEL_BIND:-127.0.0.1}:8091:8091"
     volumes:
