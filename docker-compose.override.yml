@@ -149,7 +149,8 @@ services:
         l-Vladislav/mod-playerbots@custom,
         l-Vladislav/mod-remote-control@main,
         l-Vladislav/mod-transmog-ui@master,
-        l-Vladislav/StatBooster@master
+        l-Vladislav/StatBooster@master,
+        l-Vladislav/mod-ollama-chat@main
     ports:
       - "${ADMIN_PANEL_BIND:-127.0.0.1}:8091:8091"
     volumes:
