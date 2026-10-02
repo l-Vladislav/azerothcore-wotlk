@@ -287,11 +287,22 @@ public:
     // Набор не выделяется, пока в него никого не положили, поэтому у обычных
     // объектов проверка стоит одно сравнение указателя с nullptr.
     void HideFor(ObjectGuid guid);
+    void ShowFor(ObjectGuid guid);
     void ShowForAll();
 
     [[nodiscard]] bool IsHiddenFor(ObjectGuid guid) const
     {
         return _hiddenFor && _hiddenFor->find(guid) != _hiddenFor->end();
+    }
+
+    // Персональная блокировка: объект виден, но для этого игрока несёт
+    // GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE, и клиент не даёт его использовать.
+    void LockFor(ObjectGuid guid);
+    void UnlockFor(ObjectGuid guid);
+
+    [[nodiscard]] bool IsLockedFor(ObjectGuid guid) const
+    {
+        return _lockedFor && _lockedFor->find(guid) != _lockedFor->end();
     }
 
     uint8 getLevelForTarget(WorldObject const* target) const override
@@ -422,6 +433,8 @@ protected:
 
     // Кому этого объекта не видно. См. HideFor().
     std::unique_ptr<GuidUnorderedSet> _hiddenFor;
+    // Для кого объект заблокирован. См. LockFor().
+    std::unique_ptr<GuidUnorderedSet> _lockedFor;
     Position m_stationaryPosition;
 
     ObjectGuid m_lootRecipient;

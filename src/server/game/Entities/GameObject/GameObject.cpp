@@ -1281,11 +1281,44 @@ void GameObject::HideFor(ObjectGuid guid)
     if (!_hiddenFor->insert(guid).second)
         return;
 
-    // Игроку, который объект уже видит, мало перестать его показывать: клиент
-    // держит созданный объект у себя, пока не получит команду его убрать.
+    // Клиент держит созданный объект, пока не получит команду его убрать;
+    // связь видимости снимается вместе с ней, иначе ShowFor не вернёт объект.
     if (Player* player = ObjectAccessor::FindPlayer(guid))
         if (player->IsInWorld() && player->GetMap() == GetMap())
-            DestroyForPlayer(player);
+            player->UpdateVisibilityOf(this);
+}
+
+void GameObject::ShowFor(ObjectGuid guid)
+{
+    if (!_hiddenFor || !_hiddenFor->erase(guid))
+        return;
+
+    if (_hiddenFor->empty())
+        _hiddenFor.reset();
+
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
+        if (player->IsInWorld() && player->GetMap() == GetMap())
+            player->UpdateVisibilityOf(this);
+}
+
+void GameObject::LockFor(ObjectGuid guid)
+{
+    if (!_lockedFor)
+        _lockedFor = std::make_unique<GuidUnorderedSet>();
+
+    if (_lockedFor->insert(guid).second)
+        ForceValuesUpdateAtIndex(GAMEOBJECT_FLAGS);
+}
+
+void GameObject::UnlockFor(ObjectGuid guid)
+{
+    if (!_lockedFor || !_lockedFor->erase(guid))
+        return;
+
+    if (_lockedFor->empty())
+        _lockedFor.reset();
+
+    ForceValuesUpdateAtIndex(GAMEOBJECT_FLAGS);
 }
 
 void GameObject::ShowForAll()
@@ -2793,7 +2826,9 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
     if (!target)
         return;
 
-    bool forcedFlags = GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo()->chest.groupLootRules && HasLootRecipient();
+    bool lockedForTarget = IsLockedFor(target->GetGUID());
+    bool forcedFlags = (GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo()->chest.groupLootRules && HasLootRecipient())
+        || lockedForTarget;
     bool targetIsGM = target->IsGameMaster() && target->GetSession()->IsGMAccount();
 
     ByteBuffer fieldBuffer;
@@ -2871,7 +2906,8 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
             else if (index == GAMEOBJECT_FLAGS)
             {
                 uint32 goFlags = m_uint32Values[GAMEOBJECT_FLAGS];
-                if (GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo() && GetGOInfo()->chest.groupLootRules && !IsLootAllowedFor(target))
+                if (lockedForTarget || (GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo() &&
+                    GetGOInfo()->chest.groupLootRules && !IsLootAllowedFor(target)))
                 {
                     goFlags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
                 }
