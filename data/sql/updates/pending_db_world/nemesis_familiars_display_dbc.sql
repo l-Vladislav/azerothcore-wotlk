@@ -1,0 +1,39 @@
+-- Фамильяры: серверные строки CreatureDisplayInfo.
+--
+-- Ядро читает CreatureDisplayInfo.dbc из тома клиентских данных и дополняет
+-- его таблицей `creaturedisplayinfo_dbc`. Кастомные display фамильяров есть
+-- только в клиентском патче, поэтому серверу их надо отдать здесь.
+--
+-- Без этих строк:
+--   * ObjectMgr.cpp:1766 разыменовывает нулевой CreatureDisplayInfoEntry при
+--     загрузке `creature_model_info` - падение на старте мира;
+--   * Unit::GetCollisionHeight/Width/Radius вызывают AssertEntry на нативном
+--     display существа - обрыв процесса при первом же расчёте столкновения.
+--
+-- Источник: .claude/dbc/CreatureDisplayInfo_custom.csv (генератор
+-- scripts/familiar-gen-sql.ps1). Все ModelID - стоковые.
+
+DELETE FROM `creaturedisplayinfo_dbc` WHERE `ID` BETWEEN 65008 AND 65098;
+INSERT INTO `creaturedisplayinfo_dbc`
+  (`ID`, `ModelID`, `SoundID`, `ExtendedDisplayInfoID`, `CreatureModelScale`, `CreatureModelAlpha`, `TextureVariation_1`, `TextureVariation_2`, `TextureVariation_3`, `PortraitTextureName`, `BloodLevel`, `BloodID`, `NPCSoundID`, `ParticleColorID`, `CreatureGeosetData`, `ObjectEffectPackageID`)
+VALUES
+  (65008, 3112, 65008, 0, 0.1, 255, '', '', '', '', -1, 0, 0, 0, 0, 0),
+  (65010, 371, 65010, 0, 1.5, 255, 'ImpSkinRed', '', '', '', -1, 1, 0, 339, 0, 0),
+  (65011, 371, 65011, 0, 1.5, 255, 'ImpSkinRed', '', '', '', -1, 1, 0, 339, 0, 0),
+  (65012, 371, 65012, 0, 1.3, 255, 'ImpSkinJade', '', '', '', -1, 1, 0, 311, 0, 0),
+  (65013, 371, 65013, 0, 1.3, 255, 'ImpSkinJade', '', '', '', -1, 1, 0, 311, 0, 0),
+  (65016, 160, 65016, 0, 0.25, 255, 'FireElementalSkin', '', '', '', 0, 0, 0, 330, 0, 0),
+  (65019, 2283, 65019, 0, 3.0, 255, 'InfernalSkin_Outland', 'InfernalSkin_Outland_02', '', '', -1, 0, 0, 0, 0, 0),
+  (65024, 69, 65024, 0, 0.25, 255, 'CrystalElementalSkinWhite', '', '', '', -1, 0, 0, 441, 0, 0),
+  (65025, 69, 65025, 0, 0.25, 255, 'CrystalElementalSkinWhite', '', '', '', -1, 0, 0, 441, 0, 0),
+  (65032, 207, 65032, 0, 1.5, 255, 'Wisp', 'WispGlow', '', '', 0, 0, 0, 442, 0, 0),
+  (65033, 207, 65033, 0, 1.5, 255, 'Wisp', 'WispGlow', '', '', 0, 0, 0, 442, 0, 0),
+  (65046, 2390, 65046, 0, 2.0, 255, 'NaaruSkinGreen', 'NaaruGlowBlue', '', '', -1, 0, 0, 319, 0, 0),
+  (65047, 2390, 65047, 0, 1.0, 255, 'NaaruSkinGreen', 'NaaruGlowBlue', '', '', -1, 0, 0, 319, 0, 0),
+  (65048, 2390, 65048, 0, 3.0, 255, 'NaaruSkinWhite', 'NaaruGlowWhite', '', '', -1, 0, 0, 331, 0, 0),
+  (65064, 2288, 65064, 0, 1.0, 255, '', '', '', '', 0, 0, 0, 0, 0, 0),
+  (65065, 2288, 65065, 0, 1.0, 255, '', '', '', '', 0, 0, 0, 0, 0, 0),
+  (65066, 2423, 65066, 0, 0.66, 255, 'ETHERIALSKIN_PURPLE', '', '', '', -1, 0, 0, 315, 0, 0),
+  (65074, 222, 65074, 0, 2.0, 255, '', '', '', '', -1, 0, 0, 0, 0, 0),
+  (65075, 222, 65075, 0, 2.0, 255, '', '', '', '', -1, 0, 0, 0, 0, 0),
+  (65098, 991, 65098, 0, 0.25, 255, 'SLIMESKINGREEN', '', '', '', -1, 0, 0, 0, 0, 0);
