@@ -496,6 +496,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
     sScriptMgr->OnPlayerbotCheckPetitionAccount(_player, found);
 
+    sScriptMgr->OnPlayerBeforePetitionSign(_player, petitionGuid, found);
+
     if (found)
     {
         WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8 + 8 + 4));
