@@ -11009,6 +11009,30 @@ bool ObjectMgr::IsGameObjectStaticTransport(uint32 entry)
     return goinfo && goinfo->type == GAMEOBJECT_TYPE_TRANSPORT;
 }
 
+GameObjectTemplate const* ObjectMgr::AddGameObjectTemplateCopy(uint32 entry, uint32 baseEntry,
+    std::string const& name)
+{
+    GameObjectTemplate const* base = GetGameObjectTemplate(baseEntry);
+    if (!base || entry == baseEntry)
+        return nullptr;
+
+    GameObjectTemplate& copy = _gameObjectTemplateStore[entry];
+    copy = *base;
+    copy.entry = entry;
+    copy.name = name;
+
+    if (GameObjectTemplateAddon const* addon = GetGameObjectTemplateAddon(baseEntry))
+        _gameObjectTemplateAddonStore[entry] = *addon;
+
+    GameObjectLocale& locale = _gameObjectLocaleStore[entry];
+    if (GameObjectLocale const* baseLocale = GetGameObjectLocale(baseEntry))
+        locale = *baseLocale;
+    for (uint8 i = LOCALE_koKR; i < TOTAL_LOCALES; ++i)
+        AddLocaleString(std::string(name), LocaleConstant(i), locale.Name);
+
+    return &copy;
+}
+
 GameObjectTemplateAddon const* ObjectMgr::GetGameObjectTemplateAddon(uint32 entry) const
 {
     auto itr = _gameObjectTemplateAddonStore.find(entry);

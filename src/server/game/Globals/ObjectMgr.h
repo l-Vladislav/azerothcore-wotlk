@@ -780,6 +780,9 @@ public:
     CreatureAddon const* GetCreatureAddon(ObjectGuid::LowType lowguid);
     GameObjectAddon const* GetGameObjectAddon(ObjectGuid::LowType lowguid);
     [[nodiscard]] GameObjectTemplateAddon const* GetGameObjectTemplateAddon(uint32 entry) const;
+    // Копия шаблона baseEntry под entry с именем name во всех локалях. Клиент
+    // кэширует имя по entry, поэтому своё имя у объекта - только свой шаблон.
+    GameObjectTemplate const* AddGameObjectTemplateCopy(uint32 entry, uint32 baseEntry, std::string const& name);
     CreatureAddon const* GetCreatureTemplateAddon(uint32 entry);
     CreatureMovementData const* GetCreatureMovementOverride(ObjectGuid::LowType spawnId) const;
     ItemTemplate const* GetItemTemplate(uint32 entry);
