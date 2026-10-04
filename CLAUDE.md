@@ -168,6 +168,14 @@ completion only when the work is done; otherwise state what is missing.
   card gets a card first. Branches are named `feat/<N>-<slug>`.
 - **One commit per board card.** Squash before opening the PR: a card's work
   arrives as a single commit carrying `[#N]`.
+- **Card instructions** (`board_card.instructions`) are the owner's rules for
+  the card. Read them before the description and before starting work; they
+  override the description. Never change them.
+- **Card edits go through the panel code** so each edit leaves a revision:
+  `docker exec -i ac-admin-panel python -` with
+  `board.update_card(id, board.CardPatch(...), role="owner", author="Claude")`.
+  No direct SQL on `board_card`. Updating the description keeps the owner's
+  edits: record results, do not revert their changes.
 - Commits carry no Claude authorship trailers (no `Co-Authored-By`, no
   `Claude-Session`).
 - AI tool usage must be disclosed in PRs
