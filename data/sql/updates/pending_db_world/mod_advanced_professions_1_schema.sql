@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `ap_ilvl_level` (
 
 CREATE TABLE IF NOT EXISTS `ap_material` (
   `entry` int unsigned NOT NULL COMMENT 'item_template.entry',
-  `role` enum('base','insert') NOT NULL DEFAULT 'insert' COMMENT 'base - в ячейку схемы, insert - в слот доводки со своим статом',
+  `role` enum('base','insert','catalyst') NOT NULL DEFAULT 'insert' COMMENT 'base - в ячейку схемы, insert - в слот доводки со своим статом, catalyst - в ячейку катализатора без стата',
   `stat_type` tinyint unsigned NOT NULL DEFAULT '0',
   `stat_value` smallint unsigned NOT NULL DEFAULT '0',
   `name_ru` varchar(64) NOT NULL DEFAULT '',
@@ -143,6 +143,7 @@ CREATE TABLE IF NOT EXISTS `ap_synergy` (
   `result_entry` int unsigned NOT NULL DEFAULT '0' COMMENT 'Именной предмет (item_template) за верное сочетание вставок; 0 = не задан',
   `order_matters` tinyint unsigned NOT NULL DEFAULT '0' COMMENT 'Важен ли порядок вставок по слотам при сравнении набора (0 = порядок не важен)',
   `teach_item` int unsigned NOT NULL DEFAULT '0' COMMENT 'entry обучающего предмета: применение записывает сочетание изученным. 0 - книги нет, сочетание только угадывается',
+  `catalyst_entry` int unsigned NOT NULL DEFAULT '0' COMMENT 'ap_material.entry роли catalyst; 0 - эскиз без катализатора',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -181,6 +182,16 @@ CREATE TABLE IF NOT EXISTS `ap_generated_item` (
 SET @has_kind := (SELECT COUNT(*) FROM information_schema.columns
     WHERE table_schema = DATABASE() AND table_name = 'ap_type_part' AND column_name = 'kind');
 SET @ddl := IF(@has_kind > 0, 'ALTER TABLE `ap_type_part` DROP COLUMN `kind`', 'SELECT 1');
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Роль catalyst и катализатор эскиза
+ALTER TABLE `ap_material` MODIFY `role` enum('base','insert','catalyst') NOT NULL DEFAULT 'insert' COMMENT 'base - в ячейку схемы, insert - в слот доводки со своим статом, catalyst - в ячейку катализатора без стата';
+
+SET @has_catalyst := (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'ap_synergy' AND column_name = 'catalyst_entry');
+SET @ddl := IF(@has_catalyst = 0, 'ALTER TABLE `ap_synergy` ADD COLUMN `catalyst_entry` int unsigned NOT NULL DEFAULT ''0'' COMMENT ''ap_material.entry роли catalyst; 0 - эскиз без катализатора'' AFTER `teach_item`', 'SELECT 1');
 PREPARE stmt FROM @ddl;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
