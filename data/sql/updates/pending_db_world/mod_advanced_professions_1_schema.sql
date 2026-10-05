@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS `ap_recipe` (
   `quality_max` tinyint unsigned NOT NULL DEFAULT '1' COMMENT 'Верхняя граница качества результата, ap_quality.quality (§5.4.5)',
   `enabled` tinyint unsigned NOT NULL DEFAULT '0' COMMENT 'Включён ли рецепт в ковке; держим выключенным, пока нет ни одной строки ap_recipe_result',
   `acquire` enum('forge','drop') NOT NULL DEFAULT 'forge' COMMENT 'forge - куётся на верстаке; drop - только добыча, ковать нельзя',
+  `slots_enabled` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '0 - изделия основы без гнёзд доводки при любом качестве',
   PRIMARY KEY (`id`),
   KEY `idx_ap_recipe_type` (`type_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -192,6 +193,14 @@ ALTER TABLE `ap_material` MODIFY `role` enum('base','insert','catalyst') NOT NUL
 SET @has_catalyst := (SELECT COUNT(*) FROM information_schema.columns
     WHERE table_schema = DATABASE() AND table_name = 'ap_synergy' AND column_name = 'catalyst_entry');
 SET @ddl := IF(@has_catalyst = 0, 'ALTER TABLE `ap_synergy` ADD COLUMN `catalyst_entry` int unsigned NOT NULL DEFAULT ''0'' COMMENT ''ap_material.entry роли catalyst; 0 - эскиз без катализатора'' AFTER `teach_item`', 'SELECT 1');
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Отключаемые гнёзда основы
+SET @has_slots := (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'ap_recipe' AND column_name = 'slots_enabled');
+SET @ddl := IF(@has_slots = 0, 'ALTER TABLE `ap_recipe` ADD COLUMN `slots_enabled` tinyint unsigned NOT NULL DEFAULT ''1'' COMMENT ''0 - изделия основы без гнёзд доводки при любом качестве'' AFTER `acquire`', 'SELECT 1');
 PREPARE stmt FROM @ddl;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
