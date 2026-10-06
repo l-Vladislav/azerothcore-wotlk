@@ -51,7 +51,11 @@ INSERT INTO `ap_tmp_book` VALUES
 (864, 191058, 'Recipe: Knightly Longsword of Intellect'),
 (864, 191059, 'Recipe: Knightly Longsword of the Wolf'),
 (864, 191060, 'Recipe: Knightly Longsword of the Boar'),
-(864, 191061, 'Recipe: Knightly Longsword of the Whale');
+(864, 191061, 'Recipe: Knightly Longsword of the Whale'),
+(864, 191062, 'Recipe: Knightly Longsword of the Falcon'),
+(864, 191063, 'Recipe: Knightly Longsword of the Eagle'),
+(864, 191064, 'Recipe: Knightly Longsword of the Gorilla'),
+(864, 191065, 'Recipe: Knightly Longsword of the Owl');
 DROP TEMPORARY TABLE IF EXISTS `ap_tmp_book_count`;
 CREATE TEMPORARY TABLE `ap_tmp_book_count` SELECT `original`, COUNT(*) AS `n` FROM `ap_tmp_book` GROUP BY `original`;
 
