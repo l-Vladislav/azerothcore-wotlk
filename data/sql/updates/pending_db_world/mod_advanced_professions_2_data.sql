@@ -13,7 +13,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (483, 'spell_
 
 DELETE FROM `ap_config`;
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('base_chance','75','Шанс успеха при разрыве навык-сложность, равном нулю, %');
-INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('catalog_version','535','Версия каталога окна (справочники, типы, ячейки, материалы, фильтры): аддон держит его в кэше и просит только при расхождении');
+INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('catalog_version','537','Версия каталога окна (справочники, типы, ячейки, материалы, фильтры): аддон держит его в кэше и просит только при расхождении');
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('chance_step','1','На сколько % меняется шанс за каждую единицу разрыва');
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('craft_sound','4614','SoundEntries удара молота во время ковки (4614 - BlackSmithCrafting); 0 - без звука');
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('craft_sound_ms','2500','Шаг между ударами молота в миллисекундах; 0 - без звука');
@@ -167,7 +167,7 @@ INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (7966,'catalyst',0,0,'Твердый шлифовальный камень',1,51,75,0,0,0,0);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (7971,'insert',6,4,'Черная жемчужина',1,36,50,0,1,1,3);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (12359,'base',0,0,'Ториевый слиток',1,0,0,1,0,0,0);
-INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (12363,'insert',5,6,'Чародейный кристалл',1,36,70,0,1,1,3);
+INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (12363,'insert',5,6,'Чародейный кристалл',1,51,70,0,1,1,3);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (12364,'insert',3,6,'Огромный изумруд',1,51,70,0,1,1,3);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (12365,'base',0,0,'Массивный камень',1,0,0,7,0,0,0);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (12644,'catalyst',0,0,'Массивный шлифовальный камень',1,76,90,0,0,0,0);
@@ -175,6 +175,7 @@ INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (13926,'insert',6,6,'Золотая жемчужина',1,51,70,0,1,1,3);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (185000,'insert',5,2,'Превосходный камень теней',1,21,35,0,1,1,3);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (185001,'insert',3,4,'Превосходный нефрит',1,36,50,0,1,1,3);
+INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (185002,'insert',5,4,'Малый чародейный кристалл',1,36,50,0,1,1,3);
 
 DELETE FROM `ap_recipe`;
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184133,1,'Медный меч',0,190000,1,2,1,'forge',1);
