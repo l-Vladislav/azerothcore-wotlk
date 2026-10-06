@@ -21,6 +21,10 @@ SELECT `Entry`, `pearl`, 0, `Chance`, 0, 1, 0, 1, 1, IF(`pearl` = 7971, 'Black P
 DROP TEMPORARY TABLE `ap_tmp_pearl`;
 DROP TEMPORARY TABLE `ap_tmp_loot_level`;
 
+-- «Моллюск-болтун» (7973, вскрытие 58165): «Черная жемчужина» 4 -> 5 %, «Радужная жемчужина» 1 -> 2 %
+UPDATE `spell_loot_template` SET `Chance` = 5 WHERE `Entry` = 58165 AND `Item` = 7971;
+UPDATE `spell_loot_template` SET `Chance` = 2 WHERE `Entry` = 58165 AND `Item` = 5500;
+
 -- Продажа у торговцев рыболовными снастями с ограниченным запасом
 DELETE FROM `npc_vendor` WHERE `item` IN (5500, 7971, 13926) AND `entry` IN (1678, 2383, 2626, 3178, 3572, 7945, 12031);
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`) VALUES
