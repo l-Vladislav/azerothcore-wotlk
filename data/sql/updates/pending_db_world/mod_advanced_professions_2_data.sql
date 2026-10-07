@@ -387,6 +387,7 @@ DELETE FROM `ap_merge`;
 INSERT INTO `ap_merge` (`id`, `name_ru`, `type_id`, `result_entry`, `teach_item`, `enabled`) VALUES (2,'Плавень стихий',0,18567,191084,1);
 
 DELETE FROM `ap_merge_item`;
+INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,0,185007);
 INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,4,185003);
 INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,1,185004);
 INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,2,185005);

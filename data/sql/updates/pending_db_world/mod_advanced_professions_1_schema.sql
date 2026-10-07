@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS `ap_merge` (
 
 CREATE TABLE IF NOT EXISTS `ap_merge_item` (
   `merge_id` int unsigned NOT NULL,
-  `idx` tinyint unsigned NOT NULL COMMENT 'Порядок в панели, 1..5. На сравнение не влияет',
+  `idx` tinyint unsigned NOT NULL COMMENT '0 - середина рецепта без типа, 1..5 - ячейки в порядке панели',
   `item_entry` int unsigned NOT NULL COMMENT 'item_template.entry: что кладут в ячейку',
   PRIMARY KEY (`merge_id`,`idx`),
   KEY `idx_ap_merge_item_entry` (`item_entry`)
