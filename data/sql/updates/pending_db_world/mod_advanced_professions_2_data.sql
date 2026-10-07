@@ -208,6 +208,7 @@ INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, 
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184152,12,'Плавень земной стихии',175,0,2,2,1,'forge',0);
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184153,12,'Воздушный плавень',175,0,2,2,1,'forge',0);
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184154,12,'Пустой плавень стихий',175,0,1,1,1,'forge',0);
+INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184155,1,'Сломанный Клинок мудреца',0,0,3,3,1,'drop',1);
 
 DELETE FROM `ap_recipe_item`;
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184133,2,4470,1);
@@ -287,6 +288,7 @@ INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo
 INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo`, `pool_hi`) VALUES (184152,2,185005,1161440,1163487);
 INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo`, `pool_hi`) VALUES (184153,2,185006,1163488,1165535);
 INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo`, `pool_hi`) VALUES (184154,1,185007,1165536,1167583);
+INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo`, `pool_hi`) VALUES (184155,3,180086,1167584,1169631);
 
 DELETE FROM `ap_synergy`;
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85294,'Рапира Братства Справедливости','774,774',1,184133,1925,1,190001,0);
@@ -385,6 +387,30 @@ INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `r
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85388,'Меч Ханзо','3864,7971',1,184139,8190,1,191072,3486);
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85389,'Пылающая рапира','3864,185002',1,184139,12777,1,0,3486);
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85390,'Кровавая бритва','3864,185001,7909',1,184139,809,1,191073,3486);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85391,'Клинок измерений обезьяны','12364,12799',1,184141,180068,1,191085,0);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85392,'Клинок измерений тигра','12364,7910',1,184141,180069,1,191086,0);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85393,'Клинок измерений медведя','7910,12799',1,184141,180070,1,191087,0);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85394,'Сабля жестокой сечи с печатью выносливости','12799,12799',1,184141,180074,1,191088,0);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85395,'Сабля жестокой сечи со знаком силы','7910,7910',1,184141,180075,1,191089,0);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85396,'Клинок измерений ловкости','12364',1,184141,180071,0,191090,185006);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85397,'Клинок измерений со знаком силы','7910',1,184141,180072,0,191091,185004);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85398,'Клинок измерений с печатью выносливости','12799',1,184141,180073,0,191092,185005);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85399,'Сабля жестокой сечи сокола','12364,12363',1,184141,180076,1,191093,7966);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85400,'Сабля жестокой сечи волка','12364,13926',1,184141,180077,1,191094,7966);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85401,'Сабля жестокой сечи совы','12363,13926',1,184141,180078,1,191095,7966);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85402,'Сабля жестокой сечи орла','12363,12799',1,184141,180079,1,191096,7966);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85403,'Сабля жестокой сечи гориллы','12363,7910',1,184141,180080,1,191097,7966);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85404,'Священный боевой меч обезьяны','12364,12799',1,184141,180081,1,191098,7966);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85405,'Священный боевой меч тигра','12364,7910',1,184141,180082,1,191099,7966);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85406,'Священный боевой меч медведя','7910,12799',1,184141,180083,1,191100,7966);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85407,'Карманный нож огра','12799',1,184141,18463,0,191101,7966);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85408,'Разортель из черного железа','12799,12799',1,184141,180084,1,0,185004);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85409,'Черный Страж','12799,12799',1,184141,180085,1,0,18567);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85410,'Холоднокованный клинок','12799,12799',1,184141,19110,1,191102,185003);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85411,'Меч рвения','7910,13926',1,184141,6622,1,191103,7966);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85412,'Ледяной Страж','12363,12363',1,184141,12797,1,0,185003);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85413,'Пылающий меч Тибу','7910,7910,12363',1,184141,1728,1,191104,185004);
+INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85414,'Клинок мудреца','12799,12799,12363',1,184155,22383,1,191105,18567);
 
 DELETE FROM `ap_merge`;
 INSERT INTO `ap_merge` (`id`, `name_ru`, `type_id`, `result_entry`, `teach_item`, `enabled`) VALUES (2,'Плавень стихий',0,18567,191084,1);
