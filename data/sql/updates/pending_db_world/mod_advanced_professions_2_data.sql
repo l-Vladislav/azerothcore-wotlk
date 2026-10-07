@@ -13,7 +13,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (483, 'spell_
 
 DELETE FROM `ap_config`;
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('base_chance','75','Шанс успеха при разрыве навык-сложность, равном нулю, %');
-INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('catalog_version','537','Версия каталога окна (справочники, типы, ячейки, материалы, фильтры): аддон держит его в кэше и просит только при расхождении');
+INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('catalog_version','573','Версия каталога окна (справочники, типы, ячейки, материалы, фильтры): аддон держит его в кэше и просит только при расхождении');
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('chance_step','1','На сколько % меняется шанс за каждую единицу разрыва');
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('craft_sound','4614','SoundEntries удара молота во время ковки (4614 - BlackSmithCrafting); 0 - без звука');
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('craft_sound_ms','2500','Шаг между ударами молота в миллисекундах; 0 - без звука');
@@ -161,6 +161,10 @@ INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (4470,'base',0,0,'Простая древесина',1,0,0,2,0,0,0);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (5498,'insert',7,1,'Маленькая блестящая жемчужина',1,1,20,0,1,1,3);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (5500,'insert',6,2,'Радужная жемчужина',1,21,35,0,1,1,3);
+INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (7067,'base',0,0,'Первородная земля',1,0,0,7,0,0,0);
+INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (7068,'base',0,0,'Первородный огонь',1,0,0,7,0,0,0);
+INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (7069,'base',0,0,'Первородный воздух',1,0,0,7,0,0,0);
+INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (7070,'base',0,0,'Первородная вода',1,0,0,7,0,0,0);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (7909,'insert',7,4,'Аквамарин',1,36,50,0,1,1,3);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (7910,'insert',4,6,'Звездный рубин',1,51,65,0,1,1,3);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (7912,'base',0,0,'Твердый камень',1,0,0,7,0,0,0);
@@ -173,9 +177,14 @@ INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (12644,'catalyst',0,0,'Массивный шлифовальный камень',1,76,90,0,0,0,0);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (12799,'insert',7,6,'Большой опал',1,51,70,0,1,1,3);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (13926,'insert',6,6,'Золотая жемчужина',1,51,70,0,1,1,3);
+INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (18567,'catalyst',0,0,'Плавень стихий',1,50,70,0,0,0,0);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (185000,'insert',5,2,'Превосходный камень теней',1,21,35,0,1,1,3);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (185001,'insert',3,4,'Превосходный нефрит',1,36,50,0,1,1,3);
 INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (185002,'insert',5,4,'Малый чародейный кристалл',1,36,50,0,1,1,3);
+INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (185003,'catalyst',0,0,'Плавень водной стихии',1,50,70,0,0,0,0);
+INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (185004,'catalyst',0,0,'Огненный плавень',1,50,70,0,0,0,0);
+INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (185005,'catalyst',0,0,'Плавень земной стихии',1,50,70,0,0,0,0);
+INSERT INTO `ap_material` (`entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (185006,'catalyst',0,0,'Воздушный плавень',1,50,70,0,0,0,0);
 
 DELETE FROM `ap_recipe`;
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184133,1,'Медный меч',0,190000,1,2,1,'forge',1);
@@ -194,6 +203,10 @@ INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, 
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184147,12,'Твердый шлифовальный камень',175,0,1,1,1,'forge',0);
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184148,12,'Массивный шлифовальный камень',225,0,1,1,1,'forge',0);
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184149,1,'Сломанный Тяжелый ятаган мародера',0,0,3,3,1,'drop',1);
+INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184150,12,'Плавень водной стихии',175,0,2,2,1,'forge',0);
+INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184151,12,'Огненный плавень',175,0,2,2,1,'forge',0);
+INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184152,12,'Плавень земной стихии',175,0,2,2,1,'forge',0);
+INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184153,12,'Воздушный плавень',175,0,2,2,1,'forge',0);
 
 DELETE FROM `ap_recipe_item`;
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184133,2,4470,1);
@@ -225,6 +238,14 @@ INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VA
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184146,1,2838,2);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184147,1,7912,2);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184148,1,12365,2);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184150,1,12365,4);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184150,2,7070,2);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184151,1,12365,4);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184151,2,7068,2);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184152,1,12365,4);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184152,2,7067,2);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184153,1,12365,4);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184153,2,7069,2);
 
 DELETE FROM `ap_recipe_material`;
 
@@ -258,6 +279,11 @@ INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo
 INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo`, `pool_hi`) VALUES (184147,1,7966,1149152,1151199);
 INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo`, `pool_hi`) VALUES (184148,1,12644,1151200,1153247);
 INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo`, `pool_hi`) VALUES (184149,3,180031,1153248,1155295);
+INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo`, `pool_hi`) VALUES (184150,1,185003,1155296,1157343);
+INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo`, `pool_hi`) VALUES (184150,2,185003,1157344,1159391);
+INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo`, `pool_hi`) VALUES (184151,2,185004,1159392,1161439);
+INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo`, `pool_hi`) VALUES (184152,2,185005,1161440,1163487);
+INSERT INTO `ap_recipe_result` (`recipe_id`, `quality`, `result_entry`, `pool_lo`, `pool_hi`) VALUES (184153,2,185006,1163488,1165535);
 
 DELETE FROM `ap_synergy`;
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85294,'Рапира Братства Справедливости','774,774',1,184133,1925,1,190001,0);
@@ -358,5 +384,10 @@ INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `r
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85390,'Кровавая бритва','3864,185001,7909',1,184139,809,1,191073,3486);
 
 DELETE FROM `ap_merge`;
+INSERT INTO `ap_merge` (`id`, `name_ru`, `type_id`, `result_entry`, `teach_item`, `enabled`) VALUES (2,'Плавень стихий',0,18567,191084,1);
 
 DELETE FROM `ap_merge_item`;
+INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,1,185003);
+INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,2,185004);
+INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,3,185005);
+INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,4,185006);
