@@ -23,7 +23,8 @@ For every generated item these MUST agree; verify after any generation/change:
 - **icon (ItemDisplayInfo.InventoryIcon)** MUST match the material (a Plate item must never show a Cloth icon). This is keyed by the item's `displayid`.
 - **GroupSoundIndex** on the item's ItemDisplayInfo must be non-zero and match the material (equip/move sound).
 - **displayid**: weapons + armor looks that already have an icon → keep the stock displayid; iconless armor looks → a custom ItemDisplayInfo id (110000+) that copies the stock model/texture and adds a material-correct icon + sound. The custom id MUST be keyed by (look, material) — a look worn by both plate and cloth NPCs needs TWO custom ids so each material gets its own icon.
-- **bonding = 2** (BoE); no inherited donor requirements (RequiredSkill/rep/spell/honor/city = 0); white tier has no stats (armor/dmg only); green/blue/purple stats grow strictly per tier.
+- **bonding = 2** (BoE); no inherited donor requirements (RequiredSkill/rep/spell/honor/city = 0); no stats and no item spells (`spellid_1..5 = 0`) at any tier — base only (armor/dmg/block); armor and dmg grow strictly per tier.
+- Runtime settings: defaults in `.conf`, overrides in `mod_worn_drops_setting` written only by the module via `.wd cfg` (admin panel page `/worn-drops`).
 
 Run the validation queries in your memory (`validation.md`) after any regen and report violations.
 
