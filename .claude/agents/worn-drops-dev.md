@@ -23,7 +23,7 @@ For every generated item these MUST agree; verify after any generation/change:
 - **icon (ItemDisplayInfo.InventoryIcon)** MUST match the material (a Plate item must never show a Cloth icon). This is keyed by the item's `displayid`.
 - **GroupSoundIndex** on the item's ItemDisplayInfo must be non-zero and match the material (equip/move sound).
 - **displayid**: weapons + armor looks that already have an icon → keep the stock displayid; iconless armor looks → a custom ItemDisplayInfo id (110000+) that copies the stock model/texture and adds a material-correct icon + sound. The custom id MUST be keyed by (look, material) — a look worn by both plate and cloth NPCs needs TWO custom ids so each material gets its own icon.
-- **bonding = 2** (BoE); no inherited donor requirements (RequiredSkill/rep/spell/honor/city = 0); no stats and no item spells (`spellid_1..5 = 0`) at any tier — base only (armor/dmg/block); armor and dmg grow strictly per tier.
+- **bonding = 2** (BoE); no inherited donor requirements (RequiredSkill/rep/spell/honor/city = 0); no stats and no item spells (`spellid_1..5 = 0`) at any tier — base only (armor/dmg/block); armor and dmg grow strictly per tier. ItemLevel, DPS, armor and block equal the median of stock items of the same category and quality at that ilvl (`gen-worn-balance.py`); the donor supplies only type, slot and delay.
 - Runtime settings: defaults in `.conf`, overrides in `mod_worn_drops_setting` written only by the module via `.wd cfg` (admin panel page `/worn-drops`).
 
 Run the validation queries in your memory (`validation.md`) after any regen and report violations.
@@ -47,7 +47,8 @@ Rule of thumb: **never ship an item whose icon/model/sound/material disagree —
   - `build-worn-weapons.py` — weapon looks + donors from creature_equip_template (ALL creature types; donors require dmg>0).
   - `gen-worn-icons.py` — custom ItemDisplayInfo (icons+sound from donor) + worn_iconmap.tsv + worn_displayid_remap.sql.
   - `gen-worn-itemdbc.py` — client Item.dbc rows (Item_custom format) for right-click auto-equip.
-  - `gen-worn.py` — the SQL: item_template (INSERT..SELECT donor + scaled stats) + locale + worn_drop_* tables + item_upgrade_chain. Reads worn_iconmap.tsv for custom displayids.
+  - `gen-worn.py` — the SQL: item_template (INSERT..SELECT donor) + locale + worn_drop_* tables + item_upgrade_chain. Reads worn_iconmap.tsv for custom displayids.
+  - `gen-worn-balance.py` — run after the gen-worn SQL is applied: stock items -> `data/worn_balance.sql` (ItemLevel, dmg, armor, block by class/subclass/InventoryType/RequiredLevel/Quality); copy to `pending_db_world/mod_worn_drops_balance.sql`.
 - `modules/mod-worn-drops/data/` — generated TSVs, SQL (worn_drops_all.sql), client CSVs.
 - `modules/mod-worn-drops/src/` — runtime C++ (WorldScript loads tables; PlayerScript OnPlayerCreatureKill: two independent rolls armor+weapon, PickAndAdd up to N).
 - `env/dist/etc-ptr/modules/mod-worn-drops.conf` — PTR runtime config (currently TEST values); `conf/mod-worn-drops.conf.dist` — prod defaults.
