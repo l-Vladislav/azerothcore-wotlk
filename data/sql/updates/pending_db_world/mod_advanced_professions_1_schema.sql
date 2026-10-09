@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS `ap_item_type` (
   `fail_entry` int unsigned NOT NULL DEFAULT '0' COMMENT 'Серая поделка (item_template) для этого типа при неудачной ковке; 0 = не заведена',
   `pool_lo` int unsigned NOT NULL DEFAULT '0' COMMENT 'Начало слайса пула: заготовки item_template с видом этого типа',
   `pool_hi` int unsigned NOT NULL DEFAULT '0' COMMENT 'Конец слайса пула включительно. 0 в паре с pool_lo - слайса нет, доводка этому типу недоступна',
+  `profession_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'ap_profession.id: профессия типа',
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -76,6 +77,7 @@ CREATE TABLE IF NOT EXISTS `ap_ilvl_level` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Уровень предмета -> требуемый уровень персонажа';
 
 CREATE TABLE IF NOT EXISTS `ap_material` (
+  `profession_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'ap_profession.id: профессия, в которой предмет работает этой строкой',
   `entry` int unsigned NOT NULL COMMENT 'item_template.entry',
   `role` enum('base','insert','catalyst') NOT NULL DEFAULT 'insert' COMMENT 'base - в ячейку схемы, insert - в слот доводки со своим статом, catalyst - в ячейку катализатора без стата',
   `stat_type` tinyint unsigned NOT NULL DEFAULT '0',
@@ -88,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `ap_material` (
   `insert_type_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'ap_insert_type.id для роли insert; 0 - не задан',
   `quality_min` tinyint unsigned NOT NULL DEFAULT '0' COMMENT 'Нижнее качество вещи-цели; 0 - границы нет',
   `quality_max` tinyint unsigned NOT NULL DEFAULT '0' COMMENT 'Верхнее качество вещи-цели; 0 - границы нет. Обе нули - строгое совпадение с качеством самого камня',
-  PRIMARY KEY (`entry`)
+  PRIMARY KEY (`profession_id`,`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS `ap_recipe` (
@@ -205,21 +207,56 @@ PREPARE stmt FROM @ddl;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
--- Верстаки-объекты
+-- Верстаки-объекты и профессии
 CREATE TABLE IF NOT EXISTS `ap_station` (
   `id` int unsigned NOT NULL,
   `code` varchar(32) NOT NULL,
   `name_ru` varchar(64) NOT NULL DEFAULT '',
-  `screens` int unsigned NOT NULL DEFAULT '0' COMMENT 'Маска экранов: 1 ковка, 2 доводка, 4 инкрустация, 8 объединение, 16 разбор',
   `sort` smallint unsigned NOT NULL DEFAULT '100',
   `enabled` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_ap_station_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Вид верстака';
 
-SET @has_station := (SELECT COUNT(*) FROM information_schema.columns
+CREATE TABLE IF NOT EXISTS `ap_profession` (
+  `id` int unsigned NOT NULL,
+  `code` varchar(32) NOT NULL,
+  `name_ru` varchar(64) NOT NULL DEFAULT '',
+  `station_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'ap_station.id: верстак профессии',
+  `screens` int unsigned NOT NULL DEFAULT '0' COMMENT 'Маска экранов: 1 ковка, 2 доводка, 4 инкрустация, 8 объединение, 16 разбор',
+  `has_skill` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '1 - навык проверяется и растёт; 0 - навыка нет',
+  `skill_max` smallint unsigned NOT NULL DEFAULT '500' COMMENT 'Потолок навыка',
+  `sort` smallint unsigned NOT NULL DEFAULT '100',
+  `enabled` tinyint unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_ap_profession_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Профессия: верстак, экраны, навык';
+
+SET @has := (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'ap_station' AND column_name = 'screens');
+SET @ddl := IF(@has > 0, 'ALTER TABLE `ap_station` DROP COLUMN `screens`', 'SELECT 1');
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @has := (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'ap_item_type' AND column_name = 'profession_id');
+SET @ddl := IF(@has = 0, 'ALTER TABLE `ap_item_type` ADD COLUMN `profession_id` int unsigned NOT NULL DEFAULT ''0'' COMMENT ''ap_profession.id: профессия типа'' AFTER `pool_hi`', 'SELECT 1');
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @has := (SELECT COUNT(*) FROM information_schema.columns
     WHERE table_schema = DATABASE() AND table_name = 'ap_item_type' AND column_name = 'station_id');
-SET @ddl := IF(@has_station = 0, 'ALTER TABLE `ap_item_type` ADD COLUMN `station_id` int unsigned NOT NULL DEFAULT ''0'' COMMENT ''ap_station.id: верстак профессии типа'' AFTER `pool_hi`', 'SELECT 1');
+SET @ddl := IF(@has > 0, 'ALTER TABLE `ap_item_type` DROP COLUMN `station_id`', 'SELECT 1');
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Материал - строка профессии: тот же предмет в другой профессии работает своей строкой
+SET @has := (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'ap_material' AND column_name = 'profession_id');
+SET @ddl := IF(@has = 0, 'ALTER TABLE `ap_material` ADD COLUMN `profession_id` int unsigned NOT NULL DEFAULT ''0'' COMMENT ''ap_profession.id: профессия, в которой предмет работает этой строкой'' FIRST, DROP PRIMARY KEY, ADD PRIMARY KEY (`profession_id`, `entry`)', 'SELECT 1');
 PREPARE stmt FROM @ddl;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;

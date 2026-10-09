@@ -1,23 +1,23 @@
 -- mod-advanced-professions: верстаки-объекты (#147).
 -- Верстак в мире - размещение mod-world-items с типом station и видом ap_station.
 -- Модели верстаков: гууберы gameobject_template 910000-910099.
--- Схема - в _1_schema.sql.
+-- Профессии верстаков - _39_professions.sql. Схема - в _1_schema.sql.
 
-INSERT IGNORE INTO `ap_station` (`id`, `code`, `name_ru`, `screens`, `sort`, `enabled`) VALUES
-(1, 'anvil', 'Наковальня', 3, 10, 1),
-(2, 'leather_table', 'Стол кожевника', 3, 20, 1),
-(3, 'loom', 'Ткацкий станок', 3, 30, 1),
-(4, 'alchemy_lab', 'Алхимическая лаборатория', 3, 40, 1),
-(5, 'enchanting_table', 'Стол зачаровывателя', 3, 50, 1),
-(6, 'hearth', 'Очаг', 3, 60, 1),
-(7, 'medic_table', 'Стол лекаря', 3, 70, 1),
-(8, 'engineering_bench', 'Инженерный верстак', 3, 80, 1),
-(9, 'jeweler_table', 'Стол ювелира', 3, 90, 1),
-(10, 'scribe_table', 'Стол начертателя', 3, 100, 1),
-(11, 'inlay_table', 'Стол инкрустации', 4, 110, 1),
-(12, 'salvage_table', 'Стол разбора', 16, 120, 1),
-(13, 'merge_table', 'Стол объединения', 8, 130, 1),
-(14, 'smelter', 'Горн', 0, 140, 1);
+INSERT IGNORE INTO `ap_station` (`id`, `code`, `name_ru`, `sort`, `enabled`) VALUES
+(1, 'anvil', 'Наковальня', 10, 1),
+(2, 'leather_table', 'Стол кожевника', 20, 1),
+(3, 'loom', 'Ткацкий станок', 30, 1),
+(4, 'alchemy_lab', 'Алхимическая лаборатория', 40, 1),
+(5, 'enchanting_table', 'Стол зачаровывателя', 50, 1),
+(6, 'hearth', 'Очаг', 60, 1),
+(7, 'medic_table', 'Стол лекаря', 70, 1),
+(8, 'engineering_bench', 'Инженерный верстак', 80, 1),
+(9, 'jeweler_table', 'Стол ювелира', 90, 1),
+(10, 'scribe_table', 'Стол начертателя', 100, 1),
+(11, 'inlay_table', 'Стол инкрустации', 110, 1),
+(12, 'salvage_table', 'Стол разбора', 120, 1),
+(13, 'merge_table', 'Стол объединения', 130, 1),
+(14, 'smelter', 'Горн', 140, 1);
 
 DELETE FROM `gameobject_template` WHERE `entry` BETWEEN 910000 AND 910099;
 INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `size`, `ScriptName`, `VerifiedBuild`) VALUES
@@ -35,8 +35,6 @@ INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconNa
 (910011, 10, 335, 'Стол разбора', '', '', '', 1, '', 0),
 (910012, 10, 8304, 'Стол объединения', '', '', '', 1, '', 0),
 (910013, 10, 209, 'Горн', '', '', '', 1, '', 0);
-
-UPDATE `ap_item_type` SET `station_id` = 1 WHERE `station_id` = 0;
 
 INSERT IGNORE INTO `ap_config` (`name`, `value`, `comment`) VALUES
 ('station_required', '1', '1 - команды верстака выполняются только у объекта верстака'),
