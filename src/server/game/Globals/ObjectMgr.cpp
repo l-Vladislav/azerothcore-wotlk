@@ -11013,7 +11013,7 @@ bool ObjectMgr::IsGameObjectStaticTransport(uint32 entry)
 }
 
 GameObjectTemplate const* ObjectMgr::AddGameObjectTemplateCopy(uint32 entry, uint32 baseEntry,
-    std::string const& name, Optional<uint32> type)
+    std::string const& name, Optional<uint32> type, Optional<uint32> displayId)
 {
     GameObjectTemplate const* base = GetGameObjectTemplate(baseEntry);
     if (!base || entry == baseEntry)
@@ -11030,6 +11030,8 @@ GameObjectTemplate const* ObjectMgr::AddGameObjectTemplateCopy(uint32 entry, uin
         copy.AIName.clear();
         copy.ScriptId = 0;
     }
+    if (displayId)
+        copy.displayId = *displayId;
 
     if (GameObjectTemplateAddon const* addon = GetGameObjectTemplateAddon(baseEntry))
         _gameObjectTemplateAddonStore[entry] = *addon;

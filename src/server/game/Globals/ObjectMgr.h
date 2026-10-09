@@ -783,8 +783,9 @@ public:
     // Копия шаблона baseEntry под entry с именем name во всех локалях. Клиент
     // кэширует имя по entry, поэтому своё имя у объекта - только свой шаблон.
     // type задаёт копии другой тип объекта; поля данных типа обнуляются.
+    // displayId задаёт копии другую модель.
     GameObjectTemplate const* AddGameObjectTemplateCopy(uint32 entry, uint32 baseEntry, std::string const& name,
-        Optional<uint32> type = {});
+        Optional<uint32> type = {}, Optional<uint32> displayId = {});
     CreatureAddon const* GetCreatureTemplateAddon(uint32 entry);
     CreatureMovementData const* GetCreatureMovementOverride(ObjectGuid::LowType spawnId) const;
     ItemTemplate const* GetItemTemplate(uint32 entry);
