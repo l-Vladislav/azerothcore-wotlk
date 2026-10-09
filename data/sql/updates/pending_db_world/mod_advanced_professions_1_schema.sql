@@ -204,3 +204,22 @@ SET @ddl := IF(@has_slots = 0, 'ALTER TABLE `ap_recipe` ADD COLUMN `slots_enable
 PREPARE stmt FROM @ddl;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+-- Верстаки-объекты
+CREATE TABLE IF NOT EXISTS `ap_station` (
+  `id` int unsigned NOT NULL,
+  `code` varchar(32) NOT NULL,
+  `name_ru` varchar(64) NOT NULL DEFAULT '',
+  `screens` int unsigned NOT NULL DEFAULT '0' COMMENT 'Маска экранов: 1 ковка, 2 доводка, 4 инкрустация, 8 объединение, 16 разбор',
+  `sort` smallint unsigned NOT NULL DEFAULT '100',
+  `enabled` tinyint unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_ap_station_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Вид верстака';
+
+SET @has_station := (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'ap_item_type' AND column_name = 'station_id');
+SET @ddl := IF(@has_station = 0, 'ALTER TABLE `ap_item_type` ADD COLUMN `station_id` int unsigned NOT NULL DEFAULT ''0'' COMMENT ''ap_station.id: верстак профессии типа'' AFTER `pool_hi`', 'SELECT 1');
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
