@@ -34,6 +34,11 @@
       "note": "новее патча: +511 строк"
     },
     {
+      "table": "GameObjectDisplayInfo",
+      "csv": ".claude/dbc/GameObjectDisplayInfo_custom.csv",
+      "note": "модели окружения клиента, tools/client-patch/gen_world_models.py; база - patch-ruRU-3.MPQ клиента (#152)"
+    },
+    {
       "table": "SpellItemEnchantment",
       "csv": ".claude/dbc/SpellItemEnchantment_custom.csv",
       "enabled": false,
