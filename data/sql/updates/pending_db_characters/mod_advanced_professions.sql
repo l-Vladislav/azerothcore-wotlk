@@ -5,10 +5,11 @@
 
 CREATE TABLE IF NOT EXISTS `ap_character_skill` (
   `guid` int unsigned NOT NULL COMMENT 'characters.guid',
+  `profession_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'ap_profession.id (acore_world)',
   `skill` smallint unsigned NOT NULL DEFAULT '1',
   `crafted` int unsigned NOT NULL DEFAULT '0' COMMENT 'сколько всего собрано предметов',
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`guid`)
+  PRIMARY KEY (`guid`,`profession_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS `ap_character_recipe` (
@@ -34,3 +35,13 @@ CREATE TABLE IF NOT EXISTS `ap_character_merge` (
   PRIMARY KEY (`guid`,`merge_id`),
   KEY `idx_ap_character_merge_merge` (`merge_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Навык по профессиям; прежний общий навык переходит к профессии 1 «Оружейник»
+SET @has := (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'ap_character_skill' AND column_name = 'profession_id');
+SET @ddl := IF(@has = 0, 'ALTER TABLE `ap_character_skill` ADD COLUMN `profession_id` int unsigned NOT NULL DEFAULT ''0'' COMMENT ''ap_profession.id (acore_world)'' AFTER `guid`, DROP PRIMARY KEY, ADD PRIMARY KEY (`guid`, `profession_id`)', 'SELECT 1');
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+UPDATE `ap_character_skill` SET `profession_id` = 1 WHERE `profession_id` = 0;
