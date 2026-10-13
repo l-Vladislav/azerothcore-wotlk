@@ -298,7 +298,7 @@ INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, 
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184206,3,'Медный кинжал',25,190004,1,2,1,'forge',1);
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184207,3,'Бронзовый нож',50,190005,1,2,1,'forge',1);
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184208,3,'Крис',75,190006,1,2,1,'forge',1);
-INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184209,3,'Главный аргумент',100,190007,1,2,1,'forge',1);
+INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184209,3,'Железный крис',100,190007,1,2,1,'forge',1);
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184210,3,'Рондел',125,190008,1,3,1,'forge',1);
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184211,3,'Мифриловый кинжал',150,190009,1,3,1,'forge',1);
 INSERT INTO `ap_recipe` (`id`, `type_id`, `name_ru`, `req_skill`, `teach_item`, `quality_min`, `quality_max`, `enabled`, `acquire`, `slots_enabled`) VALUES (184212,3,'Ториевый кинжал',175,190010,1,3,1,'forge',1);
