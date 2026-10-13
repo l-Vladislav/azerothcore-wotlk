@@ -13,7 +13,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (483, 'spell_
 
 DELETE FROM `ap_config`;
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('base_chance','75','Шанс успеха при разрыве навык-сложность, равном нулю, %');
-INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('catalog_version','700','Версия каталога окна (справочники, типы, ячейки, материалы, фильтры): аддон держит его в кэше и просит только при расхождении');
+INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('catalog_version','702','Версия каталога окна (справочники, типы, ячейки, материалы, фильтры): аддон держит его в кэше и просит только при расхождении');
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('chance_step','1','На сколько % меняется шанс за каждую единицу разрыва');
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('craft_sound','4614','SoundEntries удара молота во время ковки (4614 - BlackSmithCrafting); 0 - без звука');
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('craft_sound_ms','2500','Шаг между ударами молота в миллисекундах; 0 - без звука');
@@ -147,6 +147,8 @@ INSERT INTO `ap_material` (`profession_id`, `entry`, `role`, `stat_type`, `stat_
 INSERT INTO `ap_material` (`profession_id`, `entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (1,1210,'insert',5,1,'Камень теней',1,1,20,0,1,1,3);
 INSERT INTO `ap_material` (`profession_id`, `entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (1,1529,'insert',3,2,'Нефрит',1,21,35,0,1,1,3);
 INSERT INTO `ap_material` (`profession_id`, `entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (1,1705,'insert',7,2,'Малый лунный камень',1,21,35,0,1,1,3);
+INSERT INTO `ap_material` (`profession_id`, `entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (1,2318,'base',0,0,'Тонкая кожа',1,0,0,3,0,0,0);
+INSERT INTO `ap_material` (`profession_id`, `entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (1,2319,'base',0,0,'Жесткая кожа',1,0,0,3,0,0,0);
 INSERT INTO `ap_material` (`profession_id`, `entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (1,2835,'base',0,0,'Грубый камень',1,0,0,7,0,0,0);
 INSERT INTO `ap_material` (`profession_id`, `entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (1,2836,'base',0,0,'Необработанный камень',1,0,0,7,0,0,0);
 INSERT INTO `ap_material` (`profession_id`, `entry`, `role`, `stat_type`, `stat_value`, `name_ru`, `enabled`, `ilvl_min`, `ilvl_max`, `part_kind_id`, `insert_type_id`, `quality_min`, `quality_max`) VALUES (1,2838,'base',0,0,'Тяжелый камень',1,0,0,7,0,0,0);
@@ -593,8 +595,8 @@ DELETE FROM `ap_merge`;
 INSERT INTO `ap_merge` (`id`, `name_ru`, `type_id`, `result_entry`, `teach_item`, `enabled`) VALUES (2,'Плавень стихий',0,18567,191084,1);
 
 DELETE FROM `ap_merge_item`;
+INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,1,185003);
+INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,2,185004);
+INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,3,185005);
+INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,4,185006);
 INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,0,185007);
-INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,4,185003);
-INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,1,185004);
-INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,2,185005);
-INSERT INTO `ap_merge_item` (`merge_id`, `idx`, `item_entry`) VALUES (2,3,185006);
