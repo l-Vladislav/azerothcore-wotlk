@@ -13,7 +13,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (483, 'spell_
 
 DELETE FROM `ap_config`;
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('base_chance','75','Шанс успеха при разрыве навык-сложность, равном нулю, %');
-INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('catalog_version','976','Версия каталога окна (справочники, типы, ячейки, материалы, фильтры): аддон держит его в кэше и просит только при расхождении');
+INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('catalog_version','977','Версия каталога окна (справочники, типы, ячейки, материалы, фильтры): аддон держит его в кэше и просит только при расхождении');
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('chance_step','1','На сколько % меняется шанс за каждую единицу разрыва');
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('craft_sound','4614','SoundEntries удара молота во время ковки (4614 - BlackSmithCrafting); 0 - без звука');
 INSERT INTO `ap_config` (`name`, `value`, `comment`) VALUES ('craft_sound_ms','2500','Шаг между ударами молота в миллисекундах; 0 - без звука');
@@ -705,10 +705,8 @@ INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `r
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85302,'Ятаган Атуна','774,774',1,184135,1469,1,191011,0);
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85303,'Короткий меч Ночного дозора','185008,185008,185008',1,184142,935,1,190002,0);
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85304,'Клинок Многоглаза','818,818,185008',1,184143,12976,1,191019,0);
-INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85305,'Дикий клинок','774',1,184135,4766,0,191327,0);
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85306,'Зубчатый короткий меч со знаком интеллекта','1210',1,184133,180023,0,191014,0);
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85307,'Короткий разбойничий меч обезьяны','774,185008',1,184133,180024,1,191016,0);
-INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85308,'Украшенный эмалью палаш','818',1,184135,4765,0,191328,0);
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85310,'Короткий разбойничий меч с печатью выносливости','185008,185008',1,184135,180018,1,191017,0);
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85311,'Северный короткий меч обезьяны','774,185008',1,184135,180025,1,191008,0);
 INSERT INTO `ap_synergy` (`id`, `name_ru`, `pattern`, `enabled`, `recipe_id`, `result_entry`, `order_matters`, `teach_item`, `catalyst_entry`) VALUES (85312,'Черноводная абордажная сабля','774,774',1,184134,1951,1,191000,0);
