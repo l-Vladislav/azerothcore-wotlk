@@ -459,28 +459,28 @@ INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VA
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184212,3,12359,2);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184212,4,12359,4);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184269,1,4470,1);
-INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184269,3,2840,3);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184269,3,2840,6);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184270,1,4470,1);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184270,2,2318,1);
-INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184270,3,2840,4);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184270,3,2840,8);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184271,1,4470,1);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184271,2,2319,1);
-INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184271,3,2841,4);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184271,3,2841,8);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184272,1,4470,1);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184272,2,2319,1);
-INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184272,3,2841,6);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184272,3,2841,10);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184273,1,4470,1);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184273,2,2319,1);
-INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184273,3,3575,5);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184273,3,3575,8);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184274,1,4470,1);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184274,2,4234,1);
-INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184274,3,3859,5);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184274,3,3859,8);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184275,1,4470,1);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184275,2,4234,1);
-INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184275,3,3860,5);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184275,3,3860,8);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184276,1,4470,1);
 INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184276,2,8170,1);
-INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184276,3,12359,5);
+INSERT INTO `ap_recipe_item` (`recipe_id`, `part_idx`, `item_entry`, `count`) VALUES (184276,3,12359,10);
 
 DELETE FROM `ap_recipe_material`;
 
