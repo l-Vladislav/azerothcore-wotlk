@@ -152,7 +152,8 @@ services:
         l-Vladislav/StatBooster@master,
         l-Vladislav/mod-ollama-chat@main,
         l-Vladislav/mod-world-items@main,
-        l-Vladislav/mod-worn-drops@main
+        l-Vladislav/mod-worn-drops@main,
+        l-Vladislav/mod-ah-bot-plus@master
     ports:
       - "${ADMIN_PANEL_BIND:-127.0.0.1}:8091:8091"
     volumes:
