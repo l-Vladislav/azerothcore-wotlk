@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS `ap_item_type` (
   `pool_lo` int unsigned NOT NULL DEFAULT '0' COMMENT 'Начало слайса пула: заготовки item_template с видом этого типа',
   `pool_hi` int unsigned NOT NULL DEFAULT '0' COMMENT 'Конец слайса пула включительно. 0 в паре с pool_lo - слайса нет, доводка этому типу недоступна',
   `profession_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'ap_profession.id: профессия типа',
+  `insert_mult` tinyint unsigned NOT NULL DEFAULT '1' COMMENT 'Множитель величины вставки в предмет типа',
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -257,6 +258,14 @@ DEALLOCATE PREPARE stmt;
 SET @has := (SELECT COUNT(*) FROM information_schema.columns
     WHERE table_schema = DATABASE() AND table_name = 'ap_material' AND column_name = 'profession_id');
 SET @ddl := IF(@has = 0, 'ALTER TABLE `ap_material` ADD COLUMN `profession_id` int unsigned NOT NULL DEFAULT ''0'' COMMENT ''ap_profession.id: профессия, в которой предмет работает этой строкой'' FIRST, DROP PRIMARY KEY, ADD PRIMARY KEY (`profession_id`, `entry`)', 'SELECT 1');
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Множитель величины вставки у типа
+SET @has := (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'ap_item_type' AND column_name = 'insert_mult');
+SET @ddl := IF(@has = 0, 'ALTER TABLE `ap_item_type` ADD COLUMN `insert_mult` tinyint unsigned NOT NULL DEFAULT ''1'' COMMENT ''Множитель величины вставки в предмет типа'' AFTER `profession_id`', 'SELECT 1');
 PREPARE stmt FROM @ddl;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
