@@ -11,10 +11,6 @@ INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `
 (1917190, 3860, 0, 33.3333, 0, 1, 1, 1, 1, 'Mithril Bar'),
 (1917190, 7909, 0, 0, 0, 1, 1, 1, 1, 'Aquamarine'),
 (1917190, 7971, 0, 0, 0, 1, 1, 1, 1, 'Black Pearl'),
-(1917200, 191720, 0, 33.3333, 0, 1, 1, 1, 1, 'Recipe: Eyegouger'),
-(1917200, 3860, 0, 33.3333, 0, 1, 1, 1, 1, 'Mithril Bar'),
-(1917200, 185001, 0, 0, 0, 1, 1, 1, 1, 'Превосходный нефрит'),
-(1917200, 3864, 0, 0, 0, 1, 1, 1, 1, 'Citrine'),
 (1917210, 191721, 0, 33.3333, 0, 1, 1, 1, 1, 'Recipe: Bonechewer'),
 (1917210, 3860, 0, 33.3333, 0, 1, 1, 1, 1, 'Mithril Bar'),
 (1917210, 3864, 0, 0, 0, 1, 1, 1, 1, 'Citrine'),
@@ -26,7 +22,6 @@ DROP TEMPORARY TABLE IF EXISTS `ap_tmp_single`;
 CREATE TEMPORARY TABLE `ap_tmp_single` (`original` int unsigned, `book` int unsigned, `comment` varchar(255));
 INSERT INTO `ap_tmp_single` VALUES
 (13058, 191719, 'Recipe: Khoo''s Point'),
-(9480, 191720, 'Recipe: Eyegouger'),
 (13055, 191721, 'Recipe: Bonechewer');
 
 DROP TEMPORARY TABLE IF EXISTS `ap_tmp_share`;
