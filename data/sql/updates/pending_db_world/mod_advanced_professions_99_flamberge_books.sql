@@ -1,8 +1,8 @@
 -- Книги эскизов основы двуручного меча «Фламберг»
 -- Поправки статов и уровня именных предметов - решения владельца.
-UPDATE `item_template` SET `stat_value1` = 2 WHERE `entry` = 3853 AND `stat_type1` = 7;
-UPDATE `item_template` SET `stat_value2` = 10 WHERE `entry` = 3853 AND `stat_type2` = 6;
-UPDATE `item_template` SET `stat_value3` = 10 WHERE `entry` = 13042 AND `stat_type3` = 7;
+UPDATE `item_template` SET `stat_value1` = 4 WHERE `entry` = 3853 AND `stat_type1` = 7;
+UPDATE `item_template` SET `stat_value2` = 12 WHERE `entry` = 3853 AND `stat_type2` = 6;
+UPDATE `item_template` SET `stat_value3` = 14 WHERE `entry` = 13042 AND `stat_type3` = 7;
 
 -- Таблица ссылок книги (номер книги × 10): книга, слиток основы и вставки эскиза.
 DELETE FROM `reference_loot_template` WHERE `Entry` IN (1918120, 1918150, 1918160, 1918170, 1918180);
