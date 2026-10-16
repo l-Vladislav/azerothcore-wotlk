@@ -17,7 +17,8 @@ INSERT INTO `ap_tmp_drop_base` VALUES
 (13148, 180641, 'Broken Chillpike'),
 (22314, 180642, 'Broken Huntsman''s Harpoon'),
 (18502, 180643, 'Broken Monstrous Glaive'),
-(12583, 180644, 'Broken Blackhand Doomsaw');
+(12583, 180644, 'Broken Blackhand Doomsaw'),
+(9480, 181071, 'Broken Eyegouger');
 DROP TEMPORARY TABLE IF EXISTS `ap_tmp_drop_book`;
 CREATE TEMPORARY TABLE `ap_tmp_drop_book` (`broken` int unsigned, `book` int unsigned, `n` int unsigned, `book_comment` varchar(255));
 INSERT INTO `ap_tmp_drop_book` VALUES
@@ -30,11 +31,12 @@ INSERT INTO `ap_tmp_drop_book` VALUES
 (180641, 191736, 1, 'Recipe: Chillpike'),
 (180642, 191737, 1, 'Recipe: Huntsman''s Harpoon'),
 (180643, 191738, 1, 'Recipe: Monstrous Glaive'),
-(180644, 191739, 1, 'Recipe: Blackhand Doomsaw');
+(180644, 191739, 1, 'Recipe: Blackhand Doomsaw'),
+(181071, 191720, 1, 'Recipe: Eyegouger');
 
 UPDATE `creature_loot_template` o JOIN `ap_tmp_drop_base` b ON b.`original` = o.`Item`
 SET o.`Item` = b.`broken`, o.`Comment` = b.`broken_comment` WHERE o.`Reference` = 0;
-DELETE FROM `creature_loot_template` WHERE `GroupId` = 20 AND `Item` IN (191730, 191731, 191732, 191733, 191734, 191735, 191736, 191737, 191738, 191739);
+DELETE FROM `creature_loot_template` WHERE `GroupId` = 20 AND `Item` IN (191730, 191731, 191732, 191733, 191734, 191735, 191736, 191737, 191738, 191739, 191720);
 INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`)
 SELECT o.`Entry`, b.`book`, 0, IF(o.`Chance` > 0, o.`Chance`, (100 - g.`explicit_sum`) / g.`equal_count`) / b.`n`,
        0, o.`LootMode`, 20, 1, 1, b.`book_comment`
@@ -47,7 +49,7 @@ WHERE o.`Reference` = 0;
 
 UPDATE `reference_loot_template` o JOIN `ap_tmp_drop_base` b ON b.`original` = o.`Item`
 SET o.`Item` = b.`broken`, o.`Comment` = b.`broken_comment` WHERE o.`Reference` = 0;
-DELETE FROM `reference_loot_template` WHERE `GroupId` = 20 AND `Item` IN (191730, 191731, 191732, 191733, 191734, 191735, 191736, 191737, 191738, 191739);
+DELETE FROM `reference_loot_template` WHERE `GroupId` = 20 AND `Item` IN (191730, 191731, 191732, 191733, 191734, 191735, 191736, 191737, 191738, 191739, 191720);
 INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`)
 SELECT o.`Entry`, b.`book`, 0, IF(o.`Chance` > 0, o.`Chance`, (100 - g.`explicit_sum`) / g.`equal_count`) / b.`n`,
        0, o.`LootMode`, 20, 1, 1, b.`book_comment`
@@ -60,7 +62,7 @@ WHERE o.`Reference` = 0;
 
 UPDATE `gameobject_loot_template` o JOIN `ap_tmp_drop_base` b ON b.`original` = o.`Item`
 SET o.`Item` = b.`broken`, o.`Comment` = b.`broken_comment` WHERE o.`Reference` = 0;
-DELETE FROM `gameobject_loot_template` WHERE `GroupId` = 20 AND `Item` IN (191730, 191731, 191732, 191733, 191734, 191735, 191736, 191737, 191738, 191739);
+DELETE FROM `gameobject_loot_template` WHERE `GroupId` = 20 AND `Item` IN (191730, 191731, 191732, 191733, 191734, 191735, 191736, 191737, 191738, 191739, 191720);
 INSERT INTO `gameobject_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`)
 SELECT o.`Entry`, b.`book`, 0, IF(o.`Chance` > 0, o.`Chance`, (100 - g.`explicit_sum`) / g.`equal_count`) / b.`n`,
        0, o.`LootMode`, 20, 1, 1, b.`book_comment`
@@ -73,7 +75,7 @@ WHERE o.`Reference` = 0;
 
 UPDATE `item_loot_template` o JOIN `ap_tmp_drop_base` b ON b.`original` = o.`Item`
 SET o.`Item` = b.`broken`, o.`Comment` = b.`broken_comment` WHERE o.`Reference` = 0;
-DELETE FROM `item_loot_template` WHERE `GroupId` = 20 AND `Item` IN (191730, 191731, 191732, 191733, 191734, 191735, 191736, 191737, 191738, 191739);
+DELETE FROM `item_loot_template` WHERE `GroupId` = 20 AND `Item` IN (191730, 191731, 191732, 191733, 191734, 191735, 191736, 191737, 191738, 191739, 191720);
 INSERT INTO `item_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`)
 SELECT o.`Entry`, b.`book`, 0, IF(o.`Chance` > 0, o.`Chance`, (100 - g.`explicit_sum`) / g.`equal_count`) / b.`n`,
        0, o.`LootMode`, 20, 1, 1, b.`book_comment`

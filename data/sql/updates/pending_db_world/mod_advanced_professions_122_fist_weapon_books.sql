@@ -29,7 +29,6 @@ INSERT INTO `ap_tmp_single` VALUES
 (11603, 192183, 'Recipe: Vilerend Slicer'),
 (11743, 192184, 'Recipe: Rockfist'),
 (18462, 192185, 'Recipe: Jagged Bone Fist'),
-(22317, 192186, 'Recipe: Lefty''s Brass Knuckle'),
 (18202, 192188, 'Recipe: Eskhandar''s Left Claw');
 
 DROP TEMPORARY TABLE IF EXISTS `ap_tmp_share`;

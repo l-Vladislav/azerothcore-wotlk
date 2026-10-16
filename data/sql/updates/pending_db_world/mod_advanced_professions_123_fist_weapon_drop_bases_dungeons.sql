@@ -9,7 +9,8 @@ INSERT INTO `ap_tmp_drop_base` VALUES
 (11744, 181061, 'Broken Bloodfist'),
 (13399, 181062, 'Broken Gargoyle Shredder Talons'),
 (13198, 181063, 'Broken Hurd Smasher'),
-(22404, 181064, 'Broken Willey''s Back Scratcher');
+(22404, 181064, 'Broken Willey''s Back Scratcher'),
+(22317, 181073, 'Broken Lefty''s Brass Knuckle');
 DROP TEMPORARY TABLE IF EXISTS `ap_tmp_drop_book`;
 CREATE TEMPORARY TABLE `ap_tmp_drop_book` (`broken` int unsigned, `book` int unsigned, `n` int unsigned, `book_comment` varchar(255));
 INSERT INTO `ap_tmp_drop_book` VALUES
@@ -18,11 +19,12 @@ INSERT INTO `ap_tmp_drop_book` VALUES
 (181061, 192191, 1, 'Recipe: Bloodfist'),
 (181062, 192192, 1, 'Recipe: Gargoyle Shredder Talons'),
 (181063, 192193, 1, 'Recipe: Hurd Smasher'),
-(181064, 192194, 1, 'Recipe: Willey''s Back Scratcher');
+(181064, 192194, 1, 'Recipe: Willey''s Back Scratcher'),
+(181073, 192186, 1, 'Recipe: Lefty''s Brass Knuckle');
 
 UPDATE `creature_loot_template` o JOIN `ap_tmp_drop_base` b ON b.`original` = o.`Item`
 SET o.`Item` = b.`broken`, o.`Comment` = b.`broken_comment` WHERE o.`Reference` = 0;
-DELETE FROM `creature_loot_template` WHERE `GroupId` = 20 AND `Item` IN (192189, 192190, 192191, 192192, 192193, 192194);
+DELETE FROM `creature_loot_template` WHERE `GroupId` = 20 AND `Item` IN (192189, 192190, 192191, 192192, 192193, 192194, 192186);
 INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`)
 SELECT o.`Entry`, b.`book`, 0, IF(o.`Chance` > 0, o.`Chance`, (100 - g.`explicit_sum`) / g.`equal_count`) / b.`n`,
        0, o.`LootMode`, 20, 1, 1, b.`book_comment`
@@ -35,7 +37,7 @@ WHERE o.`Reference` = 0;
 
 UPDATE `reference_loot_template` o JOIN `ap_tmp_drop_base` b ON b.`original` = o.`Item`
 SET o.`Item` = b.`broken`, o.`Comment` = b.`broken_comment` WHERE o.`Reference` = 0;
-DELETE FROM `reference_loot_template` WHERE `GroupId` = 20 AND `Item` IN (192189, 192190, 192191, 192192, 192193, 192194);
+DELETE FROM `reference_loot_template` WHERE `GroupId` = 20 AND `Item` IN (192189, 192190, 192191, 192192, 192193, 192194, 192186);
 INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`)
 SELECT o.`Entry`, b.`book`, 0, IF(o.`Chance` > 0, o.`Chance`, (100 - g.`explicit_sum`) / g.`equal_count`) / b.`n`,
        0, o.`LootMode`, 20, 1, 1, b.`book_comment`
@@ -48,7 +50,7 @@ WHERE o.`Reference` = 0;
 
 UPDATE `gameobject_loot_template` o JOIN `ap_tmp_drop_base` b ON b.`original` = o.`Item`
 SET o.`Item` = b.`broken`, o.`Comment` = b.`broken_comment` WHERE o.`Reference` = 0;
-DELETE FROM `gameobject_loot_template` WHERE `GroupId` = 20 AND `Item` IN (192189, 192190, 192191, 192192, 192193, 192194);
+DELETE FROM `gameobject_loot_template` WHERE `GroupId` = 20 AND `Item` IN (192189, 192190, 192191, 192192, 192193, 192194, 192186);
 INSERT INTO `gameobject_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`)
 SELECT o.`Entry`, b.`book`, 0, IF(o.`Chance` > 0, o.`Chance`, (100 - g.`explicit_sum`) / g.`equal_count`) / b.`n`,
        0, o.`LootMode`, 20, 1, 1, b.`book_comment`
@@ -61,7 +63,7 @@ WHERE o.`Reference` = 0;
 
 UPDATE `item_loot_template` o JOIN `ap_tmp_drop_base` b ON b.`original` = o.`Item`
 SET o.`Item` = b.`broken`, o.`Comment` = b.`broken_comment` WHERE o.`Reference` = 0;
-DELETE FROM `item_loot_template` WHERE `GroupId` = 20 AND `Item` IN (192189, 192190, 192191, 192192, 192193, 192194);
+DELETE FROM `item_loot_template` WHERE `GroupId` = 20 AND `Item` IN (192189, 192190, 192191, 192192, 192193, 192194, 192186);
 INSERT INTO `item_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`)
 SELECT o.`Entry`, b.`book`, 0, IF(o.`Chance` > 0, o.`Chance`, (100 - g.`explicit_sum`) / g.`equal_count`) / b.`n`,
        0, o.`LootMode`, 20, 1, 1, b.`book_comment`
