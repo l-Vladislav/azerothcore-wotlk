@@ -1,6 +1,6 @@
 -- Книги эскизов основы древкового «Ториевая алебарда»
 -- Таблица ссылок книги (номер книги × 10): книга, слиток основы и вставки эскиза.
-DELETE FROM `reference_loot_template` WHERE `Entry` IN (1917230, 1917240, 1917250, 1917270, 1917290);
+DELETE FROM `reference_loot_template` WHERE `Entry` IN (1917230, 1917240, 1917250, 1917270);
 INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES
 (1917230, 191723, 0, 33.3333, 0, 1, 1, 1, 1, 'Recipe: Stoneraven'),
 (1917230, 12359, 0, 33.3333, 0, 1, 1, 1, 1, 'Thorium Bar'),
@@ -18,11 +18,7 @@ INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `
 (1917270, 191727, 0, 33.3333, 0, 1, 1, 1, 1, 'Recipe: Stonecutting Glaive'),
 (1917270, 12359, 0, 33.3333, 0, 1, 1, 1, 1, 'Thorium Bar'),
 (1917270, 7910, 0, 0, 0, 1, 1, 1, 1, 'Star Ruby'),
-(1917270, 12364, 0, 0, 0, 1, 1, 1, 1, 'Huge Emerald'),
-(1917290, 191729, 0, 33.3333, 0, 1, 1, 1, 1, 'Recipe: Hellreaver'),
-(1917290, 12359, 0, 33.3333, 0, 1, 1, 1, 1, 'Thorium Bar'),
-(1917290, 7910, 0, 0, 0, 1, 1, 1, 1, 'Star Ruby'),
-(1917290, 12799, 0, 0, 0, 1, 1, 1, 1, 'Large Opal');
+(1917270, 12364, 0, 0, 0, 1, 1, 1, 1, 'Huge Emerald');
 
 -- Предмет с одной книгой: книга занимает его строки с тем же шансом и группой;
 -- строка с долей от 4 % ссылается на таблицу книги.
@@ -32,8 +28,7 @@ INSERT INTO `ap_tmp_single` VALUES
 (13059, 191723, 'Recipe: Stoneraven'),
 (13056, 191724, 'Recipe: Frenzied Striker'),
 (13060, 191725, 'Recipe: The Needler'),
-(20660, 191727, 'Recipe: Stonecutting Glaive'),
-(24044, 191729, 'Recipe: Hellreaver');
+(20660, 191727, 'Recipe: Stonecutting Glaive');
 
 DROP TEMPORARY TABLE IF EXISTS `ap_tmp_share`;
 CREATE TEMPORARY TABLE `ap_tmp_share` (`tbl` varchar(16), `Entry` int unsigned, `Item` int unsigned, `share` float);
