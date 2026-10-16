@@ -2,7 +2,7 @@
 -- Поправки статов и уровня именных предметов - решения владельца.
 UPDATE `item_template` SET `stat_value1` = 8 WHERE `entry` = 2084 AND `stat_type1` = 4;
 UPDATE `item_template` SET `stat_value2` = 7 WHERE `entry` = 2084 AND `stat_type2` = 6;
-UPDATE `item_template` SET `stat_value1` = 8 WHERE `entry` = 2877 AND `stat_type1` = 6;
+UPDATE `item_template` SET `stat_value1` = 11 WHERE `entry` = 2877 AND `stat_type1` = 6;
 UPDATE `item_template` SET `stat_value2` = 8 WHERE `entry` = 2877 AND `stat_type2` = 7;
 
 -- Таблица ссылок книги (номер книги × 10): книга, слиток основы и вставки эскиза.
