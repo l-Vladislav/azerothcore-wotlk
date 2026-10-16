@@ -57,10 +57,19 @@ CREATE TABLE IF NOT EXISTS `ap_item_type` (
   `pool_lo` int unsigned NOT NULL DEFAULT '0' COMMENT 'Начало слайса пула: заготовки item_template с видом этого типа',
   `pool_hi` int unsigned NOT NULL DEFAULT '0' COMMENT 'Конец слайса пула включительно. 0 в паре с pool_lo - слайса нет, доводка этому типу недоступна',
   `profession_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'ap_profession.id: профессия типа',
-  `insert_mult` tinyint unsigned NOT NULL DEFAULT '1' COMMENT 'Множитель величины вставки в предмет типа',
+  `insert_mult` decimal(3,1) unsigned NOT NULL DEFAULT '1.0' COMMENT 'Множитель величины вставки в предмет типа; величина камня округляется вниз',
+  `inventory_type` tinyint unsigned NOT NULL DEFAULT '0' COMMENT 'Слот брони (InventoryType, мантия = 5); 0 - тип не привязан к слоту',
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE IF NOT EXISTS `ap_type_subclass` (
+  `type_id` int unsigned NOT NULL,
+  `item_subclass` tinyint unsigned NOT NULL,
+  `ilvl_min` smallint unsigned NOT NULL DEFAULT '0' COMMENT '0 - без нижней границы',
+  `ilvl_max` smallint unsigned NOT NULL DEFAULT '0' COMMENT '0 - без верхней границы',
+  PRIMARY KEY (`type_id`, `item_subclass`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Окна подклассов типа: подкласс предметов игры и полоса ilvl, в которой они относятся к типу. Нет строк - тип держит item_subclass';
 
 CREATE TABLE IF NOT EXISTS `ap_type_part` (
   `type_id` int unsigned NOT NULL,
@@ -266,6 +275,21 @@ DEALLOCATE PREPARE stmt;
 SET @has := (SELECT COUNT(*) FROM information_schema.columns
     WHERE table_schema = DATABASE() AND table_name = 'ap_item_type' AND column_name = 'insert_mult');
 SET @ddl := IF(@has = 0, 'ALTER TABLE `ap_item_type` ADD COLUMN `insert_mult` tinyint unsigned NOT NULL DEFAULT ''1'' COMMENT ''Множитель величины вставки в предмет типа'' AFTER `profession_id`', 'SELECT 1');
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Дробный множитель вставки и слот брони у типа
+SET @has := (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'ap_item_type' AND column_name = 'insert_mult' AND data_type = 'tinyint');
+SET @ddl := IF(@has > 0, 'ALTER TABLE `ap_item_type` MODIFY COLUMN `insert_mult` decimal(3,1) unsigned NOT NULL DEFAULT ''1.0'' COMMENT ''Множитель величины вставки в предмет типа; величина камня округляется вниз''', 'SELECT 1');
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @has := (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'ap_item_type' AND column_name = 'inventory_type');
+SET @ddl := IF(@has = 0, 'ALTER TABLE `ap_item_type` ADD COLUMN `inventory_type` tinyint unsigned NOT NULL DEFAULT ''0'' COMMENT ''Слот брони (InventoryType, мантия = 5); 0 - тип не привязан к слоту'' AFTER `insert_mult`', 'SELECT 1');
 PREPARE stmt FROM @ddl;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
