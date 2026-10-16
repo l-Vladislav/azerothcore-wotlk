@@ -2,14 +2,14 @@
 -- Сломанный предмет встаёт в строку оригинала, книга эскиза - в группу именных рецептов (GroupId 20)
 -- с тем же шансом. Доля в группе с равными шансами записывается явным шансом.
 -- Поправки статов и уровня именных предметов - решения владельца.
-UPDATE `item_template` SET `stat_value3` = 6 WHERE `entry` = 3417 AND `stat_type3` = 4;
-UPDATE `item_template` SET `stat_value1` = 5 WHERE `entry` = 3417 AND `stat_type1` = 6;
-UPDATE `item_template` SET `stat_value1` = 11 WHERE `entry` = 1975 AND `stat_type1` = 6;
-UPDATE `item_template` SET `stat_value1` = 11 WHERE `entry` = 9490 AND `stat_type1` = 4;
-UPDATE `item_template` SET `stat_value1` = 10 WHERE `entry` = 7689 AND `stat_type1` = 7;
-UPDATE `item_template` SET `stat_value2` = 6 WHERE `entry` = 7689 AND `stat_type2` = 4;
+UPDATE `item_template` SET `stat_value3` = 9 WHERE `entry` = 3417 AND `stat_type3` = 4;
+UPDATE `item_template` SET `stat_value1` = 6 WHERE `entry` = 3417 AND `stat_type1` = 6;
+UPDATE `item_template` SET `stat_value1` = 13 WHERE `entry` = 1975 AND `stat_type1` = 6;
+UPDATE `item_template` SET `stat_value1` = 14 WHERE `entry` = 9490 AND `stat_type1` = 4;
+UPDATE `item_template` SET `stat_value1` = 12 WHERE `entry` = 7689 AND `stat_type1` = 7;
+UPDATE `item_template` SET `stat_value2` = 8 WHERE `entry` = 7689 AND `stat_type2` = 4;
 UPDATE `item_template` SET `stat_value1` = 8 WHERE `entry` = 10573 AND `stat_type1` = 7;
-UPDATE `item_template` SET `stat_value3` = 4 WHERE `entry` = 10573 AND `stat_type3` = 3;
+UPDATE `item_template` SET `stat_value3` = 5 WHERE `entry` = 10573 AND `stat_type3` = 3;
 DROP TEMPORARY TABLE IF EXISTS `ap_tmp_drop_base`;
 CREATE TEMPORARY TABLE `ap_tmp_drop_base` (`original` int unsigned, `broken` int unsigned, `broken_comment` varchar(255));
 INSERT INTO `ap_tmp_drop_base` VALUES

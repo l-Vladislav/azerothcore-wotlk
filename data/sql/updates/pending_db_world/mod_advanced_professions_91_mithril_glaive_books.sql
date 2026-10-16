@@ -1,8 +1,8 @@
 -- Книги эскизов основы древкового «Мифриловая глефа»
 -- Поправки статов и уровня именных предметов - решения владельца.
-UPDATE `item_template` SET `stat_value1` = 18 WHERE `entry` = 13058 AND `stat_type1` = 7;
-UPDATE `item_template` SET `stat_value1` = 18 WHERE `entry` = 9480 AND `stat_type1` = 3;
-UPDATE `item_template` SET `stat_value1` = 18 WHERE `entry` = 13055 AND `stat_type1` = 4;
+UPDATE `item_template` SET `stat_value1` = 20 WHERE `entry` = 13058 AND `stat_type1` = 7;
+UPDATE `item_template` SET `stat_value1` = 22 WHERE `entry` = 9480 AND `stat_type1` = 3;
+UPDATE `item_template` SET `stat_value1` = 22 WHERE `entry` = 13055 AND `stat_type1` = 4;
 
 -- Таблица ссылок книги (номер книги × 10): книга, слиток основы и вставки эскиза.
 DELETE FROM `reference_loot_template` WHERE `Entry` IN (1917190, 1917200, 1917210);

@@ -1,7 +1,7 @@
 -- Книги эскизов основы двуручного меча «Цвайхандер»
 -- Поправки статов и уровня именных предметов - решения владельца.
-UPDATE `item_template` SET `stat_value1` = 18 WHERE `entry` = 13043 AND `stat_type1` = 7;
-UPDATE `item_template` SET `stat_value1` = 20 WHERE `entry` = 12764 AND `stat_type1` = 4;
+UPDATE `item_template` SET `stat_value1` = 22 WHERE `entry` = 13043 AND `stat_type1` = 7;
+UPDATE `item_template` SET `stat_value1` = 22 WHERE `entry` = 12764 AND `stat_type1` = 4;
 
 -- Таблица ссылок книги (номер книги × 10): книга, слиток основы и вставки эскиза.
 DELETE FROM `reference_loot_template` WHERE `Entry` IN (1918340, 1918350, 1918380);

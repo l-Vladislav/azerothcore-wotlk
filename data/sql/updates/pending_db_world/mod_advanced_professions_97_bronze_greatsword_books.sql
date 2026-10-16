@@ -1,7 +1,7 @@
 -- Книги эскизов основы двуручного меча «Бронзовый длинный меч»
 -- Поправки статов и уровня именных предметов - решения владельца.
-UPDATE `item_template` SET `stat_value1` = 6 WHERE `entry` = 2014 AND `stat_type1` = 4;
-UPDATE `item_template` SET `stat_value2` = 6 WHERE `entry` = 2014 AND `stat_type2` = 7;
+UPDATE `item_template` SET `stat_value1` = 7 WHERE `entry` = 2014 AND `stat_type1` = 4;
+UPDATE `item_template` SET `stat_value2` = 7 WHERE `entry` = 2014 AND `stat_type2` = 7;
 
 -- Таблица ссылок книги (номер книги × 10): книга, слиток основы и вставки эскиза.
 DELETE FROM `reference_loot_template` WHERE `Entry` IN (1917840, 1917850, 1917860, 1917880);

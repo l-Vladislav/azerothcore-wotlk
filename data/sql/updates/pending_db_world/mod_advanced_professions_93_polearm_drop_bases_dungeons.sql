@@ -2,9 +2,9 @@
 -- Сломанный предмет встаёт в строку оригинала, книга эскиза - в группу именных рецептов (GroupId 20)
 -- с тем же шансом. Доля в группе с равными шансами записывается явным шансом.
 -- Поправки статов и уровня именных предметов - решения владельца.
-UPDATE `item_template` SET `stat_value1` = 10 WHERE `entry` = 9416 AND `stat_type1` = 3;
-UPDATE `item_template` SET `stat_value2` = 8 WHERE `entry` = 9416 AND `stat_type2` = 4;
-UPDATE `item_template` SET `stat_value3` = 10 WHERE `entry` = 9416 AND `stat_type3` = 7;
+UPDATE `item_template` SET `stat_value1` = 11 WHERE `entry` = 9416 AND `stat_type1` = 3;
+UPDATE `item_template` SET `stat_value2` = 10 WHERE `entry` = 9416 AND `stat_type2` = 4;
+UPDATE `item_template` SET `stat_value3` = 11 WHERE `entry` = 9416 AND `stat_type3` = 7;
 DROP TEMPORARY TABLE IF EXISTS `ap_tmp_drop_base`;
 CREATE TEMPORARY TABLE `ap_tmp_drop_base` (`original` int unsigned, `broken` int unsigned, `broken_comment` varchar(255));
 INSERT INTO `ap_tmp_drop_base` VALUES

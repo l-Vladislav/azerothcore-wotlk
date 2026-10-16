@@ -1,6 +1,6 @@
 -- Книги эскизов основы древкового «Бронзовое копье»
 -- Поправки статов и уровня именных предметов - решения владельца.
-UPDATE `item_template` SET `stat_value1` = 2 WHERE `entry` = 1406 AND `stat_type1` = 7;
+UPDATE `item_template` SET `stat_value1` = 3 WHERE `entry` = 1406 AND `stat_type1` = 7;
 UPDATE `item_template` SET `stat_value1` = 8 WHERE `entry` = 5200 AND `stat_type1` = 3;
 
 -- Таблица ссылок книги (номер книги × 10): книга, слиток основы и вставки эскиза.
